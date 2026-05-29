@@ -662,7 +662,7 @@ function SettingsTab({ t, lang, setLang, unit, setUnit, darkMode, setDarkMode,
         <div className="about-content">
           <span>{t.ver}</span>
           <span>{t.lic}</span>
-          <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="gh-link">🔗 {t.gh}</a>
+          <a href="https://github.com/alfram89/GymTrack" target="_blank" rel="noopener noreferrer" className="gh-link">🔗 {t.gh}</a>
         </div>
       </div>
     </div>
