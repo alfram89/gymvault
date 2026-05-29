@@ -14,10 +14,12 @@ const fmtTime = s => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0
 const fmtDate = d => new Date(d).toLocaleDateString()
 const mc = mg => MUSCLE_COLORS[mg] || '#6b7280'
 const isCardioSet = s => s.duration !== undefined
-const calcVol = sets => {
+const calcVol = ex => {
+  if (ex.isWarmup) return 0
+  const sets = ex.sets
   if (sets.length && isCardioSet(sets[0]))
     return sets.filter(s => s.completed).reduce((t, s) => t + (s.duration || 0), 0)
-  return sets.filter(s => !s.isWarmup && s.completed).reduce((t, s) => t + (s.weight || 0) * (s.reps || 0), 0)
+  return sets.filter(s => s.completed).reduce((t, s) => t + (s.weight || 0) * (s.reps || 0), 0)
 }
 const fmtCardioVal = (metric, val) => {
   if (metric === 'duration') return fmtTime(val || 0)
@@ -200,7 +202,7 @@ function ProgramTab({ t, days, selectedDay, setSelectedDay, program, setProgram,
   })
   const updSet = (ei, si, f, v) => updEx(ei, ex => ({ ...ex, sets: ex.sets.map((s, i) => i === si ? { ...s, [f]: v } : s) }))
   const addSet = ei => updEx(ei, ex => {
-    const last = ex.sets[ex.sets.length - 1] || { reps: 10, weight: 0, isWarmup: false }
+    const last = ex.sets[ex.sets.length - 1] || { reps: 10, weight: 0 }
     return { ...ex, sets: [...ex.sets, { ...last, id: uid(), completed: false }] }
   })
   const remSet = (ei, si) => updEx(ei, ex => ex.sets.length <= 1 ? ex : { ...ex, sets: ex.sets.filter((_, i) => i !== si) })
@@ -253,7 +255,7 @@ function ProgramTab({ t, days, selectedDay, setSelectedDay, program, setProgram,
           const lastEx = lastSession?.exercises?.find(e => e.exerciseId === ex.exerciseId)
 
           return (
-            <div key={ex.id} className="ex-card" style={{ borderLeftColor: color }}
+            <div key={ex.id} className={`ex-card ${ex.isWarmup ? 'warmup-exercise' : ''}`} style={{ borderLeftColor: ex.isWarmup ? '#f59e0b' : color }}
               draggable onDragStart={() => onDragStart(ei)}
               onDragOver={e => e.preventDefault()} onDrop={() => onDrop(ei)}>
 
@@ -266,6 +268,12 @@ function ProgramTab({ t, days, selectedDay, setSelectedDay, program, setProgram,
                   </div>
                 </div>
                 <div className="ex-actions">
+                  {!workoutActive && (
+                    <button className={`warmup-chip ${ex.isWarmup ? 'active' : ''}`}
+                      onClick={() => updEx(ei, e => ({ ...e, isWarmup: !e.isWarmup }))}>
+                      {ex.isWarmup ? '🔥' : t.warmupEx}
+                    </button>
+                  )}
                   <span className="drag-handle">⠿</span>
                   {!workoutActive && <button className="remove-btn" onClick={() => remEx(ei)}>✕</button>}
                 </div>
@@ -281,7 +289,7 @@ function ProgramTab({ t, days, selectedDay, setSelectedDay, program, setProgram,
               )}
 
               <div className="sets-header">
-                <span>#</span><span>{t.reps}</span><span>{t.wt}</span><span>{t.wu}</span><span></span>
+                <span>#</span><span>{t.reps}</span><span>{t.wt}</span><span></span>
               </div>
 
               {ex.sets.map((set, si) => {
@@ -306,10 +314,6 @@ function ProgramTab({ t, days, selectedDay, setSelectedDay, program, setProgram,
                         placeholder={lastSet ? String(lastSet.weight) : '0'}
                         className="set-input" />
                       {lastSet && !workoutActive && <div className="set-hint">{lastSet.weight}</div>}
-                    </div>
-                    <div className="warmup-cell">
-                      <input type="checkbox" checked={set.isWarmup} disabled={workoutActive}
-                        onChange={e => updSet(ei, si, 'isWarmup', e.target.checked)} />
                     </div>
                     <div className="complete-cell">
                       {workoutActive ? (
@@ -351,6 +355,7 @@ function LibraryTab({ t, days, program, setProgram, customEx, setCustomEx }) {
   const [fE, setFE] = useState('all')
   const [fD, setFD] = useState('all')
   const [addModal, setAddModal] = useState(null)
+  const [warmupChoice, setWarmupChoice] = useState(false)
   const [custModal, setCustModal] = useState(false)
   const [form, setForm] = useState({ name: '', mg: 'chest', eq: 'barbell', dif: 'intermediate' })
 
@@ -364,17 +369,18 @@ function LibraryTab({ t, days, program, setProgram, customEx, setCustomEx }) {
   })
   const grouped = Object.entries(filtered.reduce((a, e) => { (a[e.mg] ||= []).push(e); return a }, {}))
 
-  const addToDay = (ex, dayId) => {
+  const addToDay = (ex, dayId, warmup) => {
     setProgram(prev => {
       const initialSet = ex.type === 'cardio'
         ? newCardioInterval(ex.metrics || ['duration'])
-        : { id: uid(), reps: 10, weight: 0, isWarmup: false }
-      const ne = { id: uid(), exerciseId: ex.id, sets: [initialSet], restTime: ex.type === 'cardio' ? 0 : 90 }
+        : { id: uid(), reps: 10, weight: 0, completed: false }
+      const ne = { id: uid(), exerciseId: ex.id, isWarmup: !!warmup, sets: [initialSet], restTime: ex.type === 'cardio' ? 0 : 90 }
       return { ...prev, [dayId]: [...(prev[dayId] || []), ne] }
     })
     setAddModal(null)
+    setWarmupChoice(false)
   }
-  const handleAdd = ex => { if (days.length === 1) addToDay(ex, days[0].id); else setAddModal(ex) }
+  const handleAdd = ex => setAddModal(ex)
   const createCustom = () => {
     if (!form.name.trim()) return
     setCustomEx(p => [...p, { id: uid(), ...form, custom: true }])
@@ -433,13 +439,23 @@ function LibraryTab({ t, days, program, setProgram, customEx, setCustomEx }) {
       ))}
 
       {addModal && (
-        <Modal onClose={() => setAddModal(null)}>
+        <Modal onClose={() => { setAddModal(null); setWarmupChoice(false) }}>
           <h3 className="modal-title">{addModal.name}</h3>
-          <p className="modal-sub">{t.selDayP}</p>
+          <div className="warmup-toggle-row">
+            {[[false, t.workingEx], [true, t.warmupEx]].map(([val, label]) => (
+              <button key={String(val)}
+                className={`toggle-btn ${warmupChoice === val ? 'active' : ''}`}
+                onClick={() => setWarmupChoice(val)}>
+                {val ? '🔥 ' : ''}{label}
+              </button>
+            ))}
+          </div>
+          <p className="modal-sub" style={{ marginTop: 12 }}>{days.length > 1 ? t.selDayP : ''}</p>
           {days.map(d => (
-            <button key={d.id} className="primary-btn" style={{ marginBottom: 8 }} onClick={() => addToDay(addModal, d.id)}>{d.name}</button>
+            <button key={d.id} className="primary-btn" style={{ marginBottom: 8 }}
+              onClick={() => addToDay(addModal, d.id, warmupChoice)}>{d.name}</button>
           ))}
-          <button className="ghost-btn" onClick={() => setAddModal(null)}>{t.cancel}</button>
+          <button className="ghost-btn" onClick={() => { setAddModal(null); setWarmupChoice(false) }}>{t.cancel}</button>
         </Modal>
       )}
 
@@ -474,24 +490,25 @@ function HistoryTab({ t, history, days, unit }) {
   const filtered = fDay === 'all' ? history : history.filter(h => h.dayId === fDay)
 
   const prs = {}
-  history.forEach(sess => sess.exercises.forEach(ex =>
-    ex.sets.filter(s => !s.isWarmup && s.completed && (s.weight || 0) > 0).forEach(s => {
+  history.forEach(sess => sess.exercises.forEach(ex => {
+    if (ex.isWarmup) return
+    ex.sets.filter(s => s.completed && (s.weight || 0) > 0).forEach(s => {
       if (!prs[ex.exerciseId] || s.weight > prs[ex.exerciseId].weight)
         prs[ex.exerciseId] = { weight: s.weight, name: ex.exerciseName, date: sess.date }
     })
-  ))
+  }))
 
   const histEx = [...new Set(history.flatMap(h => h.exercises.map(e => e.exerciseId)))]
     .map(id => ({ id, name: history.flatMap(h => h.exercises).find(e => e.exerciseId === id)?.exerciseName || id }))
 
-  const progData = [...history].filter(h => h.exercises.some(e => e.exerciseId === selEx)).reverse().map(h => {
-    const ex = h.exercises.find(e => e.exerciseId === selEx)
-    const mw = Math.max(0, ...ex.sets.filter(s => !s.isWarmup && s.completed && s.weight > 0).map(s => s.weight))
+  const progData = [...history].filter(h => h.exercises.some(e => e.exerciseId === selEx && !e.isWarmup)).reverse().map(h => {
+    const ex = h.exercises.find(e => e.exerciseId === selEx && !e.isWarmup)
+    const mw = Math.max(0, ...ex.sets.filter(s => s.completed && s.weight > 0).map(s => s.weight))
     return { date: h.date.slice(5), weight: mw }
   })
 
   const weekVol = {}
-  history.forEach(h => { const w = weekOf(h.date); weekVol[w] = (weekVol[w] || 0) + h.exercises.reduce((t, ex) => t + calcVol(ex.sets), 0) })
+  history.forEach(h => { const w = weekOf(h.date); weekVol[w] = (weekVol[w] || 0) + h.exercises.reduce((t, ex) => t + calcVol(ex), 0) })
   const volData = Object.entries(weekVol).sort(([a], [b]) => a > b ? 1 : -1).slice(-8).map(([w, v]) => ({ w: w.slice(5), v: Math.round(v) }))
 
   const trained = new Set(history.map(h => h.date))
@@ -621,14 +638,17 @@ function HistoryTab({ t, history, days, unit }) {
               <h3 className="modal-title">{viewSess.dayName}</h3>
               <p className="modal-sub">{fmtDate(viewSess.date)} · {fmtTime(viewSess.duration)}</p>
             </div>
-            <span className="session-vol">{Math.round(viewSess.exercises.reduce((t, ex) => t + calcVol(ex.sets), 0))} {unit}</span>
+            <span className="session-vol">{Math.round(viewSess.exercises.reduce((t, ex) => t + calcVol(ex), 0))} {unit}</span>
           </div>
           <div className="session-detail">
             {viewSess.exercises.map((ex, i) => {
               const cardio = ex.sets.length && isCardioSet(ex.sets[0])
               return (
                 <div key={i} className="sess-ex" style={{ borderLeftColor: mc(ex.mg || ex.muscleGroup) }}>
-                  <div className="sess-ex-name">{ex.exerciseName}</div>
+                  <div className="sess-ex-name">
+                  {ex.exerciseName}
+                  {ex.isWarmup && <span className="warmup-badge">🔥 {t.warmupEx}</span>}
+                </div>
                   {ex.sets.map((s, j) => (
                     <div key={j} className={`sess-set ${s.isWarmup ? 'warmup' : ''}`}>
                       <span>{cardio ? t.interval : 'Set'} {j + 1}</span>
@@ -899,15 +919,16 @@ export default function App() {
       duration,
       exercises: curProg.map(ex => {
         const ed = allEx.find(e => e.id === ex.exerciseId)
-        return { exerciseId: ex.exerciseId, exerciseName: ed?.name || ex.exerciseId, mg: ed?.mg || '', muscleGroup: ed?.mg || '', sets: (workoutSets[ex.id] || ex.sets).map(s => ({ ...s })) }
+        return { exerciseId: ex.exerciseId, exerciseName: ed?.name || ex.exerciseId, mg: ed?.mg || '', muscleGroup: ed?.mg || '', isWarmup: ex.isWarmup || false, sets: (workoutSets[ex.id] || ex.sets).map(s => ({ ...s })) }
       })
     }
     const prs = []
     sess.exercises.forEach(ex => {
+      if (ex.isWarmup) return
       if (ex.sets.length && isCardioSet(ex.sets[0])) return
-      const mw = Math.max(0, ...ex.sets.filter(s => !s.isWarmup && s.completed && (s.weight || 0) > 0).map(s => s.weight))
+      const mw = Math.max(0, ...ex.sets.filter(s => s.completed && (s.weight || 0) > 0).map(s => s.weight))
       if (mw > 0) {
-        const pm = history.flatMap(h => h.exercises.filter(e => e.exerciseId === ex.exerciseId)).flatMap(e => e.sets.filter(s => !s.isWarmup && s.completed)).reduce((m, s) => Math.max(m, s.weight || 0), 0)
+        const pm = history.flatMap(h => h.exercises.filter(e => e.exerciseId === ex.exerciseId && !e.isWarmup)).flatMap(e => e.sets.filter(s => s.completed)).reduce((m, s) => Math.max(m, s.weight || 0), 0)
         if (mw > pm) prs.push({ name: ex.exerciseName, weight: mw })
       }
     })
@@ -923,8 +944,8 @@ export default function App() {
       })
       return { ...prev, [selectedDay]: day }
     })
-    const totalSets = sess.exercises.flatMap(e => e.sets).filter(s => s.completed && !s.isWarmup).length
-    const totalVolume = sess.exercises.reduce((t, ex) => t + calcVol(ex.sets), 0)
+    const totalSets = sess.exercises.filter(e => !e.isWarmup).flatMap(e => e.sets).filter(s => s.completed).length
+    const totalVolume = sess.exercises.reduce((t, ex) => t + calcVol(ex), 0)
     setLastSummary({ ...sess, prs, totalSets, totalVolume })
     setHistory(prev => [sess, ...prev])
     setWorkoutActive(false); setRestActive(false); setRestSecs(0); setShowSummary(true)

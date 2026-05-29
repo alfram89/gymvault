@@ -205,17 +205,23 @@ body {
 .rest-row { padding: 0 12px 8px; display: flex; align-items: center; gap: 8px; }
 .rest-input { width: 54px; background: var(--bg3); color: var(--text); border: none; border-radius: 8px; padding: 4px 6px; text-align: center; font-size: 12px; font-family: inherit; }
 
-.sets-header { margin: 0 12px 4px; display: grid; grid-template-columns: 20px 1fr 1fr 28px 28px; gap: 6px; font-size: 11px; color: var(--muted); }
+.sets-header { margin: 0 12px 4px; display: grid; grid-template-columns: 20px 1fr 1fr 28px; gap: 6px; font-size: 11px; color: var(--muted); }
 .sets-header span { text-align: center; }
 
-.set-row { margin: 0 12px 8px; display: grid; grid-template-columns: 20px 1fr 1fr 28px 28px; gap: 6px; align-items: center; transition: opacity 0.2s; }
+.set-row { margin: 0 12px 8px; display: grid; grid-template-columns: 20px 1fr 1fr 28px; gap: 6px; align-items: center; transition: opacity 0.2s; }
 .set-row.set-done { opacity: 0.4; }
 .set-num { font-size: 12px; color: var(--muted); text-align: center; }
 .set-input { width: 100%; background: var(--bg3); color: var(--text); border: none; border-radius: 8px; padding: 6px 4px; text-align: center; font-size: 13px; font-family: 'DM Mono', monospace; }
 .set-hint { font-size: 10px; text-align: center; color: var(--muted); margin-top: 2px; }
-.warmup-cell { display: flex; justify-content: center; }
-.warmup-cell input[type=checkbox] { width: 16px; height: 16px; accent-color: #eab308; }
 .complete-cell { display: flex; justify-content: center; }
+
+/* ── WARMUP ─────────────────────────── */
+.warmup-chip { padding: 3px 8px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 11px; font-weight: 500; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+.warmup-chip.active { background: #78350f22; border-color: #f59e0b; color: #f59e0b; }
+.warmup-exercise { background: #1c1408 !important; }
+.app.light .warmup-exercise { background: #fffbeb !important; }
+.warmup-badge { display: inline-block; font-size: 11px; color: #f59e0b; margin-left: 8px; font-weight: 500; }
+.warmup-toggle-row { display: flex; gap: 10px; margin-bottom: 4px; }
 .complete-btn { width: 28px; height: 28px; border-radius: 50%; border: none; cursor: pointer; font-size: 13px; font-weight: 700; background: var(--bg3); color: var(--muted); transition: all 0.15s; }
 .complete-btn.done { background: #16a34a; color: #fff; }
 .complete-btn:not(.done):hover { background: #166534; color: #4ade80; }
