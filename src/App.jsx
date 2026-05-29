@@ -4,7 +4,8 @@ import {
   Tooltip, ResponsiveContainer, BarChart, Bar
 } from 'recharts'
 import { dbGet, dbSet, loadAllData } from './db'
-import { MUSCLE_COLORS, DIFF_COLORS, T, EXERCISES } from './constants'
+import { MUSCLE_COLORS, DIFF_COLORS, EXERCISES } from './constants'
+import { getTranslations, availableLanguages } from './i18n/index.js'
 import './index.css'
 
 // ── HELPERS ──────────────────────────────────────────────────────
@@ -17,9 +18,8 @@ const weekOf = ds => { const d = new Date(ds); d.setDate(d.getDate() - (d.getDay
 
 // ── ONBOARDING ───────────────────────────────────────────────────
 function Onboarding({ onComplete }) {
-  const [lang, setLang] = useState('en')
   const [unit, setUnit] = useState('kg')
-  const t = T[lang]
+  const t = getTranslations('en')
 
   return (
     <div className="onboarding">
@@ -27,19 +27,13 @@ function Onboarding({ onComplete }) {
       <h1>{t.welT}</h1>
       <p className="onboarding-sub">{t.welS}</p>
       <div className="onboarding-form">
-        <label>{t.pkLng}</label>
-        <div className="toggle-row">
-          {[['en', '🇬🇧 English'], ['no', '🇳🇴 Norsk']].map(([l, lb]) => (
-            <button key={l} className={`toggle-btn ${lang === l ? 'active' : ''}`} onClick={() => setLang(l)}>{lb}</button>
-          ))}
-        </div>
-        <label style={{ marginTop: 20 }}>{t.pkUnt}</label>
+        <label>{t.pkUnt}</label>
         <div className="toggle-row">
           {['kg', 'lbs'].map(u => (
             <button key={u} className={`toggle-btn ${unit === u ? 'active' : ''}`} onClick={() => setUnit(u)}>{u}</button>
           ))}
         </div>
-        <button className="primary-btn start-btn" onClick={() => onComplete({ lang, unit })}>{t.start} →</button>
+        <button className="primary-btn start-btn" onClick={() => onComplete({ unit })}>{t.start} →</button>
       </div>
     </div>
   )
@@ -607,7 +601,9 @@ function SettingsTab({ t, lang, setLang, unit, setUnit, darkMode, setDarkMode,
         <p className="section-label">{t.thm} & {t.lng}</p>
         <div className="settings-row"><span>{t.thm}</span><Tgl opts={[[true, '🌙 ' + t.dk], [false, '☀️ ' + t.lt]]} val={darkMode} fn={setDarkMode} /></div>
         <div className="settings-row"><span>{t.unt}</span><Tgl opts={[['kg', 'kg'], ['lbs', 'lbs']]} val={unit} fn={setUnit} /></div>
-        <div className="settings-row"><span>{t.lng}</span><Tgl opts={[['en', '🇬🇧 EN'], ['no', '🇳🇴 NO']]} val={lang} fn={setLang} /></div>
+        {availableLanguages.length > 1 && (
+          <div className="settings-row"><span>{t.lng}</span><Tgl opts={availableLanguages.map(l => [l, l.toUpperCase()])} val={lang} fn={setLang} /></div>
+        )}
       </div>
 
       <div className="settings-section">
@@ -727,7 +723,7 @@ export default function App() {
     return () => clearTimeout(id)
   }, [restActive, restSecs])
 
-  const t = T[lang]
+  const t = getTranslations(lang)
   const allEx = [...EXERCISES, ...customEx]
   const curProg = program[selectedDay] || []
 
@@ -768,8 +764,8 @@ export default function App() {
     setWorkoutActive(false); setRestActive(false); setRestSecs(0); setShowSummary(true)
   }
 
-  const handleOnboard = ({ lang: l, unit: u }) => {
-    setLang(l); setUnit(u); setOnboarded(true)
+  const handleOnboard = ({ unit: u }) => {
+    setUnit(u); setOnboarded(true)
   }
 
   if (!loaded) return <div style={{ minHeight: '100vh', background: '#111827', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div style={{ color: '#6b7280', fontSize: 14 }}>Loading…</div></div>
