@@ -13,7 +13,6 @@ A private, offline-first workout tracker. No account, no cloud, no ads. Your dat
 - **Data portability** — JSON export with timestamp, import with confirmation
 - **PWA** — installable on iOS, Android, and desktop
 - **Offline** — works with no internet after first load
-- **EN / NO** — English and Norwegian (Bokmål)
 - **Dark / light mode** — dark by default
 - **kg / lbs** — global unit toggle
 
@@ -41,31 +40,9 @@ npm run build
 npm run preview
 ```
 
-## Deploy (free, 2 minutes)
-
-### Vercel
-```bash
-npm install -g vercel
-npm run build
-vercel --prod
-```
-
-### Netlify
-```bash
-npm run build
-# Drag the dist/ folder to netlify.com/drop
-```
-
-### GitHub Pages
-```bash
-# In vite.config.js, add: base: '/gymtrack/'
-npm run build
-# Push dist/ to gh-pages branch
-```
-
 ## Install as PWA
 
-After deploying, open the URL on your phone:
+Open the URL on your phone:
 - **iOS Safari** → Share → Add to Home Screen
 - **Android Chrome** → Menu → Add to Home Screen (or install banner)
 - **Desktop Chrome** → Click install icon in address bar
