@@ -13,7 +13,22 @@ const uid = () => Math.random().toString(36).slice(2, 9)
 const fmtTime = s => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`
 const fmtDate = d => new Date(d).toLocaleDateString()
 const mc = mg => MUSCLE_COLORS[mg] || '#6b7280'
-const calcVol = sets => sets.filter(s => !s.isWarmup && s.completed).reduce((t, s) => t + (s.weight || 0) * (s.reps || 0), 0)
+const isCardioSet = s => s.duration !== undefined
+const calcVol = sets => {
+  if (sets.length && isCardioSet(sets[0]))
+    return sets.filter(s => s.completed).reduce((t, s) => t + (s.duration || 0), 0)
+  return sets.filter(s => !s.isWarmup && s.completed).reduce((t, s) => t + (s.weight || 0) * (s.reps || 0), 0)
+}
+const fmtCardioVal = (metric, val) => {
+  if (metric === 'duration') return fmtTime(val || 0)
+  return val || 0
+}
+const METRIC_UNIT = { duration: 'min', distance: 'km', speed: 'km/h', incline: '%', calories: 'kcal', heart_rate: 'bpm', resistance: 'lvl' }
+const newCardioInterval = metrics => {
+  const interval = { id: uid(), completed: false }
+  metrics.forEach(m => { interval[m] = 0 })
+  return interval
+}
 const weekOf = ds => { const d = new Date(ds); d.setDate(d.getDate() - (d.getDay() + 6) % 7); return d.toISOString().split('T')[0] }
 
 // ── ONBOARDING ───────────────────────────────────────────────────
@@ -81,6 +96,94 @@ function WorkoutSummary({ summary, unit, t, onClose }) {
   )
 }
 
+// ── CARDIO EXERCISE CARD ─────────────────────────────────────────
+function CardioExCard({ ex, exData, t, workoutActive, workoutSets, setWorkoutSets, updEx, remEx, ei, onDragStart, onDrop }) {
+  const color = mc(exData?.mg)
+  const metrics = exData?.metrics || ['duration']
+
+  const intervals = ex.sets
+  const updInterval = (si, field, val) => updEx(ei, e => ({ ...e, sets: e.sets.map((s, i) => i === si ? { ...s, [field]: val } : s) }))
+  const addInterval = () => updEx(ei, e => {
+    const last = e.sets[e.sets.length - 1] || newCardioInterval(metrics)
+    return { ...e, sets: [...e.sets, { ...newCardioInterval(metrics), id: uid() }] }
+  })
+  const remInterval = si => updEx(ei, e => e.sets.length <= 1 ? e : { ...e, sets: e.sets.filter((_, i) => i !== si) })
+  const completeInterval = si => {
+    setWorkoutSets(prev => { const s = [...(prev[ex.id] || [])]; s[si] = { ...s[si], completed: true }; return { ...prev, [ex.id]: s } })
+  }
+  const updWS = (si, field, val) => setWorkoutSets(prev => { const s = [...(prev[ex.id] || [])]; s[si] = { ...s[si], [field]: val }; return { ...prev, [ex.id]: s } })
+
+  return (
+    <div className="ex-card cardio-card" style={{ borderLeftColor: color }}
+      draggable onDragStart={() => onDragStart(ei)}
+      onDragOver={e => e.preventDefault()} onDrop={() => onDrop(ei)}>
+
+      <div className="ex-header">
+        <div>
+          <div className="ex-name">{exData?.name || ex.exerciseId}</div>
+          <div className="ex-tags">
+            <span className="muscle-tag" style={{ background: color + '22', color }}>{t.cardio}</span>
+            <span className="eq-tag">{t[exData?.eq] || exData?.eq}</span>
+            <span className="dif-tag" style={{ color: DIFF_COLORS[exData?.dif] }}>{t[exData?.dif] || exData?.dif}</span>
+          </div>
+        </div>
+        <div className="ex-actions">
+          <span className="drag-handle">⠿</span>
+          {!workoutActive && <button className="remove-btn" onClick={() => remEx(ei)}>✕</button>}
+        </div>
+      </div>
+
+      <div className="cardio-header">
+        <span>#</span>
+        {metrics.map(m => <span key={m}>{t[m] || m}</span>)}
+        <span></span>
+      </div>
+
+      {intervals.map((interval, si) => {
+        const ws = workoutSets[ex.id]?.[si]
+        const done = workoutActive && ws?.completed
+        return (
+          <div key={interval.id || si} className={`cardio-row ${done ? 'set-done' : ''}`}>
+            <span className="set-num">{si + 1}</span>
+            {metrics.map(m => {
+              const val = workoutActive ? (ws?.[m] ?? interval[m]) : interval[m]
+              return (
+                <div key={m} className="cardio-cell">
+                  <input
+                    type="number" min="0" step={m === 'distance' || m === 'speed' ? '0.1' : '1'}
+                    value={val || ''}
+                    onChange={e => {
+                      const n = +e.target.value || 0
+                      workoutActive ? updWS(si, m, n) : updInterval(si, m, n)
+                    }}
+                    className="set-input cardio-input"
+                    placeholder="0"
+                    disabled={done}
+                  />
+                  <div className="cardio-unit">{METRIC_UNIT[m]}</div>
+                </div>
+              )
+            })}
+            <div className="complete-cell">
+              {workoutActive ? (
+                <button className={`complete-btn ${done ? 'done' : ''}`} onClick={() => !done && completeInterval(si)}>
+                  {done ? '✓' : '○'}
+                </button>
+              ) : (
+                <button className="rem-set-btn" onClick={() => remInterval(si)}>✕</button>
+              )}
+            </div>
+          </div>
+        )
+      })}
+
+      {!workoutActive && (
+        <button className="add-set-btn" onClick={addInterval}>{t.addInterval}</button>
+      )}
+    </div>
+  )
+}
+
 // ── PROGRAM TAB ──────────────────────────────────────────────────
 function ProgramTab({ t, days, selectedDay, setSelectedDay, program, setProgram,
   allEx, unit, workoutActive, workoutSets, setWorkoutSets,
@@ -139,6 +242,13 @@ function ProgramTab({ t, days, selectedDay, setSelectedDay, program, setProgram,
       ) : (
         exercises.map((ex, ei) => {
           const exData = allEx.find(e => e.id === ex.exerciseId)
+
+          if (exData?.type === 'cardio') {
+            return <CardioExCard key={ex.id} ex={ex} exData={exData} t={t}
+              workoutActive={workoutActive} workoutSets={workoutSets} setWorkoutSets={setWorkoutSets}
+              updEx={updEx} remEx={remEx} ei={ei} onDragStart={onDragStart} onDrop={onDrop} />
+          }
+
           const color = mc(exData?.mg)
           const lastEx = lastSession?.exercises?.find(e => e.exerciseId === ex.exerciseId)
 
@@ -256,7 +366,10 @@ function LibraryTab({ t, days, program, setProgram, customEx, setCustomEx }) {
 
   const addToDay = (ex, dayId) => {
     setProgram(prev => {
-      const ne = { id: uid(), exerciseId: ex.id, sets: [{ id: uid(), reps: 10, weight: 0, isWarmup: false }], restTime: 90 }
+      const initialSet = ex.type === 'cardio'
+        ? newCardioInterval(ex.metrics || ['duration'])
+        : { id: uid(), reps: 10, weight: 0, isWarmup: false }
+      const ne = { id: uid(), exerciseId: ex.id, sets: [initialSet], restTime: ex.type === 'cardio' ? 0 : 90 }
       return { ...prev, [dayId]: [...(prev[dayId] || []), ne] }
     })
     setAddModal(null)
@@ -511,19 +624,26 @@ function HistoryTab({ t, history, days, unit }) {
             <span className="session-vol">{Math.round(viewSess.exercises.reduce((t, ex) => t + calcVol(ex.sets), 0))} {unit}</span>
           </div>
           <div className="session-detail">
-            {viewSess.exercises.map((ex, i) => (
-              <div key={i} className="sess-ex" style={{ borderLeftColor: mc(ex.mg || ex.muscleGroup) }}>
-                <div className="sess-ex-name">{ex.exerciseName}</div>
-                {ex.sets.map((s, j) => (
-                  <div key={j} className={`sess-set ${s.isWarmup ? 'warmup' : ''}`}>
-                    <span>Set {j + 1}{s.isWarmup ? ' (W)' : ''}</span>
-                    <span>{s.reps} reps</span>
-                    <span>{s.weight} {unit}</span>
-                    {s.completed && <span className="set-check">✓</span>}
-                  </div>
-                ))}
-              </div>
-            ))}
+            {viewSess.exercises.map((ex, i) => {
+              const cardio = ex.sets.length && isCardioSet(ex.sets[0])
+              return (
+                <div key={i} className="sess-ex" style={{ borderLeftColor: mc(ex.mg || ex.muscleGroup) }}>
+                  <div className="sess-ex-name">{ex.exerciseName}</div>
+                  {ex.sets.map((s, j) => (
+                    <div key={j} className={`sess-set ${s.isWarmup ? 'warmup' : ''}`}>
+                      <span>{cardio ? t.interval : 'Set'} {j + 1}</span>
+                      {cardio
+                        ? Object.entries(s).filter(([k]) => !['id','completed'].includes(k) && s[k] > 0).map(([k, v]) => (
+                            <span key={k}>{t[k] || k}: {k === 'duration' ? fmtTime(v) : v} {METRIC_UNIT[k] || ''}</span>
+                          ))
+                        : <><span>{s.reps} reps</span><span>{s.weight} {unit}</span></>
+                      }
+                      {s.completed && <span className="set-check">✓</span>}
+                    </div>
+                  ))}
+                </div>
+              )
+            })}
           </div>
           <button className="secondary-btn" onClick={() => setViewSess(null)}>{t.close}</button>
         </Modal>
@@ -784,6 +904,7 @@ export default function App() {
     }
     const prs = []
     sess.exercises.forEach(ex => {
+      if (ex.sets.length && isCardioSet(ex.sets[0])) return
       const mw = Math.max(0, ...ex.sets.filter(s => !s.isWarmup && s.completed && (s.weight || 0) > 0).map(s => s.weight))
       if (mw > 0) {
         const pm = history.flatMap(h => h.exercises.filter(e => e.exerciseId === ex.exerciseId)).flatMap(e => e.sets.filter(s => !s.isWarmup && s.completed)).reduce((m, s) => Math.max(m, s.weight || 0), 0)
@@ -792,7 +913,14 @@ export default function App() {
     })
     setProgram(prev => {
       const day = [...(prev[selectedDay] || [])]
-      day.forEach((ex, i) => { day[i] = { ...ex, sets: ex.sets.map((s, j) => { const ws = workoutSets[ex.id]?.[j]; return ws && ws.completed ? { ...s, reps: ws.reps, weight: ws.weight } : s }) } })
+      day.forEach((ex, i) => {
+        const exData = allEx.find(e => e.id === ex.exerciseId)
+        if (exData?.type === 'cardio') {
+          day[i] = { ...ex, sets: ex.sets.map((s, j) => { const ws = workoutSets[ex.id]?.[j]; return ws && ws.completed ? { ...ws } : s }) }
+        } else {
+          day[i] = { ...ex, sets: ex.sets.map((s, j) => { const ws = workoutSets[ex.id]?.[j]; return ws && ws.completed ? { ...s, reps: ws.reps, weight: ws.weight } : s }) }
+        }
+      })
       return { ...prev, [selectedDay]: day }
     })
     const totalSets = sess.exercises.flatMap(e => e.sets).filter(s => s.completed && !s.isWarmup).length

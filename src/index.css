@@ -222,6 +222,18 @@ body {
 .rem-set-btn { width: 28px; height: 28px; border-radius: 50%; border: none; background: transparent; color: var(--muted); cursor: pointer; font-size: 12px; }
 .add-set-btn { background: none; border: none; color: #60a5fa; cursor: pointer; font-size: 12px; margin: 2px 12px 12px 38px; display: block; font-family: inherit; }
 
+/* ── CARDIO CARD ────────────────────── */
+.cardio-header { margin: 0 12px 4px; display: flex; gap: 4px; font-size: 11px; color: var(--muted); }
+.cardio-header span { flex: 1; text-align: center; }
+.cardio-header span:first-child { flex: 0 0 20px; }
+.cardio-header span:last-child { flex: 0 0 28px; }
+.cardio-row { margin: 0 12px 8px; display: flex; gap: 4px; align-items: flex-start; }
+.cardio-row .set-num { flex: 0 0 20px; font-size: 12px; color: var(--muted); text-align: center; padding-top: 8px; }
+.cardio-row .complete-cell { flex: 0 0 28px; }
+.cardio-cell { flex: 1; display: flex; flex-direction: column; align-items: center; }
+.cardio-input { width: 100%; }
+.cardio-unit { font-size: 9px; color: var(--muted); margin-top: 1px; }
+
 /* ── FLOATING BUTTON ───────────────── */
 .floating-btn-wrap { position: sticky; bottom: 16px; z-index: 10; display: flex; justify-content: center; padding: 0 16px; pointer-events: none; }
 .floating-btn { width: 100%; max-width: 320px; padding: 16px; font-size: 16px; font-weight: 700; border: none; border-radius: 20px; cursor: pointer; pointer-events: all; font-family: inherit; box-shadow: 0 8px 32px rgba(0,0,0,0.4); transition: all 0.15s; color: #fff; }

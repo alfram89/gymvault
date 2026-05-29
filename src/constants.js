@@ -5,6 +5,7 @@ export const MUSCLE_COLORS = {
   shoulders: '#eab308',
   arms:      '#f97316',
   core:      '#a855f7',
+  cardio:    '#06b6d4',
 }
 
 export const DIFF_COLORS = {
