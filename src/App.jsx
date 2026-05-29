@@ -67,30 +67,40 @@ function Modal({ onClose, children }) {
 
 // ── WORKOUT SUMMARY ──────────────────────────────────────────────
 function WorkoutSummary({ summary, unit, t, onClose }) {
+  const { hasStrength, hasCardio, totalSets, totalVolume, cardioIntervals, cardioTime, warmupCount, prs, duration } = summary
+
+  const stats = [
+    [t.dur, fmtTime(duration)],
+    ...(hasStrength ? [[t.compSets, totalSets], [t.totVol, Math.round(totalVolume) + ' ' + unit]] : []),
+    ...(hasCardio ? [[t.intervals, cardioIntervals], [t.cardioTimeLbl, fmtTime(cardioTime)]] : []),
+    ...((hasStrength || hasCardio) ? [[t.newPRs, prs.length]] : []),
+  ]
+
   return (
     <div className="summary-overlay">
       <div className="summary-box">
         <h2>{t.workDone}</h2>
         <div className="stat-grid">
-          {[[t.dur, fmtTime(summary.duration)], [t.compSets, summary.totalSets],
-            [t.totVol, Math.round(summary.totalVolume) + ' ' + unit], [t.newPRs, summary.prs.length]]
-            .map(([label, val]) => (
-              <div key={label} className="stat-card">
-                <div className="stat-val">{val}</div>
-                <div className="stat-label">{label}</div>
-              </div>
-            ))}
+          {stats.map(([label, val]) => (
+            <div key={label} className="stat-card">
+              <div className="stat-val">{val}</div>
+              <div className="stat-label">{label}</div>
+            </div>
+          ))}
         </div>
-        {summary.prs.length > 0 && (
+        {prs.length > 0 && (
           <div className="pr-box">
             <p className="pr-title">🏆 {t.newPRs}</p>
-            {summary.prs.map((pr, i) => (
+            {prs.map((pr, i) => (
               <div key={i} className="pr-row">
                 <span>{pr.name}</span>
                 <span className="pr-val">{pr.weight} {unit}</span>
               </div>
             ))}
           </div>
+        )}
+        {warmupCount > 0 && (
+          <p className="summary-warmup">🔥 {warmupCount} {warmupCount === 1 ? t.warmupDone : t.warmupsDone}</p>
         )}
         <button className="primary-btn" onClick={onClose}>{t.close}</button>
       </div>
@@ -116,7 +126,8 @@ function CardioExCard({ ex, exData, t, workoutActive, workoutSets, setWorkoutSet
   const updWS = (si, field, val) => setWorkoutSets(prev => { const s = [...(prev[ex.id] || [])]; s[si] = { ...s[si], [field]: val }; return { ...prev, [ex.id]: s } })
 
   return (
-    <div className="ex-card cardio-card" style={{ borderLeftColor: color }}
+    <div className={`ex-card cardio-card ${ex.isWarmup ? 'warmup-exercise' : ''}`}
+      style={{ borderLeftColor: ex.isWarmup ? '#f59e0b' : color }}
       draggable onDragStart={() => onDragStart(ei)}
       onDragOver={e => e.preventDefault()} onDrop={() => onDrop(ei)}>
 
@@ -130,6 +141,12 @@ function CardioExCard({ ex, exData, t, workoutActive, workoutSets, setWorkoutSet
           </div>
         </div>
         <div className="ex-actions">
+          {!workoutActive && (
+            <button className={`warmup-chip ${ex.isWarmup ? 'active' : ''}`}
+              onClick={() => updEx(ei, e => ({ ...e, isWarmup: !e.isWarmup }))}>
+              {ex.isWarmup ? '🔥' : t.warmupEx}
+            </button>
+          )}
           <span className="drag-handle">⠿</span>
           {!workoutActive && <button className="remove-btn" onClick={() => remEx(ei)}>✕</button>}
         </div>
@@ -944,9 +961,19 @@ export default function App() {
       })
       return { ...prev, [selectedDay]: day }
     })
-    const totalSets = sess.exercises.filter(e => !e.isWarmup).flatMap(e => e.sets).filter(s => s.completed).length
+    const totalSets = sess.exercises.filter(e => !e.isWarmup && e.sets.length && !isCardioSet(e.sets[0])).flatMap(e => e.sets).filter(s => s.completed).length
     const totalVolume = sess.exercises.reduce((t, ex) => t + calcVol(ex), 0)
-    setLastSummary({ ...sess, prs, totalSets, totalVolume })
+    let cardioIntervals = 0, cardioTime = 0
+    sess.exercises.forEach(ex => {
+      if (ex.isWarmup || !ex.sets.length || !isCardioSet(ex.sets[0])) return
+      const done = ex.sets.filter(s => s.completed)
+      cardioIntervals += done.length
+      cardioTime += done.reduce((sum, s) => sum + (s.duration || 0), 0)
+    })
+    const warmupCount = sess.exercises.filter(e => e.isWarmup && e.sets.some(s => s.completed)).length
+    const hasStrength = sess.exercises.some(e => !e.isWarmup && e.sets.length && !isCardioSet(e.sets[0]))
+    const hasCardio = sess.exercises.some(e => !e.isWarmup && e.sets.length && isCardioSet(e.sets[0]))
+    setLastSummary({ ...sess, prs, totalSets, totalVolume, cardioIntervals, cardioTime, warmupCount, hasStrength, hasCardio })
     setHistory(prev => [sess, ...prev])
     setWorkoutActive(false); setRestActive(false); setRestSecs(0); setShowSummary(true)
   }
