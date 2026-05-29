@@ -534,7 +534,21 @@ function HistoryTab({ t, history, days, unit }) {
 
 // ── SETTINGS TAB ─────────────────────────────────────────────────
 function SettingsTab({ t, lang, setLang, unit, setUnit, darkMode, setDarkMode,
-  days, setDays, program, setProgram, history, setHistory, customEx, setCustomEx }) {
+  days, setDays, program, setProgram, history, setHistory, customEx, setCustomEx,
+  installPrompt, setInstallPrompt }) {
+
+  const isInstalled = window.matchMedia('(display-mode: standalone)').matches
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+  const [showIOSHint, setShowIOSHint] = useState(false)
+
+  const handleInstall = async () => {
+    if (installPrompt) {
+      await installPrompt.prompt()
+      setInstallPrompt(null)
+    } else if (isIOS) {
+      setShowIOSHint(true)
+    }
+  }
 
   const [newDay, setNewDay] = useState('')
   const [editId, setEditId] = useState(null)
@@ -657,6 +671,23 @@ function SettingsTab({ t, lang, setLang, unit, setUnit, darkMode, setDarkMode,
         )}
       </div>
 
+      {!isInstalled && (isIOS || installPrompt) && (
+        <div className="settings-section">
+          <button className="data-btn install-btn" onClick={handleInstall}>📲 {t.install}</button>
+        </div>
+      )}
+
+      {showIOSHint && (
+        <Modal onClose={() => setShowIOSHint(false)}>
+          <h3 className="modal-title">📲 {t.installIosTitle}</h3>
+          <div className="ios-install-steps">
+            <p>1. {t.installIosStep1} <span className="ios-share-icon">□↑</span> {t.installIosStep2}</p>
+            <p>2. {t.installIosStep3}</p>
+          </div>
+          <button className="primary-btn" style={{ marginTop: 16 }} onClick={() => setShowIOSHint(false)}>{t.close}</button>
+        </Modal>
+      )}
+
       <div className="settings-section">
         <p className="section-label">{t.abt}</p>
         <div className="about-content">
@@ -690,6 +721,13 @@ export default function App() {
   const [restActive, setRestActive] = useState(false)
   const [restSecs, setRestSecs] = useState(0)
   const [restMax, setRestMax] = useState(90)
+  const [installPrompt, setInstallPrompt] = useState(null)
+
+  useEffect(() => {
+    const handler = e => { e.preventDefault(); setInstallPrompt(e) }
+    window.addEventListener('beforeinstallprompt', handler)
+    return () => window.removeEventListener('beforeinstallprompt', handler)
+  }, [])
 
   // Load from IndexedDB on mount
   useEffect(() => {
@@ -805,7 +843,7 @@ export default function App() {
         {activeTab === 0 && <ProgramTab t={t} days={days} selectedDay={selectedDay} setSelectedDay={setSelectedDay} program={program} setProgram={setProgram} allEx={allEx} unit={unit} workoutActive={workoutActive} workoutSets={workoutSets} setWorkoutSets={setWorkoutSets} startWorkout={startWorkout} finishWorkout={finishWorkout} history={history} onRestTimer={s => { setRestSecs(s); setRestMax(s); setRestActive(true) }} />}
         {activeTab === 1 && <LibraryTab t={t} days={days} program={program} setProgram={setProgram} customEx={customEx} setCustomEx={setCustomEx} />}
         {activeTab === 2 && <HistoryTab t={t} history={history} days={days} unit={unit} />}
-        {activeTab === 3 && <SettingsTab t={t} lang={lang} setLang={setLang} unit={unit} setUnit={setUnit} darkMode={darkMode} setDarkMode={setDarkMode} days={days} setDays={setDays} program={program} setProgram={setProgram} history={history} setHistory={setHistory} customEx={customEx} setCustomEx={setCustomEx} />}
+        {activeTab === 3 && <SettingsTab t={t} lang={lang} setLang={setLang} unit={unit} setUnit={setUnit} darkMode={darkMode} setDarkMode={setDarkMode} days={days} setDays={setDays} program={program} setProgram={setProgram} history={history} setHistory={setHistory} customEx={customEx} setCustomEx={setCustomEx} installPrompt={installPrompt} setInstallPrompt={setInstallPrompt} />}
       </main>
 
       <nav className="tab-bar">

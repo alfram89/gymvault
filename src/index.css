@@ -342,6 +342,9 @@ body {
 .danger-btn.disabled { background: var(--bg3); color: var(--muted); cursor: default; }
 .reset-prompt { font-size: 13px; color: #f87171; margin-bottom: 8px; }
 
+.install-btn { color: #60a5fa; font-weight: 600; }
+.ios-install-steps { display: flex; flex-direction: column; gap: 12px; font-size: 14px; color: var(--sub); margin-top: 12px; line-height: 1.5; }
+.ios-share-icon { font-size: 16px; color: #60a5fa; }
 .about-content { display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: var(--sub); }
 .gh-link { color: #60a5fa; text-decoration: none; }
 .gh-link:hover { text-decoration: underline; }
