@@ -9,103 +9,70 @@ A private, offline-first workout tracker. No account, no cloud, no ads — your 
 
 ---
 
-## Features
+## Try it
 
-### 📋 Program
-- Multi-day workout programs (Day A / B / Push / Pull / Legs — fully renameable)
-- Add, remove, and drag-to-reorder exercises within a day
-- Per-exercise rest timer with configurable duration
-- Mark individual exercises as warmup sets
-- **Sticky Start / Finish Workout button** pinned below the day selector — never covers your inputs
-- **Number wheel picker** for all numeric fields (weight, reps, rest time, cardio metrics) — no keyboard pop-up on mobile
+**https://alfram89.github.io/GymTrack/**
 
-### 📚 Library
-- 57 exercises across 7 muscle groups, color-coded by group
-- Filter by muscle group, equipment, and difficulty
-- **Equipment icons** on each card (barbell, dumbbell, cable, machine, bodyweight)
-- **Difficulty bars** (beginner / intermediate / advanced) shown visually on every card
-- Create fully custom exercises with any muscle group, equipment, and difficulty
-- Add exercises directly to any program day from the library
-
-### 📋 Program Templates
-- 4 built-in programs ready to load:
-  - **StrongLifts 5×5** — beginner barbell, 2 days alternating A/B
-  - **Push / Pull / Legs** — intermediate hypertrophy, 3 days
-  - **Upper / Lower** — intermediate strength + hypertrophy, 4 days
-  - **Full Body 3×** — beginner full body, 3 days
-- Filter templates by tag (beginner, intermediate, strength, hypertrophy, barbell, bodyweight)
-- Apply as a full replacement or add days alongside your existing program
-- Save your own program as a reusable template
-- **Easy to contribute:** drop a `.json` file in `src/data/templates/` — no other changes needed
-
-### 📈 History
-- Training calendar heatmap (12-week view)
-- Day-streak counter
-- Personal record (PR) tracker — automatically detected when a new max weight is logged
-- Weekly volume bar chart
-- Per-exercise weight progression line chart
-- Full session log with per-set detail
-
-### ⚙️ Settings
-- Dark / light mode (dark by default)
-- kg / lbs unit toggle
-- Add, rename, and delete workout days
-- Load a template program or save the current program as a template
-- JSON export (with timestamp) and import
-- Full data reset with confirmation
-- PWA install prompt for iOS and Android
-
-### 📲 PWA
-- Installable on iOS, Android, and desktop
-- Fully offline after first load
-- Custom barbell icon on the home screen
-
----
-
-## Tech Stack
-
-| Layer | Library |
-|---|---|
-| UI | React 18 |
-| Build | Vite 8 + vite-plugin-pwa |
-| Storage | Dexie.js (IndexedDB) |
-| Charts | Recharts |
-| Icons | Custom inline SVG |
-| Fonts | DM Sans + DM Mono |
-
----
-
-## Getting Started
-
-```bash
-# Install dependencies
-npm install
-
-# Start dev server (http://localhost:5173)
-npm run dev
-
-# Production build
-npm run build
-
-# Preview production build locally
-npm run preview
-```
-
----
-
-## Install as PWA
-
-Once deployed, open the app URL on your device:
+No installation required — open the link in your browser. To use it as an app on your phone:
 
 - **iOS Safari** — Share → Add to Home Screen
 - **Android Chrome** — Menu → Add to Home Screen (or tap the install banner)
 - **Desktop Chrome / Edge** — click the install icon in the address bar
 
+The app works fully offline after the first load.
+
 ---
 
-## Adding a Template
+## What it does
 
-Create a new file in `src/data/templates/` — it will be picked up automatically at build time.
+**Build workout programs**
+Create multi-day programs, add exercises from a library of 57 movements across 7 muscle groups, and structure your sets and reps. Cardio exercises (treadmill, bike, etc.) with interval tracking are also supported.
+
+**Load a template**
+Get started in seconds with a built-in program — StrongLifts 5×5, Push/Pull/Legs, Upper/Lower, or Full Body 3×. Apply it as your program or add the days alongside what you already have. You can also save your own programs as reusable templates.
+
+**Log workouts**
+Start a workout session, mark each set as completed, and let the rest timer count down automatically. When you finish, you get a summary showing sets, volume, and any new personal records.
+
+**Track progress**
+A 12-week training calendar, streak counter, personal records, weekly volume chart, and a per-exercise weight progression graph give you a clear picture of how you're improving over time.
+
+**Portable data**
+Export everything as a JSON file from Settings and import it again on any device. Nothing is stored on a server.
+
+---
+
+## Contributing
+
+### Adding an exercise
+
+Add an entry to `src/data/exercises.json`:
+
+```json
+{ "id": "cable-curl", "name": "Cable Curl", "mg": "arms", "eq": "cable", "dif": "beginner" }
+```
+
+| Field | Values |
+|---|---|
+| `id` | Unique kebab-case string |
+| `mg` | `chest` `back` `legs` `shoulders` `arms` `core` `cardio` |
+| `eq` | `barbell` `dumbbell` `cable` `machine` `bodyweight` |
+| `dif` | `beginner` `intermediate` `advanced` |
+
+For cardio exercises, add `"type": "cardio"` and a `"metrics"` array:
+
+```json
+{ "id": "treadmill", "name": "Treadmill", "mg": "cardio", "eq": "machine", "dif": "beginner",
+  "type": "cardio", "metrics": ["duration", "distance", "speed", "incline"] }
+```
+
+Available cardio metrics: `duration` `distance` `speed` `incline` `calories` `heart_rate` `resistance`
+
+---
+
+### Adding a program template
+
+Create a new `.json` file in `src/data/templates/` — it is picked up automatically at build time, no other file needs changing.
 
 ```json
 {
@@ -125,18 +92,29 @@ Create a new file in `src/data/templates/` — it will be picked up automaticall
 }
 ```
 
-`exerciseId` values must match IDs in `src/data/exercises.json`. Any unrecognised IDs are silently skipped.
+`exerciseId` must match an `id` in `exercises.json`. Unrecognised IDs are skipped with a warning in the picker.
 
 Valid tags: `beginner` `intermediate` `advanced` `strength` `hypertrophy` `barbell` `dumbbell` `bodyweight`
 
 ---
 
+## Tech Stack
+
+| | |
+|---|---|
+| UI | React 18 |
+| Build & PWA | Vite + vite-plugin-pwa |
+| Storage | Dexie.js (IndexedDB) |
+| Charts | Recharts |
+
+---
+
 ## Data & Privacy
 
-All data is stored in your browser's **IndexedDB**. Nothing is sent to any server. Use the **JSON export** in Settings to back up or transfer your data between devices.
+All data lives in your browser's IndexedDB. Nothing is sent to any server. Back up anytime via **Settings → Export JSON**.
 
 ---
 
 ## License
 
-[GNU Affero General Public License v3.0](LICENSE) — free to use, modify, and distribute under the same terms.
+[GNU Affero General Public License v3.0](LICENSE)
