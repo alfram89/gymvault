@@ -1,0 +1,39 @@
+{
+  "id": "ppl",
+  "name": "Push / Pull / Legs",
+  "description": "Popular 3-day intermediate split. Each session targets a dedicated muscle group for maximum volume and recovery.",
+  "tags": ["intermediate", "hypertrophy", "barbell", "dumbbell"],
+  "days": [
+    {
+      "name": "Push",
+      "exercises": [
+        { "exerciseId": "bench-press",  "sets": 4, "reps": 8,  "restTime": 120 },
+        { "exerciseId": "incline-bench","sets": 3, "reps": 10, "restTime": 90  },
+        { "exerciseId": "ohp",          "sets": 3, "reps": 10, "restTime": 90  },
+        { "exerciseId": "lat-raise",    "sets": 3, "reps": 15, "restTime": 60  },
+        { "exerciseId": "tricep-push",  "sets": 3, "reps": 12, "restTime": 60  }
+      ]
+    },
+    {
+      "name": "Pull",
+      "exercises": [
+        { "exerciseId": "pull-up",      "sets": 4, "reps": 8,  "restTime": 120 },
+        { "exerciseId": "barbell-row",  "sets": 4, "reps": 8,  "restTime": 120 },
+        { "exerciseId": "lat-pulldown", "sets": 3, "reps": 10, "restTime": 90  },
+        { "exerciseId": "face-pull",    "sets": 3, "reps": 15, "restTime": 60  },
+        { "exerciseId": "barbell-curl", "sets": 3, "reps": 12, "restTime": 60  },
+        { "exerciseId": "hammer-curl",  "sets": 3, "reps": 12, "restTime": 60  }
+      ]
+    },
+    {
+      "name": "Legs",
+      "exercises": [
+        { "exerciseId": "squat",      "sets": 4, "reps": 8,  "restTime": 180 },
+        { "exerciseId": "rdl",        "sets": 3, "reps": 10, "restTime": 120 },
+        { "exerciseId": "leg-press",  "sets": 3, "reps": 12, "restTime": 90  },
+        { "exerciseId": "leg-curl",   "sets": 3, "reps": 12, "restTime": 60  },
+        { "exerciseId": "calf-raise", "sets": 4, "reps": 15, "restTime": 60  }
+      ]
+    }
+  ]
+}

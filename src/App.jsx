@@ -7,6 +7,7 @@ import { dbGet, dbSet, loadAllData } from './db'
 import { MUSCLE_COLORS, DIFF_COLORS, EXERCISES } from './constants'
 import { getTranslations, availableLanguages } from './i18n/index.js'
 import { EQ_ICONS, DiffBars } from './Icons.jsx'
+import { TemplatePicker } from './TemplatePicker.jsx'
 import './index.css'
 
 // ── HELPERS ──────────────────────────────────────────────────────
@@ -262,7 +263,7 @@ function CardioExCard({ ex, exData, t, workoutActive, workoutSets, setWorkoutSet
 // ── PROGRAM TAB ──────────────────────────────────────────────────
 function ProgramTab({ t, days, selectedDay, setSelectedDay, program, setProgram,
   allEx, unit, workoutActive, workoutSets, setWorkoutSets,
-  startWorkout, finishWorkout, history, onRestTimer }) {
+  startWorkout, finishWorkout, history, onRestTimer, onOpenTemplatePicker }) {
 
   const exercises = program[selectedDay] || []
   const dragIdx = useRef(null)
@@ -323,6 +324,9 @@ function ProgramTab({ t, days, selectedDay, setSelectedDay, program, setProgram,
           <div className="empty-icon">🏋️</div>
           <p className="empty-title">{t.noEx}</p>
           <p className="empty-sub">{t.addLib}</p>
+          <button className="tpl-empty-btn" onClick={onOpenTemplatePicker}>
+            📋 {t.startFromTemplate}
+          </button>
         </div>
       ) : (
         exercises.map((ex, ei) => {
@@ -757,7 +761,8 @@ function HistoryTab({ t, history, days, unit }) {
 // ── SETTINGS TAB ─────────────────────────────────────────────────
 function SettingsTab({ t, lang, setLang, unit, setUnit, darkMode, setDarkMode,
   days, setDays, program, setProgram, history, setHistory, customEx, setCustomEx,
-  installPrompt, setInstallPrompt }) {
+  userTemplates, setUserTemplates, installPrompt, setInstallPrompt,
+  onOpenTemplatePicker, onSaveTemplate }) {
 
   const isInstalled = window.matchMedia('(display-mode: standalone)').matches
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
@@ -777,6 +782,8 @@ function SettingsTab({ t, lang, setLang, unit, setUnit, darkMode, setDarkMode,
   const [editV, setEditV] = useState('')
   const [resetV, setResetV] = useState('')
   const [showReset, setShowReset] = useState(false)
+  const [showSaveTpl, setShowSaveTpl] = useState(false)
+  const [saveTplName, setSaveTplName] = useState('')
   const fileRef = useRef(null)
 
   const addDay = () => {
@@ -795,7 +802,7 @@ function SettingsTab({ t, lang, setLang, unit, setUnit, darkMode, setDarkMode,
   }
 
   const exportJSON = () => {
-    const data = { version: 1, days, program, history, customExercises: customEx, settings: { language: lang, unit, darkMode } }
+    const data = { version: 1, days, program, history, customExercises: customEx, userTemplates, settings: { language: lang, unit, darkMode } }
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
     const a = document.createElement('a')
     a.href = URL.createObjectURL(blob)
@@ -811,6 +818,7 @@ function SettingsTab({ t, lang, setLang, unit, setUnit, darkMode, setDarkMode,
         const d = JSON.parse(ev.target.result)
         if (d.days) setDays(d.days); if (d.program) setProgram(d.program)
         if (d.history) setHistory(d.history); if (d.customExercises) setCustomEx(d.customExercises)
+        if (d.userTemplates) setUserTemplates(d.userTemplates)
         if (d.settings?.language) setLang(d.settings.language)
         if (d.settings?.unit) setUnit(d.settings.unit)
         if (d.settings?.darkMode !== undefined) setDarkMode(d.settings.darkMode)
@@ -872,10 +880,28 @@ function SettingsTab({ t, lang, setLang, unit, setUnit, darkMode, setDarkMode,
 
       <div className="settings-section">
         <p className="section-label">Data</p>
+        <button className="data-btn" onClick={onOpenTemplatePicker}>📋 {t.loadTemplate}</button>
+        <button className="data-btn" onClick={() => setShowSaveTpl(true)}>💾 {t.saveAsTemplate}</button>
         <button className="data-btn" onClick={exportJSON}>⬇️ {t.expJ}</button>
         <button className="data-btn" onClick={() => fileRef.current?.click()}>⬆️ {t.impJ}</button>
         <input ref={fileRef} type="file" accept=".json" style={{ display: 'none' }} onChange={importJSON} />
       </div>
+
+      {showSaveTpl && (
+        <Modal onClose={() => { setShowSaveTpl(false); setSaveTplName('') }}>
+          <h3 className="modal-title">{t.saveTemplateTitle}</h3>
+          <input value={saveTplName} onChange={e => setSaveTplName(e.target.value)}
+            placeholder={t.saveTemplatePl} className="modal-input" autoFocus
+            onKeyDown={e => { if (e.key === 'Enter' && saveTplName.trim()) { onSaveTemplate(saveTplName.trim()); setShowSaveTpl(false); setSaveTplName('') } }} />
+          <div className="modal-row">
+            <button className="secondary-btn" onClick={() => { setShowSaveTpl(false); setSaveTplName('') }}>{t.cancel}</button>
+            <button className="primary-btn"
+              onClick={() => { if (saveTplName.trim()) { onSaveTemplate(saveTplName.trim()); setShowSaveTpl(false); setSaveTplName('') } }}>
+              {t.save}
+            </button>
+          </div>
+        </Modal>
+      )}
 
       <div className="settings-section danger-section">
         <p className="section-label danger-label">⚠️ {t.danger}</p>
@@ -944,6 +970,8 @@ export default function App() {
   const [restSecs, setRestSecs] = useState(0)
   const [restMax, setRestMax] = useState(90)
   const [installPrompt, setInstallPrompt] = useState(null)
+  const [userTemplates, setUserTemplates] = useState([])
+  const [showTemplatePicker, setShowTemplatePicker] = useState(false)
 
   useEffect(() => {
     const handler = e => { e.preventDefault(); setInstallPrompt(e) }
@@ -965,6 +993,7 @@ export default function App() {
       if (data.program) setProgram(data.program)
       if (data.history) setHistory(data.history)
       if (data.customExercises) setCustomEx(data.customExercises)
+      if (data.userTemplates) setUserTemplates(data.userTemplates)
       setLoaded(true)
     })
   }, [])
@@ -975,6 +1004,7 @@ export default function App() {
   useEffect(() => { if (loaded) dbSet('program', program) }, [loaded, program])
   useEffect(() => { if (loaded) dbSet('history', history) }, [loaded, history])
   useEffect(() => { if (loaded) dbSet('customExercises', customEx) }, [loaded, customEx])
+  useEffect(() => { if (loaded) dbSet('userTemplates', userTemplates) }, [loaded, userTemplates])
 
   // Rest timer
   useEffect(() => {
@@ -1043,6 +1073,48 @@ export default function App() {
     setWorkoutActive(false); setRestActive(false); setRestSecs(0); setShowSummary(true)
   }
 
+  const applyTemplate = (template, mode) => {
+    const newDays = template.days.map(d => ({ id: uid(), name: d.name }))
+    const newProgram = {}
+    template.days.forEach((td, i) => {
+      newProgram[newDays[i].id] = td.exercises
+        .filter(te => allEx.find(e => e.id === te.exerciseId))
+        .map(te => ({
+          id: uid(), exerciseId: te.exerciseId, isWarmup: false,
+          restTime: te.restTime ?? 90,
+          sets: Array.from({ length: te.sets }, () => ({
+            id: uid(), reps: te.reps, weight: 0, completed: false
+          }))
+        }))
+    })
+    if (mode === 'replace') {
+      setDays(newDays); setProgram(newProgram); setSelectedDay(newDays[0].id)
+    } else {
+      setDays(prev => [...prev, ...newDays])
+      setProgram(prev => ({ ...prev, ...newProgram }))
+    }
+    setShowTemplatePicker(false)
+    setActiveTab(0)
+  }
+
+  const saveAsTemplate = name => {
+    const tpl = {
+      id: uid(), name, description: '', tags: [],
+      days: days.map(d => ({
+        name: d.name,
+        exercises: (program[d.id] || []).map(ex => ({
+          exerciseId: ex.exerciseId,
+          sets: ex.sets.length,
+          reps: ex.sets[0]?.reps || 10,
+          restTime: ex.restTime ?? 90
+        }))
+      }))
+    }
+    setUserTemplates(prev => [...prev, tpl])
+  }
+
+  const deleteUserTemplate = id => setUserTemplates(prev => prev.filter(t => t.id !== id))
+
   const handleOnboard = ({ unit: u }) => {
     setUnit(u); setOnboarded(true)
   }
@@ -1081,10 +1153,10 @@ export default function App() {
       )}
 
       <main className="app-main">
-        {activeTab === 0 && <ProgramTab t={t} days={days} selectedDay={selectedDay} setSelectedDay={setSelectedDay} program={program} setProgram={setProgram} allEx={allEx} unit={unit} workoutActive={workoutActive} workoutSets={workoutSets} setWorkoutSets={setWorkoutSets} startWorkout={startWorkout} finishWorkout={finishWorkout} history={history} onRestTimer={s => { setRestSecs(s); setRestMax(s); setRestActive(true) }} />}
+        {activeTab === 0 && <ProgramTab t={t} days={days} selectedDay={selectedDay} setSelectedDay={setSelectedDay} program={program} setProgram={setProgram} allEx={allEx} unit={unit} workoutActive={workoutActive} workoutSets={workoutSets} setWorkoutSets={setWorkoutSets} startWorkout={startWorkout} finishWorkout={finishWorkout} history={history} onRestTimer={s => { setRestSecs(s); setRestMax(s); setRestActive(true) }} onOpenTemplatePicker={() => setShowTemplatePicker(true)} />}
         {activeTab === 1 && <LibraryTab t={t} days={days} program={program} setProgram={setProgram} customEx={customEx} setCustomEx={setCustomEx} />}
         {activeTab === 2 && <HistoryTab t={t} history={history} days={days} unit={unit} />}
-        {activeTab === 3 && <SettingsTab t={t} lang={lang} setLang={setLang} unit={unit} setUnit={setUnit} darkMode={darkMode} setDarkMode={setDarkMode} days={days} setDays={setDays} program={program} setProgram={setProgram} history={history} setHistory={setHistory} customEx={customEx} setCustomEx={setCustomEx} installPrompt={installPrompt} setInstallPrompt={setInstallPrompt} />}
+        {activeTab === 3 && <SettingsTab t={t} lang={lang} setLang={setLang} unit={unit} setUnit={setUnit} darkMode={darkMode} setDarkMode={setDarkMode} days={days} setDays={setDays} program={program} setProgram={setProgram} history={history} setHistory={setHistory} customEx={customEx} setCustomEx={setCustomEx} userTemplates={userTemplates} setUserTemplates={setUserTemplates} installPrompt={installPrompt} setInstallPrompt={setInstallPrompt} onOpenTemplatePicker={() => setShowTemplatePicker(true)} onSaveTemplate={saveAsTemplate} />}
       </main>
 
       <nav className="tab-bar">
@@ -1097,6 +1169,12 @@ export default function App() {
       </nav>
 
       {showSummary && lastSummary && <WorkoutSummary t={t} summary={lastSummary} unit={unit} onClose={() => setShowSummary(false)} />}
+      {showTemplatePicker && (
+        <TemplatePicker t={t} allEx={allEx} userTemplates={userTemplates}
+          onApply={applyTemplate}
+          onDelete={deleteUserTemplate}
+          onClose={() => setShowTemplatePicker(false)} />
+      )}
     </div>
   )
 }

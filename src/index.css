@@ -386,6 +386,29 @@ body {
 .set-input-btn:active { opacity: 0.6; }
 .rest-input { appearance: none; }
 
+/* ── TEMPLATE PICKER ───────────────── */
+.tpl-picker-box { display: flex; flex-direction: column; max-height: 82vh; padding-bottom: 16px; }
+.tpl-picker-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.tpl-close-btn { margin: 0; padding: 4px 8px; width: auto; }
+.tpl-list { overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 8px; padding-top: 4px; }
+.tpl-card { background: var(--bg3); border-radius: 14px; overflow: hidden; display: flex; align-items: stretch; }
+.tpl-card-body { flex: 1; padding: 14px; border: none; text-align: left; cursor: pointer; background: transparent; color: var(--text); font-family: inherit; transition: opacity 0.15s; }
+.tpl-card-body:hover { opacity: 0.85; }
+.tpl-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.tpl-card-name { font-weight: 600; font-size: 15px; }
+.tpl-card-desc { font-size: 13px; color: var(--sub); margin-bottom: 10px; line-height: 1.4; }
+.tpl-card-meta { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--muted); }
+.tpl-delete-btn { padding: 0 14px; border: none; background: transparent; color: var(--muted); cursor: pointer; font-size: 15px; border-left: 1px solid var(--border); }
+.tpl-delete-btn:hover { color: #f87171; }
+.tpl-days-preview { background: var(--bg3); border-radius: 12px; padding: 4px 14px; margin: 12px 0; }
+.tpl-day-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.tpl-day-row:last-child { border-bottom: none; }
+.tpl-day-name { font-size: 13px; font-weight: 500; }
+.tpl-day-count { font-size: 12px; color: var(--muted); }
+.tpl-missing { font-size: 12px; color: #f59e0b; background: #78350f22; border-radius: 8px; padding: 8px 12px; margin-top: 4px; }
+.tpl-empty-btn { margin-top: 16px; padding: 10px 24px; border-radius: 12px; border: 1px solid #2563eb; background: transparent; color: #60a5fa; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; transition: background 0.15s; }
+.tpl-empty-btn:hover { background: #1d4ed820; }
+
 /* ── SCROLLBAR ─────────────────────── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }

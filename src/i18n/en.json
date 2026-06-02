@@ -98,5 +98,20 @@
   "welS": "Private · Offline · Open Source",
   "pkUnt": "Units",
   "start": "Get Started",
-  "done": "Done"
+  "done": "Done",
+  "browseTemplates": "Browse Templates",
+  "loadTemplate": "Load Template",
+  "saveAsTemplate": "Save as Template",
+  "saveTemplatePl": "Template name…",
+  "saveTemplateTitle": "Save Current Program",
+  "applyTemplate": "Apply",
+  "applyAs": "Apply as",
+  "replaceProgram": "Replace program",
+  "addDays": "Add days",
+  "allTags": "All",
+  "mine": "mine",
+  "back": "Back",
+  "day": "day",
+  "days": "days",
+  "startFromTemplate": "Start from a template"
 }

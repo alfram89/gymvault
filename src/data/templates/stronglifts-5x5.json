@@ -1,0 +1,24 @@
+{
+  "id": "stronglifts-5x5",
+  "name": "StrongLifts 5×5",
+  "description": "Classic beginner barbell strength program. Alternate Day A and Day B, 3 times per week with a rest day between each session.",
+  "tags": ["beginner", "strength", "barbell"],
+  "days": [
+    {
+      "name": "Day A",
+      "exercises": [
+        { "exerciseId": "squat",       "sets": 5, "reps": 5, "restTime": 180 },
+        { "exerciseId": "bench-press", "sets": 5, "reps": 5, "restTime": 180 },
+        { "exerciseId": "barbell-row", "sets": 5, "reps": 5, "restTime": 180 }
+      ]
+    },
+    {
+      "name": "Day B",
+      "exercises": [
+        { "exerciseId": "squat",    "sets": 5, "reps": 5, "restTime": 180 },
+        { "exerciseId": "ohp",      "sets": 5, "reps": 5, "restTime": 180 },
+        { "exerciseId": "deadlift", "sets": 1, "reps": 5, "restTime": 300 }
+      ]
+    }
+  ]
+}
