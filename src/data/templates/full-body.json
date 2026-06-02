@@ -1,0 +1,38 @@
+{
+  "id": "full-body",
+  "name": "Full Body 3×",
+  "description": "Beginner-friendly 3-day full body program. Every session hits all major muscle groups for fast progress and technique practice.",
+  "tags": ["beginner", "strength", "barbell"],
+  "days": [
+    {
+      "name": "Day A",
+      "exercises": [
+        { "exerciseId": "squat",        "sets": 3, "reps": 8,  "restTime": 120 },
+        { "exerciseId": "bench-press",  "sets": 3, "reps": 8,  "restTime": 120 },
+        { "exerciseId": "barbell-row",  "sets": 3, "reps": 8,  "restTime": 120 },
+        { "exerciseId": "ohp",          "sets": 3, "reps": 10, "restTime": 90  },
+        { "exerciseId": "barbell-curl", "sets": 2, "reps": 12, "restTime": 60  }
+      ]
+    },
+    {
+      "name": "Day B",
+      "exercises": [
+        { "exerciseId": "squat",         "sets": 3, "reps": 8,  "restTime": 120 },
+        { "exerciseId": "deadlift",      "sets": 2, "reps": 6,  "restTime": 180 },
+        { "exerciseId": "incline-bench", "sets": 3, "reps": 10, "restTime": 90  },
+        { "exerciseId": "lat-pulldown",  "sets": 3, "reps": 10, "restTime": 90  },
+        { "exerciseId": "tricep-push",   "sets": 2, "reps": 12, "restTime": 60  }
+      ]
+    },
+    {
+      "name": "Day C",
+      "exercises": [
+        { "exerciseId": "squat",       "sets": 3, "reps": 8,  "restTime": 120 },
+        { "exerciseId": "bench-press", "sets": 3, "reps": 8,  "restTime": 120 },
+        { "exerciseId": "pull-up",     "sets": 3, "reps": 8,  "restTime": 120 },
+        { "exerciseId": "lat-raise",   "sets": 3, "reps": 12, "restTime": 60  },
+        { "exerciseId": "rdl",         "sets": 3, "reps": 10, "restTime": 120 }
+      ]
+    }
+  ]
+}
