@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useLayoutEffect } from 'react'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, BarChart, Bar
@@ -6,6 +6,7 @@ import {
 import { dbGet, dbSet, loadAllData } from './db'
 import { MUSCLE_COLORS, DIFF_COLORS, EXERCISES } from './constants'
 import { getTranslations, availableLanguages } from './i18n/index.js'
+import { EQ_ICONS, DiffBars } from './Icons.jsx'
 import './index.css'
 
 // ── HELPERS ──────────────────────────────────────────────────────
@@ -26,12 +27,66 @@ const fmtCardioVal = (metric, val) => {
   return val || 0
 }
 const METRIC_UNIT = { duration: 'min', distance: 'km', speed: 'km/h', incline: '%', calories: 'kcal', heart_rate: 'bpm', resistance: 'lvl' }
+const CARDIO_PICKER = { duration: { min: 0, max: 120, step: 1 }, distance: { min: 0, max: 100, step: 0.1 }, speed: { min: 0, max: 40, step: 0.1 }, incline: { min: 0, max: 30, step: 1 }, calories: { min: 0, max: 2000, step: 5 }, heart_rate: { min: 40, max: 220, step: 1 }, resistance: { min: 0, max: 30, step: 1 } }
 const newCardioInterval = metrics => {
   const interval = { id: uid(), completed: false }
   metrics.forEach(m => { interval[m] = 0 })
   return interval
 }
 const weekOf = ds => { const d = new Date(ds); d.setDate(d.getDate() - (d.getDay() + 6) % 7); return d.toISOString().split('T')[0] }
+
+// ── WHEEL PICKER ─────────────────────────────────────────────────
+function WheelPicker({ label, value, min, max, step, unit, t, onClose, onConfirm }) {
+  const ITEM_H = 44
+  const items = []
+  for (let v = min; v <= max; v = Math.round((v + step) * 1000) / 1000) items.push(v)
+
+  const scrollRef = useRef(null)
+  const selectedRef = useRef(value)
+  const timerRef = useRef(null)
+
+  const valueToIdx = v => Math.max(0, Math.min(items.length - 1, Math.round((v - min) / step)))
+
+  useLayoutEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = valueToIdx(value) * ITEM_H
+  }, [])
+
+  const handleScroll = () => {
+    if (!scrollRef.current) return
+    const idx = Math.round(scrollRef.current.scrollTop / ITEM_H)
+    const clamped = Math.max(0, Math.min(items.length - 1, idx))
+    selectedRef.current = items[clamped]
+    clearTimeout(timerRef.current)
+    timerRef.current = setTimeout(() => {
+      if (scrollRef.current) scrollRef.current.scrollTop = clamped * ITEM_H
+    }, 150)
+  }
+
+  const handleDone = () => { onConfirm(selectedRef.current); onClose() }
+
+  return (
+    <div className="wheel-overlay" onClick={onClose}>
+      <div className="wheel-sheet" onClick={e => e.stopPropagation()}>
+        <div className="wheel-header">
+          <span className="wheel-label">{label}{unit ? ` (${unit})` : ''}</span>
+          <button className="wheel-done-btn" onClick={handleDone}>{t.done}</button>
+        </div>
+        <div className="wheel-wrap">
+          <div className="wheel-scroll" ref={scrollRef} onScroll={handleScroll}>
+            <div className="wheel-pad" />
+            {items.map((v, i) => (
+              <div key={i} className="wheel-item">{step < 1 ? v.toFixed(1) : v}</div>
+            ))}
+            <div className="wheel-pad" />
+          </div>
+          <div className="wheel-selector" />
+          <div className="wheel-fade-top" />
+          <div className="wheel-fade-bottom" />
+        </div>
+      </div>
+    </div>
+  )
+}
 
 // ── ONBOARDING ───────────────────────────────────────────────────
 function Onboarding({ onComplete }) {
@@ -112,6 +167,7 @@ function WorkoutSummary({ summary, unit, t, onClose }) {
 function CardioExCard({ ex, exData, t, workoutActive, workoutSets, setWorkoutSets, updEx, remEx, ei, onDragStart, onDrop }) {
   const color = mc(exData?.mg)
   const metrics = exData?.metrics || ['duration']
+  const [picker, setPicker] = useState(null)
 
   const intervals = ex.sets
   const updInterval = (si, field, val) => updEx(ei, e => ({ ...e, sets: e.sets.map((s, i) => i === si ? { ...s, [field]: val } : s) }))
@@ -168,17 +224,16 @@ function CardioExCard({ ex, exData, t, workoutActive, workoutSets, setWorkoutSet
               const val = workoutActive ? (ws?.[m] ?? interval[m]) : interval[m]
               return (
                 <div key={m} className="cardio-cell">
-                  <input
-                    type="number" min="0" step={m === 'distance' || m === 'speed' ? '0.1' : '1'}
-                    value={val || ''}
-                    onChange={e => {
-                      const n = +e.target.value || 0
-                      workoutActive ? updWS(si, m, n) : updInterval(si, m, n)
-                    }}
-                    className="set-input cardio-input"
-                    placeholder="0"
-                    disabled={done}
-                  />
+                  <button
+                    className="set-input cardio-input set-input-btn"
+                    onClick={() => {
+                      if (!done) {
+                        const cfg = CARDIO_PICKER[m] || { min: 0, max: 999, step: 1 }
+                        setPicker({ label: t[m] || m, value: val || 0, ...cfg, unit: METRIC_UNIT[m], onConfirm: n => workoutActive ? updWS(si, m, n) : updInterval(si, m, n) })
+                      }
+                    }}>
+                    {val || 0}
+                  </button>
                   <div className="cardio-unit">{METRIC_UNIT[m]}</div>
                 </div>
               )
@@ -199,6 +254,7 @@ function CardioExCard({ ex, exData, t, workoutActive, workoutSets, setWorkoutSet
       {!workoutActive && (
         <button className="add-set-btn" onClick={addInterval}>{t.addInterval}</button>
       )}
+      {picker && <WheelPicker t={t} {...picker} onClose={() => setPicker(null)} />}
     </div>
   )
 }
@@ -211,6 +267,7 @@ function ProgramTab({ t, days, selectedDay, setSelectedDay, program, setProgram,
   const exercises = program[selectedDay] || []
   const dragIdx = useRef(null)
   const lastSession = history.find(h => h.dayId === selectedDay)
+  const [picker, setPicker] = useState(null)
 
   const updEx = (idx, fn) => setProgram(prev => {
     const a = [...(prev[selectedDay] || [])]
@@ -251,6 +308,15 @@ function ProgramTab({ t, days, selectedDay, setSelectedDay, program, setProgram,
           <button key={d.id} className={`day-chip ${selectedDay === d.id ? 'active' : ''}`} onClick={() => setSelectedDay(d.id)}>{d.name}</button>
         ))}
       </div>
+
+      {exercises.length > 0 && (
+        <div className="workout-action-bar">
+          <button className={`workout-action-btn ${workoutActive ? 'finish' : 'start'}`}
+            onClick={workoutActive ? finishWorkout : startWorkout}>
+            {workoutActive ? `🏁 ${t.finishW}` : `▶ ${t.startW}`}
+          </button>
+        </div>
+      )}
 
       {exercises.length === 0 ? (
         <div className="empty-state">
@@ -299,9 +365,10 @@ function ProgramTab({ t, days, selectedDay, setSelectedDay, program, setProgram,
               {!workoutActive && (
                 <div className="rest-row">
                   <span className="rest-label">{t.restS}</span>
-                  <input type="number" min="0" max="600" value={ex.restTime ?? 90}
-                    onChange={e => updEx(ei, x => ({ ...x, restTime: +e.target.value || 0 }))}
-                    className="rest-input" />
+                  <button className="rest-input set-input-btn"
+                    onClick={() => setPicker({ label: t.restS, value: ex.restTime ?? 90, min: 0, max: 600, step: 1, onConfirm: v => updEx(ei, x => ({ ...x, restTime: v })) })}>
+                    {ex.restTime ?? 90}
+                  </button>
                 </div>
               )}
 
@@ -317,19 +384,19 @@ function ProgramTab({ t, days, selectedDay, setSelectedDay, program, setProgram,
                   <div key={set.id || si} className={`set-row ${done ? 'set-done' : ''}`}>
                     <span className="set-num">{si + 1}</span>
                     <div>
-                      <input type="number" min="0"
-                        value={workoutActive ? (ws?.reps ?? set.reps) : set.reps}
-                        onChange={e => workoutActive ? updWS(ex.id, si, 'reps', +e.target.value || 0) : updSet(ei, si, 'reps', +e.target.value || 0)}
-                        placeholder={lastSet ? String(lastSet.reps) : '0'}
-                        className="set-input" />
+                      <button
+                        className="set-input set-input-btn"
+                        onClick={() => { if (!done) setPicker({ label: t.reps, value: workoutActive ? (ws?.reps ?? set.reps) : set.reps, min: 1, max: 50, step: 1, onConfirm: v => workoutActive ? updWS(ex.id, si, 'reps', v) : updSet(ei, si, 'reps', v) }) }}>
+                        {workoutActive ? (ws?.reps ?? set.reps) : set.reps}
+                      </button>
                       {lastSet && !workoutActive && <div className="set-hint">{lastSet.reps}</div>}
                     </div>
                     <div>
-                      <input type="number" min="0" step="0.5"
-                        value={workoutActive ? (ws?.weight ?? set.weight) : set.weight}
-                        onChange={e => workoutActive ? updWS(ex.id, si, 'weight', +e.target.value || 0) : updSet(ei, si, 'weight', +e.target.value || 0)}
-                        placeholder={lastSet ? String(lastSet.weight) : '0'}
-                        className="set-input" />
+                      <button
+                        className="set-input set-input-btn"
+                        onClick={() => { if (!done) setPicker({ label: t.wt, value: workoutActive ? (ws?.weight ?? set.weight) : set.weight, unit, min: 0, max: 250, step: 0.5, onConfirm: v => workoutActive ? updWS(ex.id, si, 'weight', v) : updSet(ei, si, 'weight', v) }) }}>
+                        {workoutActive ? (ws?.weight ?? set.weight) : set.weight}
+                      </button>
                       {lastSet && !workoutActive && <div className="set-hint">{lastSet.weight}</div>}
                     </div>
                     <div className="complete-cell">
@@ -353,14 +420,7 @@ function ProgramTab({ t, days, selectedDay, setSelectedDay, program, setProgram,
         })
       )}
 
-      {exercises.length > 0 && (
-        <div className="floating-btn-wrap">
-          <button className={`floating-btn ${workoutActive ? 'finish' : 'start'}`}
-            onClick={workoutActive ? finishWorkout : startWorkout}>
-            {workoutActive ? `🏁 ${t.finishW}` : `▶ ${t.startW}`}
-          </button>
-        </div>
-      )}
+      {picker && <WheelPicker t={t} {...picker} onClose={() => setPicker(null)} />}
     </div>
   )
 }
@@ -433,27 +493,32 @@ function LibraryTab({ t, days, program, setProgram, customEx, setCustomEx }) {
 
       <button className="custom-btn" onClick={() => setCustModal(true)}>{t.mkCustom}</button>
 
-      {grouped.map(([mg, exs]) => (
-        <div key={mg} className="muscle-group">
-          <div className="mg-header">
-            <div className="mg-dot" style={{ background: mc(mg) }} />
-            <span className="mg-label" style={{ color: mc(mg) }}>{t[mg]}</span>
-          </div>
-          {exs.map(ex => (
-            <div key={ex.id} className="lib-card" style={{ borderLeftColor: mc(ex.mg) }}>
-              <div>
-                <div className="lib-name">{ex.name}</div>
-                <div className="lib-tags">
-                  <span className="eq-tag">{t[ex.eq]}</span>
-                  <span className="dif-tag" style={{ color: DIFF_COLORS[ex.dif] }}>{t[ex.dif]}</span>
-                  {ex.custom && <span className="custom-badge">✦ custom</span>}
-                </div>
-              </div>
-              <button className="add-btn" onClick={() => handleAdd(ex)}>{t.addProg}</button>
+      {grouped.map(([mg, exs]) => {
+        return (
+          <div key={mg} className="muscle-group">
+            <div className="mg-header">
+              <div className="mg-dot" style={{ background: mc(mg) }} />
+              <span className="mg-label" style={{ color: mc(mg) }}>{t[mg]}</span>
             </div>
-          ))}
-        </div>
-      ))}
+            {exs.map(ex => {
+              const EqIcon = EQ_ICONS[ex.eq]
+              return (
+                <div key={ex.id} className="lib-card" style={{ borderLeftColor: mc(ex.mg) }}>
+                  <div>
+                    <div className="lib-name">{ex.name}</div>
+                    <div className="lib-tags">
+                      <span className="eq-tag">{EqIcon && <EqIcon size={13} />}{t[ex.eq]}</span>
+                      <span className="dif-tag" style={{ color: DIFF_COLORS[ex.dif] }}><DiffBars dif={ex.dif} />{t[ex.dif]}</span>
+                      {ex.custom && <span className="custom-badge">✦ custom</span>}
+                    </div>
+                  </div>
+                  <button className="add-btn" onClick={() => handleAdd(ex)}>{t.addProg}</button>
+                </div>
+              )
+            })}
+          </div>
+        )
+      })}
 
       {addModal && (
         <Modal onClose={() => { setAddModal(null); setWarmupChoice(false) }}>
