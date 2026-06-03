@@ -283,8 +283,14 @@ body {
 .lib-tags { display: flex; gap: 8px; align-items: center; }
 .dif-tag { font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; }
 .custom-badge { font-size: 11px; color: #a855f7; }
+.lib-card-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .add-btn { padding: 7px 14px; border-radius: 10px; border: none; background: #2563eb; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; flex-shrink: 0; font-family: inherit; }
 .add-btn:hover { background: #1d4ed8; }
+.info-btn { padding: 5px 9px; border-radius: 10px; border: 1px solid var(--border); background: transparent; color: var(--sub); font-size: 14px; cursor: pointer; flex-shrink: 0; font-family: inherit; line-height: 1; }
+.info-btn:hover { background: var(--bg3); }
+.info-meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0 14px; }
+.info-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin-top: 12px; margin-bottom: 4px; }
+.info-text { font-size: 14px; color: var(--sub); line-height: 1.55; }
 
 /* ── MODAL ─────────────────────────── */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; display: flex; align-items: flex-end; justify-content: center; }

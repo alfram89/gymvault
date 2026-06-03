@@ -3,6 +3,7 @@ import { MUSCLE_COLORS, DIFF_COLORS, EXERCISES } from '../constants'
 import { mc, uid, newCardioInterval } from '../helpers'
 import { EQ_ICONS, DiffBars } from '../Icons.jsx'
 import { Modal } from '../components/Modal'
+import { EXERCISE_INFO } from '../data/exerciseInfo'
 
 export function LibraryTab({ t, days, program, setProgram, customEx, setCustomEx }) {
   const [srch, setSrch] = useState('')
@@ -10,6 +11,7 @@ export function LibraryTab({ t, days, program, setProgram, customEx, setCustomEx
   const [fE, setFE] = useState('all')
   const [fD, setFD] = useState('all')
   const [addModal, setAddModal] = useState(null)
+  const [infoModal, setInfoModal] = useState(null)
   const [warmupChoice, setWarmupChoice] = useState(false)
   const [custModal, setCustModal] = useState(false)
   const [form, setForm] = useState({ name: '', mg: 'chest', eq: 'barbell', dif: 'intermediate' })
@@ -90,7 +92,10 @@ export function LibraryTab({ t, days, program, setProgram, customEx, setCustomEx
                       {ex.custom && <span className="custom-badge">✦ custom</span>}
                     </div>
                   </div>
-                  <button className="add-btn" onClick={() => handleAdd(ex)}>{t.addProg}</button>
+                  <div className="lib-card-actions">
+                    <button className="info-btn" onClick={() => setInfoModal(ex)}>ⓘ</button>
+                    <button className="add-btn" onClick={() => handleAdd(ex)}>{t.addProg}</button>
+                  </div>
                 </div>
               )
             })}
@@ -137,6 +142,32 @@ export function LibraryTab({ t, days, program, setProgram, customEx, setCustomEx
           </div>
         </Modal>
       )}
+
+      {infoModal && (() => {
+        const info = EXERCISE_INFO[infoModal.id]
+        const color = mc(infoModal.mg)
+        return (
+          <Modal onClose={() => setInfoModal(null)}>
+            <h3 className="modal-title">{infoModal.name}</h3>
+            <div className="info-meta">
+              <span className="muscle-tag" style={{ background: color + '22', color }}>{t[infoModal.mg] || infoModal.mg}</span>
+              <span className="eq-tag">{t[infoModal.eq] || infoModal.eq}</span>
+              <span className="dif-tag" style={{ color: DIFF_COLORS[infoModal.dif] }}>{t[infoModal.dif] || infoModal.dif}</span>
+            </div>
+            {info ? (
+              <>
+                <p className="info-label">{t.infoMuscles}</p>
+                <p className="info-text">{info.muscles}</p>
+                <p className="info-label">{t.infoHowTo}</p>
+                <p className="info-text">{info.description}</p>
+              </>
+            ) : (
+              <p className="info-text" style={{ marginTop: 12 }}>{t.infoCustomNote}</p>
+            )}
+            <button className="secondary-btn" style={{ marginTop: 16 }} onClick={() => setInfoModal(null)}>{t.close}</button>
+          </Modal>
+        )
+      })()}
     </div>
   )
 }

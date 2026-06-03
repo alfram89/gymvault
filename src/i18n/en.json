@@ -119,5 +119,8 @@
   "noTplMatch": "No templates match",
   "editProgram": "Edit",
   "editDone": "Done",
-  "remove": "Remove"
+  "remove": "Remove",
+  "infoMuscles": "Muscles targeted",
+  "infoHowTo": "How to do it",
+  "infoCustomNote": "No description available for custom exercises."
 }
