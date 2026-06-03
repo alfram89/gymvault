@@ -594,7 +594,11 @@ function HistoryTab({ t, history, days, unit, darkMode }) {
   })
 
   const weekVol = {}
-  history.forEach(h => { const w = weekOf(h.date); weekVol[w] = (weekVol[w] || 0) + h.exercises.reduce((t, ex) => t + calcVol(ex), 0) })
+  history.forEach(h => {
+    const w = weekOf(h.date)
+    const vol = h.exercises.filter(ex => !ex.sets.length || !isCardioSet(ex.sets[0])).reduce((t, ex) => t + calcVol(ex), 0)
+    weekVol[w] = (weekVol[w] || 0) + vol
+  })
   const volData = Object.entries(weekVol).sort(([a], [b]) => a > b ? 1 : -1).slice(-8).map(([w, v]) => ({ w: w.slice(5), v: Math.round(v) }))
 
   const trained = new Set(history.map(h => h.date))
