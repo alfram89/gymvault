@@ -114,5 +114,7 @@
   "back": "Back",
   "day": "day",
   "days": "days",
-  "startFromTemplate": "Start from a template"
+  "startFromTemplate": "Start from a template",
+  "srchTemplates": "Search templates…",
+  "noTplMatch": "No templates match"
 }

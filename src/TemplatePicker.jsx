@@ -5,6 +5,7 @@ const TAGS = ['all', 'beginner', 'intermediate', 'strength', 'hypertrophy', 'bar
 
 export function TemplatePicker({ t, allEx, userTemplates, onApply, onDelete, onClose }) {
   const [filter, setFilter]     = useState('all')
+  const [search, setSearch]     = useState('')
   const [selected, setSelected] = useState(null)
   const [mode, setMode]         = useState('replace')
 
@@ -12,7 +13,11 @@ export function TemplatePicker({ t, allEx, userTemplates, onApply, onDelete, onC
     ...TEMPLATES,
     ...userTemplates.map(ut => ({ ...ut, isUser: true })),
   ]
-  const filtered = filter === 'all' ? all : all.filter(tp => tp.tags?.includes(filter))
+  const filtered = all.filter(tp => {
+    if (filter !== 'all' && !tp.tags?.includes(filter)) return false
+    if (search && !tp.name.toLowerCase().includes(search.toLowerCase())) return false
+    return true
+  })
 
   const missingCount = tp =>
     tp.days.flatMap(d => d.exercises)
@@ -64,6 +69,14 @@ export function TemplatePicker({ t, allEx, userTemplates, onApply, onDelete, onC
           <button className="ghost-btn tpl-close-btn" onClick={onClose}>✕</button>
         </div>
 
+        <input
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder={t.srchTemplates}
+          className="search-input"
+          style={{ marginBottom: 10 }}
+        />
+
         <div className="chip-row">
           {TAGS.map(tag => (
             <button key={tag} className={`chip ${filter === tag ? 'active' : ''}`}
@@ -75,7 +88,7 @@ export function TemplatePicker({ t, allEx, userTemplates, onApply, onDelete, onC
 
         <div className="tpl-list">
           {filtered.length === 0 && (
-            <p className="chart-empty" style={{ paddingTop: 24 }}>No templates match this filter</p>
+            <p className="chart-empty" style={{ paddingTop: 24 }}>{t.noTplMatch}</p>
           )}
 
           {filtered.map(tp => (
