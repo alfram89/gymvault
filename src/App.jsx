@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useLayoutEffect } from 'react'
+import { useState, useEffect, useRef, useLayoutEffect, useMemo } from 'react'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, BarChart, Bar
@@ -597,20 +597,22 @@ function HistoryTab({ t, history, days, unit }) {
   history.forEach(h => { const w = weekOf(h.date); weekVol[w] = (weekVol[w] || 0) + h.exercises.reduce((t, ex) => t + calcVol(ex), 0) })
   const volData = Object.entries(weekVol).sort(([a], [b]) => a > b ? 1 : -1).slice(-8).map(([w, v]) => ({ w: w.slice(5), v: Math.round(v) }))
 
-  const trained = new Set(history.map(h => h.date))
-  const today = new Date()
-  const heatmap = Array.from({ length: 84 }, (_, i) => {
-    const d = new Date(today); d.setDate(d.getDate() - (83 - i))
-    const ds = d.toISOString().split('T')[0]
-    return { ds, on: trained.has(ds) }
-  })
-
-  let streak = 0
-  const srt = [...trained].sort().reverse()
-  if (srt.length) {
-    let c = new Date(today.toISOString().split('T')[0])
-    for (const ds of srt) { if (ds === c.toISOString().split('T')[0]) { streak++; c.setDate(c.getDate() - 1) } else break }
-  }
+  const { heatmap, streak } = useMemo(() => {
+    const trained = new Set(history.map(h => h.date))
+    const today = new Date()
+    const heatmap = Array.from({ length: 84 }, (_, i) => {
+      const d = new Date(today); d.setDate(d.getDate() - (83 - i))
+      const ds = d.toISOString().split('T')[0]
+      return { ds, on: trained.has(ds) }
+    })
+    let streak = 0
+    const srt = [...trained].sort().reverse()
+    if (srt.length) {
+      let c = new Date(today.toISOString().split('T')[0])
+      for (const ds of srt) { if (ds === c.toISOString().split('T')[0]) { streak++; c.setDate(c.getDate() - 1) } else break }
+    }
+    return { heatmap, streak }
+  }, [history])
 
   const ttStyle = { contentStyle: { background: '#1f2937', border: 'none', borderRadius: 8, fontSize: 12 } }
 
