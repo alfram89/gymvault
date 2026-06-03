@@ -125,7 +125,7 @@ export function SettingsTab({ t, lang, setLang, unit, setUnit, darkMode, setDark
       </div>
 
       <div className="settings-section">
-        <p className="section-label">Data</p>
+        <p className="section-label">{t.dataSection}</p>
         <button className="data-btn" onClick={onOpenTemplatePicker}>📋 {t.loadTemplate}</button>
         <button className="data-btn" onClick={() => setShowSaveTpl(true)}>💾 {t.saveAsTemplate}</button>
         <button className="data-btn" onClick={exportJSON}>⬇️ {t.expJ}</button>
