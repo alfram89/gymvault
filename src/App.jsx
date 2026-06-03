@@ -577,8 +577,14 @@ function HistoryTab({ t, history, days, unit, darkMode }) {
     })
   }))
 
-  const histEx = [...new Set(history.flatMap(h => h.exercises.map(e => e.exerciseId)))]
-    .map(id => ({ id, name: history.flatMap(h => h.exercises).find(e => e.exerciseId === id)?.exerciseName || id }))
+  const histEx = []
+  const histExSeen = new Map()
+  history.flatMap(h => h.exercises).forEach(e => {
+    if (!histExSeen.has(e.exerciseId)) {
+      histExSeen.set(e.exerciseId, true)
+      histEx.push({ id: e.exerciseId, name: e.exerciseName || e.exerciseId })
+    }
+  })
 
   const progData = [...history].filter(h => h.exercises.some(e => e.exerciseId === selEx && !e.isWarmup)).reverse().map(h => {
     const ex = h.exercises.find(e => e.exerciseId === selEx && !e.isWarmup)
