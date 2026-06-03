@@ -23,10 +23,6 @@ const calcVol = ex => {
     return sets.filter(s => s.completed).reduce((t, s) => t + (s.duration || 0), 0)
   return sets.filter(s => s.completed).reduce((t, s) => t + (s.weight || 0) * (s.reps || 0), 0)
 }
-const fmtCardioVal = (metric, val) => {
-  if (metric === 'duration') return fmtTime(val || 0)
-  return val || 0
-}
 const METRIC_UNIT = { duration: 'min', distance: 'km', speed: 'km/h', incline: '%', calories: 'kcal', heart_rate: 'bpm', resistance: 'lvl' }
 const CARDIO_PICKER = { duration: { min: 0, max: 120, step: 1 }, distance: { min: 0, max: 100, step: 0.1 }, speed: { min: 0, max: 40, step: 0.1 }, incline: { min: 0, max: 30, step: 1 }, calories: { min: 0, max: 2000, step: 5 }, heart_rate: { min: 40, max: 220, step: 1 }, resistance: { min: 0, max: 30, step: 1 } }
 const newCardioInterval = metrics => {
@@ -172,10 +168,7 @@ function CardioExCard({ ex, exData, t, workoutActive, workoutSets, setWorkoutSet
 
   const intervals = ex.sets
   const updInterval = (si, field, val) => updEx(ei, e => ({ ...e, sets: e.sets.map((s, i) => i === si ? { ...s, [field]: val } : s) }))
-  const addInterval = () => updEx(ei, e => {
-    const last = e.sets[e.sets.length - 1] || newCardioInterval(metrics)
-    return { ...e, sets: [...e.sets, { ...newCardioInterval(metrics), id: uid() }] }
-  })
+  const addInterval = () => updEx(ei, e => ({ ...e, sets: [...e.sets, { ...newCardioInterval(metrics), id: uid() }] }))
   const remInterval = si => updEx(ei, e => e.sets.length <= 1 ? e : { ...e, sets: e.sets.filter((_, i) => i !== si) })
   const completeInterval = si => {
     setWorkoutSets(prev => { const s = [...(prev[ex.id] || [])]; s[si] = { ...s[si], completed: true }; return { ...prev, [ex.id]: s } })
