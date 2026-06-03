@@ -186,9 +186,19 @@ body {
 .ghost-btn { display: block; width: 100%; padding: 10px; background: none; border: none; color: var(--sub); cursor: pointer; font-size: 14px; margin-top: 4px; font-family: inherit; }
 
 /* ── DAY SELECTOR ──────────────────── */
-.day-selector { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 12px; }
+.day-selector-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.day-selector { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 0; flex: 1; }
 .day-chip { padding: 7px 16px; border-radius: 10px; border: none; background: var(--bg3); color: var(--sub); font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; transition: all 0.15s; font-family: inherit; }
 .day-chip.active { background: #2563eb; color: #fff; }
+.edit-program-btn { flex-shrink: 0; padding: 7px 14px; border-radius: 10px; border: none; background: var(--bg3); color: var(--sub); font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.15s; white-space: nowrap; }
+.edit-program-btn:hover { background: var(--border); }
+
+/* ── EDIT MODE ─────────────────────── */
+.move-btn { padding: 4px 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg3); color: var(--text); font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; line-height: 1; }
+.move-btn:disabled { opacity: 0.25; cursor: default; }
+.remove-ex-btn { padding: 5px 10px; border-radius: 8px; border: none; background: #fef2f2; color: #ef4444; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; }
+.app.dark .remove-ex-btn { background: #450a0a44; color: #f87171; }
+.warmup-badge-inline { font-size: 12px; }
 
 /* ── EXERCISE CARD ─────────────────── */
 .ex-card { background: var(--bg2); border-radius: 16px; border-left: 4px solid transparent; margin-bottom: 12px; overflow: hidden; cursor: default; }

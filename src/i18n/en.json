@@ -116,5 +116,8 @@
   "days": "days",
   "startFromTemplate": "Start from a template",
   "srchTemplates": "Search templates…",
-  "noTplMatch": "No templates match"
+  "noTplMatch": "No templates match",
+  "editProgram": "Edit",
+  "editDone": "Done",
+  "remove": "Remove"
 }
