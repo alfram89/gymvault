@@ -764,6 +764,14 @@ function HistoryTab({ t, history, days, unit, darkMode }) {
 }
 
 // ── SETTINGS TAB ─────────────────────────────────────────────────
+function Tgl({ opts, val, fn }) {
+  return (
+    <div className="toggle-row">
+      {opts.map(([v, lb]) => <button key={String(v)} className={`toggle-btn sm ${val === v ? 'active' : ''}`} onClick={() => fn(v)}>{lb}</button>)}
+    </div>
+  )
+}
+
 function SettingsTab({ t, lang, setLang, unit, setUnit, darkMode, setDarkMode,
   days, setDays, program, setProgram, history, setHistory, customEx, setCustomEx,
   userTemplates, setUserTemplates, installPrompt, setInstallPrompt,
@@ -837,12 +845,6 @@ function SettingsTab({ t, lang, setLang, unit, setUnit, darkMode, setDarkMode,
     setProgram({ 'day-a': [], 'day-b': [] }); setHistory([]); setCustomEx([]); setUserTemplates([])
     setResetV(''); setShowReset(false)
   }
-
-  const Tgl = ({ opts, val, fn }) => (
-    <div className="toggle-row">
-      {opts.map(([v, lb]) => <button key={String(v)} className={`toggle-btn sm ${val === v ? 'active' : ''}`} onClick={() => fn(v)}>{lb}</button>)}
-    </div>
-  )
 
   return (
     <div className="tab-scroll">
