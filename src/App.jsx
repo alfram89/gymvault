@@ -829,7 +829,7 @@ function SettingsTab({ t, lang, setLang, unit, setUnit, darkMode, setDarkMode,
   const doReset = () => {
     if (resetV !== t.resetKw) return
     setDays([{ id: 'day-a', name: 'Day A' }, { id: 'day-b', name: 'Day B' }])
-    setProgram({ 'day-a': [], 'day-b': [] }); setHistory([]); setCustomEx([])
+    setProgram({ 'day-a': [], 'day-b': [] }); setHistory([]); setCustomEx([]); setUserTemplates([])
     setResetV(''); setShowReset(false)
   }
 
