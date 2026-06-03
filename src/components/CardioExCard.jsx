@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { DIFF_COLORS } from '../constants'
-import { mc, isCardioSet, METRIC_UNIT, CARDIO_PICKER, newCardioInterval, uid } from '../helpers'
+import { mc, METRIC_UNIT, CARDIO_PICKER, newCardioInterval, uid } from '../helpers'
 import { WheelPicker } from './WheelPicker'
 
-export function CardioExCard({ ex, exData, t, workoutActive, workoutSets, setWorkoutSets, updEx, remEx, ei, onDragStart, onDrop }) {
+export function CardioExCard({ ex, exData, t, workoutActive, workoutSets, setWorkoutSets,
+  updEx, remEx, ei, editMode, onDragStart, onDrop, onMoveUp, onMoveDown, isFirst, isLast }) {
   const color = mc(exData?.mg)
   const metrics = exData?.metrics || ['duration']
   const [picker, setPicker] = useState(null)
@@ -20,7 +21,7 @@ export function CardioExCard({ ex, exData, t, workoutActive, workoutSets, setWor
   return (
     <div className={`ex-card cardio-card ${ex.isWarmup ? 'warmup-exercise' : ''}`}
       style={{ borderLeftColor: ex.isWarmup ? '#f59e0b' : color }}
-      draggable onDragStart={() => onDragStart(ei)}
+      draggable={editMode} onDragStart={() => onDragStart(ei)}
       onDragOver={e => e.preventDefault()} onDrop={() => onDrop(ei)}>
 
       <div className="ex-header">
@@ -30,66 +31,76 @@ export function CardioExCard({ ex, exData, t, workoutActive, workoutSets, setWor
             <span className="muscle-tag" style={{ background: color + '22', color }}>{t.cardio}</span>
             <span className="eq-tag">{t[exData?.eq] || exData?.eq}</span>
             <span className="dif-tag" style={{ color: DIFF_COLORS[exData?.dif] }}>{t[exData?.dif] || exData?.dif}</span>
+            {ex.isWarmup && <span className="warmup-badge-inline">🔥</span>}
           </div>
         </div>
         <div className="ex-actions">
-          {!workoutActive && (
-            <button className={`warmup-chip ${ex.isWarmup ? 'active' : ''}`}
-              onClick={() => updEx(ei, e => ({ ...e, isWarmup: !e.isWarmup }))}>
-              {ex.isWarmup ? '🔥' : t.warmupEx}
-            </button>
+          {editMode && (
+            <>
+              <button className={`warmup-chip ${ex.isWarmup ? 'active' : ''}`}
+                onClick={() => updEx(ei, e => ({ ...e, isWarmup: !e.isWarmup }))}>
+                {ex.isWarmup ? '🔥' : t.warmupEx}
+              </button>
+              <button className="move-btn" onClick={onMoveUp} disabled={isFirst}>↑</button>
+              <button className="move-btn" onClick={onMoveDown} disabled={isLast}>↓</button>
+              <button className="remove-ex-btn" onClick={() => remEx(ei)}>{t.remove}</button>
+            </>
           )}
-          <span className="drag-handle">⠿</span>
-          {!workoutActive && <button className="remove-btn" onClick={() => remEx(ei)}>✕</button>}
+          {!editMode && !workoutActive && <span className="drag-handle">⠿</span>}
         </div>
       </div>
 
-      <div className="cardio-header">
-        <span>#</span>
-        {metrics.map(m => <span key={m}>{t[m] || m}</span>)}
-        <span></span>
-      </div>
-
-      {intervals.map((interval, si) => {
-        const ws = workoutSets[ex.id]?.[si]
-        const done = workoutActive && ws?.completed
-        return (
-          <div key={interval.id || si} className={`cardio-row ${done ? 'set-done' : ''}`}>
-            <span className="set-num">{si + 1}</span>
-            {metrics.map(m => {
-              const val = workoutActive ? (ws?.[m] ?? interval[m]) : interval[m]
-              return (
-                <div key={m} className="cardio-cell">
-                  <button
-                    className="set-input cardio-input set-input-btn"
-                    onClick={() => {
-                      if (!done) {
-                        const cfg = CARDIO_PICKER[m] || { min: 0, max: 999, step: 1 }
-                        setPicker({ label: t[m] || m, value: val || 0, ...cfg, unit: METRIC_UNIT[m], onConfirm: n => workoutActive ? updWS(si, m, n) : updInterval(si, m, n) })
-                      }
-                    }}>
-                    {val || 0}
-                  </button>
-                  <div className="cardio-unit">{METRIC_UNIT[m]}</div>
-                </div>
-              )
-            })}
-            <div className="complete-cell">
-              {workoutActive ? (
-                <button className={`complete-btn ${done ? 'done' : ''}`} onClick={() => !done && completeInterval(si)}>
-                  {done ? '✓' : '○'}
-                </button>
-              ) : (
-                <button className="rem-set-btn" onClick={() => remInterval(si)}>✕</button>
-              )}
-            </div>
+      {!editMode && (
+        <>
+          <div className="cardio-header">
+            <span>#</span>
+            {metrics.map(m => <span key={m}>{t[m] || m}</span>)}
+            <span></span>
           </div>
-        )
-      })}
 
-      {!workoutActive && (
-        <button className="add-set-btn" onClick={addInterval}>{t.addInterval}</button>
+          {intervals.map((interval, si) => {
+            const ws = workoutSets[ex.id]?.[si]
+            const done = workoutActive && ws?.completed
+            return (
+              <div key={interval.id || si} className={`cardio-row ${done ? 'set-done' : ''}`}>
+                <span className="set-num">{si + 1}</span>
+                {metrics.map(m => {
+                  const val = workoutActive ? (ws?.[m] ?? interval[m]) : interval[m]
+                  return (
+                    <div key={m} className="cardio-cell">
+                      <button
+                        className="set-input cardio-input set-input-btn"
+                        onClick={() => {
+                          if (!done) {
+                            const cfg = CARDIO_PICKER[m] || { min: 0, max: 999, step: 1 }
+                            setPicker({ label: t[m] || m, value: val || 0, ...cfg, unit: METRIC_UNIT[m], onConfirm: n => workoutActive ? updWS(si, m, n) : updInterval(si, m, n) })
+                          }
+                        }}>
+                        {val || 0}
+                      </button>
+                      <div className="cardio-unit">{METRIC_UNIT[m]}</div>
+                    </div>
+                  )
+                })}
+                <div className="complete-cell">
+                  {workoutActive ? (
+                    <button className={`complete-btn ${done ? 'done' : ''}`} onClick={() => !done && completeInterval(si)}>
+                      {done ? '✓' : '○'}
+                    </button>
+                  ) : (
+                    <button className="rem-set-btn" onClick={() => remInterval(si)}>✕</button>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+
+          {!workoutActive && (
+            <button className="add-set-btn" onClick={addInterval}>{t.addInterval}</button>
+          )}
+        </>
       )}
+
       {picker && <WheelPicker t={t} {...picker} onClose={() => setPicker(null)} />}
     </div>
   )
