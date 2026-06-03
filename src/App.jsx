@@ -568,7 +568,7 @@ function LibraryTab({ t, days, program, setProgram, customEx, setCustomEx }) {
 }
 
 // ── HISTORY TAB ──────────────────────────────────────────────────
-function HistoryTab({ t, history, days, unit }) {
+function HistoryTab({ t, history, days, unit, darkMode }) {
   const [fDay, setFDay] = useState('all')
   const [selEx, setSelEx] = useState('')
   const [viewSess, setViewSess] = useState(null)
@@ -612,7 +612,9 @@ function HistoryTab({ t, history, days, unit }) {
     for (const ds of srt) { if (ds === c.toISOString().split('T')[0]) { streak++; c.setDate(c.getDate() - 1) } else break }
   }
 
-  const ttStyle = { contentStyle: { background: '#1f2937', border: 'none', borderRadius: 8, fontSize: 12 } }
+  const gridColor = darkMode ? '#374151' : '#e5e7eb'
+  const tickColor = darkMode ? '#9ca3af' : '#6b7280'
+  const ttStyle = { contentStyle: { background: darkMode ? '#1f2937' : '#ffffff', border: 'none', borderRadius: 8, fontSize: 12 } }
 
   return (
     <div className="tab-scroll">
@@ -664,9 +666,9 @@ function HistoryTab({ t, history, days, unit }) {
               <h3>📊 {t.wkVol}</h3>
               <ResponsiveContainer width="100%" height={130}>
                 <BarChart data={volData} margin={{ left: -20, right: 4 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                  <XAxis dataKey="w" tick={{ fill: '#9ca3af', fontSize: 10 }} />
-                  <YAxis tick={{ fill: '#9ca3af', fontSize: 10 }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+                  <XAxis dataKey="w" tick={{ fill: tickColor, fontSize: 10 }} />
+                  <YAxis tick={{ fill: tickColor, fontSize: 10 }} />
                   <Tooltip {...ttStyle} />
                   <Bar dataKey="v" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                 </BarChart>
@@ -683,9 +685,9 @@ function HistoryTab({ t, history, days, unit }) {
             {selEx && progData.length > 1 && (
               <ResponsiveContainer width="100%" height={130}>
                 <LineChart data={progData} margin={{ left: -20, right: 4 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                  <XAxis dataKey="date" tick={{ fill: '#9ca3af', fontSize: 10 }} />
-                  <YAxis tick={{ fill: '#9ca3af', fontSize: 10 }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+                  <XAxis dataKey="date" tick={{ fill: tickColor, fontSize: 10 }} />
+                  <YAxis tick={{ fill: tickColor, fontSize: 10 }} />
                   <Tooltip {...ttStyle} />
                   <Line type="monotone" dataKey="weight" stroke="#22c55e" strokeWidth={2} dot={{ fill: '#22c55e', r: 3 }} />
                 </LineChart>
@@ -1155,7 +1157,7 @@ export default function App() {
       <main className="app-main">
         {activeTab === 0 && <ProgramTab t={t} days={days} selectedDay={selectedDay} setSelectedDay={setSelectedDay} program={program} setProgram={setProgram} allEx={allEx} unit={unit} workoutActive={workoutActive} workoutSets={workoutSets} setWorkoutSets={setWorkoutSets} startWorkout={startWorkout} finishWorkout={finishWorkout} history={history} onRestTimer={s => { setRestSecs(s); setRestMax(s); setRestActive(true) }} onOpenTemplatePicker={() => setShowTemplatePicker(true)} />}
         {activeTab === 1 && <LibraryTab t={t} days={days} program={program} setProgram={setProgram} customEx={customEx} setCustomEx={setCustomEx} />}
-        {activeTab === 2 && <HistoryTab t={t} history={history} days={days} unit={unit} />}
+        {activeTab === 2 && <HistoryTab t={t} history={history} days={days} unit={unit} darkMode={darkMode} />}
         {activeTab === 3 && <SettingsTab t={t} lang={lang} setLang={setLang} unit={unit} setUnit={setUnit} darkMode={darkMode} setDarkMode={setDarkMode} days={days} setDays={setDays} program={program} setProgram={setProgram} history={history} setHistory={setHistory} customEx={customEx} setCustomEx={setCustomEx} userTemplates={userTemplates} setUserTemplates={setUserTemplates} installPrompt={installPrompt} setInstallPrompt={setInstallPrompt} onOpenTemplatePicker={() => setShowTemplatePicker(true)} onSaveTemplate={saveAsTemplate} />}
       </main>
 
