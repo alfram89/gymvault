@@ -42,11 +42,11 @@ function WheelPicker({ label, value, min, max, step, unit, t, onClose, onConfirm
   const items = []
   for (let v = min; v <= max; v = Math.round((v + step) * 1000) / 1000) items.push(v)
 
-  const scrollRef = useRef(null)
-  const selectedRef = useRef(value)
-  const timerRef = useRef(null)
-
   const valueToIdx = v => Math.max(0, Math.min(items.length - 1, Math.round((v - min) / step)))
+
+  const scrollRef = useRef(null)
+  const selectedRef = useRef(items[valueToIdx(value)])
+  const timerRef = useRef(null)
 
   useLayoutEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = valueToIdx(value) * ITEM_H
