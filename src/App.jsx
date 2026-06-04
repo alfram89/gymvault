@@ -26,6 +26,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState(0)
   const [workoutActive, setWorkoutActive] = useState(false)
   const [workoutStart, setWorkoutStart] = useState(null)
+  const [workoutElapsed, setWorkoutElapsed] = useState(0)
   const [workoutSets, setWorkoutSets] = useState({})
   const [showSummary, setShowSummary] = useState(false)
   const [lastSummary, setLastSummary] = useState(null)
@@ -73,6 +74,12 @@ export default function App() {
     return () => clearTimeout(id)
   }, [restActive, restSecs])
 
+  useEffect(() => {
+    if (!workoutActive) return
+    const id = setTimeout(() => setWorkoutElapsed(s => s + 1), 1000)
+    return () => clearTimeout(id)
+  }, [workoutActive, workoutElapsed])
+
   const t = getTranslations(lang)
   const allEx = [...EXERCISES, ...customEx]
   const curProg = program[selectedDay] || []
@@ -80,7 +87,7 @@ export default function App() {
   const startWorkout = () => {
     const sets = {}
     curProg.forEach(ex => { sets[ex.id] = ex.sets.map(s => ({ ...s, completed: false })) })
-    setWorkoutSets(sets); setWorkoutStart(Date.now()); setWorkoutActive(true)
+    setWorkoutSets(sets); setWorkoutStart(Date.now()); setWorkoutElapsed(0); setWorkoutActive(true)
   }
 
   const finishWorkout = () => {
@@ -213,7 +220,7 @@ export default function App() {
       )}
 
       <main className="app-main">
-        {activeTab === 0 && <ProgramTab t={t} days={days} selectedDay={selectedDay} setSelectedDay={setSelectedDay} program={program} setProgram={setProgram} allEx={allEx} unit={unit} workoutActive={workoutActive} workoutSets={workoutSets} setWorkoutSets={setWorkoutSets} startWorkout={startWorkout} finishWorkout={finishWorkout} history={history} onRestTimer={s => { setRestSecs(s); setRestMax(s); setRestActive(true) }} onOpenTemplatePicker={() => setShowTemplatePicker(true)} />}
+        {activeTab === 0 && <ProgramTab t={t} days={days} selectedDay={selectedDay} setSelectedDay={setSelectedDay} program={program} setProgram={setProgram} allEx={allEx} unit={unit} workoutActive={workoutActive} workoutElapsed={workoutElapsed} workoutSets={workoutSets} setWorkoutSets={setWorkoutSets} startWorkout={startWorkout} finishWorkout={finishWorkout} history={history} onRestTimer={s => { setRestSecs(s); setRestMax(s); setRestActive(true) }} onOpenTemplatePicker={() => setShowTemplatePicker(true)} />}
         {activeTab === 1 && <LibraryTab t={t} days={days} program={program} setProgram={setProgram} customEx={customEx} setCustomEx={setCustomEx} />}
         {activeTab === 2 && <HistoryTab t={t} history={history} days={days} unit={unit} darkMode={darkMode} />}
         {activeTab === 3 && <SettingsTab t={t} lang={lang} setLang={setLang} unit={unit} setUnit={setUnit} darkMode={darkMode} setDarkMode={setDarkMode} days={days} setDays={setDays} program={program} setProgram={setProgram} history={history} setHistory={setHistory} customEx={customEx} setCustomEx={setCustomEx} userTemplates={userTemplates} setUserTemplates={setUserTemplates} installPrompt={installPrompt} setInstallPrompt={setInstallPrompt} onOpenTemplatePicker={() => setShowTemplatePicker(true)} onSaveTemplate={saveAsTemplate} />}
