@@ -253,8 +253,15 @@ body {
 .complete-btn { width: 28px; height: 28px; border-radius: 50%; border: none; cursor: pointer; font-size: 13px; font-weight: 700; background: var(--bg3); color: var(--muted); transition: all 0.15s; }
 .complete-btn.done { background: #16a34a; color: #fff; }
 .complete-btn:not(.done):hover { background: #166534; color: #4ade80; }
-.rem-set-btn { width: 28px; height: 28px; border-radius: 50%; border: none; background: transparent; color: var(--muted); cursor: pointer; font-size: 12px; }
-.add-set-btn { background: none; border: none; color: #60a5fa; cursor: pointer; font-size: 12px; margin: 2px 12px 12px 38px; display: block; font-family: inherit; }
+.rem-set-btn { width: 28px; height: 28px; border-radius: 8px; border: none; background: transparent; color: var(--muted); cursor: pointer; font-size: 14px; font-family: inherit; transition: all 0.15s; }
+.rem-set-btn:hover { background: #fef2f2; color: #ef4444; }
+.app.dark .rem-set-btn:hover { background: #450a0a44; color: #f87171; }
+.add-set-btn { display: block; width: calc(100% - 24px); margin: 4px 12px 10px; padding: 7px; border-radius: 10px; border: 1px dashed var(--border); background: transparent; color: var(--sub); font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit; transition: all 0.15s; text-align: center; }
+.add-set-btn:hover { background: var(--bg3); color: var(--text); border-style: solid; }
+.edit-sets-list { margin: 0 12px 8px; display: flex; flex-direction: column; gap: 4px; }
+.edit-set-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; background: var(--bg3); border-radius: 8px; }
+.edit-set-label { font-size: 13px; color: var(--text); }
+.edit-set-desc { color: var(--muted); }
 
 /* ── CARDIO CARD ────────────────────── */
 .cardio-header { margin: 0 12px 4px; display: flex; gap: 4px; font-size: 11px; color: var(--muted); }
