@@ -264,7 +264,7 @@ body {
 .cardio-unit { font-size: 9px; color: var(--muted); margin-top: 1px; }
 
 /* ── WORKOUT ACTION BAR ────────────── */
-.workout-action-bar { position: sticky; top: 0; z-index: 10; background: var(--bg); padding: 0 0 10px; box-shadow: 0 4px 16px -4px rgba(0,0,0,0.22); }
+.workout-action-bar { position: sticky; top: 0; z-index: 10; padding: 0 0 10px; }
 .workout-action-btn { width: 100%; padding: 13px; font-size: 15px; font-weight: 700; border: none; border-radius: 14px; cursor: pointer; font-family: inherit; color: #fff; transition: all 0.15s; }
 .workout-action-btn.start { background: #2563eb; }
 .workout-action-btn.start:hover { background: #1d4ed8; }
