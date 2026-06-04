@@ -32,6 +32,8 @@ export function SettingsTab({ t, lang, setLang, unit, setUnit, darkMode, setDark
   const [newDay, setNewDay] = useState('')
   const [editId, setEditId] = useState(null)
   const [editV, setEditV] = useState('')
+  const [dayEditMode, setDayEditMode] = useState(false)
+  const [confirmDeleteDay, setConfirmDeleteDay] = useState(null)
   const [resetV, setResetV] = useState('')
   const [showReset, setShowReset] = useState(false)
   const [showSaveTpl, setShowSaveTpl] = useState(false)
@@ -97,32 +99,64 @@ export function SettingsTab({ t, lang, setLang, unit, setUnit, darkMode, setDark
       </div>
 
       <div className="settings-section">
-        <p className="section-label">{t.mgDays}</p>
+        <div className="section-label-row">
+          <p className="section-label">{t.mgDays}</p>
+          <button className="section-edit-btn" onClick={() => { setDayEditMode(e => !e); setEditId(null); setNewDay('') }}>
+            {dayEditMode ? t.editDone : t.editProgram}
+          </button>
+        </div>
         {days.map(d => (
           <div key={d.id} className="day-row">
-            {editId === d.id ? (
-              <>
-                <input autoFocus value={editV} onChange={e => setEditV(e.target.value)}
-                  onKeyDown={e => { if (e.key === 'Enter') renameDay(d.id); if (e.key === 'Escape') setEditId(null) }}
-                  className="day-edit-input" />
-                <button className="icon-btn ok" onClick={() => renameDay(d.id)}>✓</button>
-                <button className="icon-btn" onClick={() => setEditId(null)}>✕</button>
-              </>
+            {dayEditMode ? (
+              editId === d.id ? (
+                <>
+                  <input autoFocus value={editV} onChange={e => setEditV(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter') renameDay(d.id); if (e.key === 'Escape') setEditId(null) }}
+                    className="day-edit-input" />
+                  <button className="icon-btn ok" onClick={() => renameDay(d.id)}>✓</button>
+                  <button className="icon-btn" onClick={() => setEditId(null)}>✕</button>
+                </>
+              ) : (
+                <>
+                  <span className="day-name-display">{d.name}</span>
+                  <button className="icon-btn" onClick={() => { setEditId(d.id); setEditV(d.name) }}>✏️</button>
+                  {days.length > 1 && (
+                    <button className="icon-btn danger" onClick={() => setConfirmDeleteDay({ id: d.id, name: d.name, exCount: program[d.id]?.length ?? 0 })}>🗑</button>
+                  )}
+                </>
+              )
             ) : (
-              <>
-                <span className="day-name-display">{d.name}</span>
-                <button className="icon-btn" onClick={() => { setEditId(d.id); setEditV(d.name) }}>✏️</button>
-                {days.length > 1 && <button className="icon-btn danger" onClick={() => deleteDay(d.id)}>🗑</button>}
-              </>
+              <span className="day-name-display">{d.name}</span>
             )}
           </div>
         ))}
-        <div className="day-add-row">
-          <input value={newDay} onChange={e => setNewDay(e.target.value)} onKeyDown={e => e.key === 'Enter' && addDay()}
-            placeholder={t.newDayPl} className="day-edit-input" />
-          <button className="add-day-btn" onClick={addDay}>{t.addDay}</button>
-        </div>
+        {dayEditMode && (
+          <div className="day-add-row">
+            <input value={newDay} onChange={e => setNewDay(e.target.value)} onKeyDown={e => e.key === 'Enter' && addDay()}
+              placeholder={t.newDayPl} className="day-edit-input" />
+            <button className="add-day-btn" onClick={addDay}>{t.addDay}</button>
+          </div>
+        )}
       </div>
+
+      {confirmDeleteDay && (
+        <Modal onClose={() => setConfirmDeleteDay(null)}>
+          <h3 className="modal-title">🗑 {t.deleteDayTitle}</h3>
+          <p className="modal-warn">
+            {confirmDeleteDay.exCount > 0 ? (
+              <><strong>"{confirmDeleteDay.name}"</strong> has {confirmDeleteDay.exCount} exercise{confirmDeleteDay.exCount === 1 ? '' : 's'} and will be permanently deleted.</>
+            ) : (
+              <><strong>"{confirmDeleteDay.name}"</strong> will be permanently deleted.</>
+            )}
+          </p>
+          <div className="modal-row">
+            <button className="secondary-btn" onClick={() => setConfirmDeleteDay(null)}>{t.cancel}</button>
+            <button className="danger-btn modal-danger-btn" onClick={() => { deleteDay(confirmDeleteDay.id); setConfirmDeleteDay(null) }}>
+              {t.deleteConfirm}
+            </button>
+          </div>
+        </Modal>
+      )}
 
       <div className="settings-section">
         <p className="section-label">{t.dataSection}</p>
