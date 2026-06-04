@@ -14,7 +14,7 @@ function Tgl({ opts, val, fn }) {
 export function SettingsTab({ t, lang, setLang, unit, setUnit, darkMode, setDarkMode,
   days, setDays, program, setProgram, history, setHistory, customEx, setCustomEx,
   userTemplates, setUserTemplates, installPrompt, setInstallPrompt,
-  onOpenTemplatePicker, onSaveTemplate }) {
+  onOpenTemplatePicker, onSaveTemplate, onOpenProgramWizard }) {
 
   const isInstalled = window.matchMedia('(display-mode: standalone)').matches
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
@@ -157,6 +157,19 @@ export function SettingsTab({ t, lang, setLang, unit, setUnit, darkMode, setDark
           </div>
         </Modal>
       )}
+
+      <div className="settings-section">
+        <p className="section-label">{t.programBuilder}</p>
+        <p className="program-builder-desc">{t.programBuilderDesc}</p>
+        {history.length > 0 && (
+          <p className="program-builder-history">
+            ✨ {t.pgPersonalised} ({Math.min(history.length, 20)} {t.pgSessions})
+          </p>
+        )}
+        <button className="data-btn program-builder-btn" onClick={onOpenProgramWizard}>
+          🪄 {t.buildProgram}
+        </button>
+      </div>
 
       <div className="settings-section">
         <p className="section-label">{t.dataSection}</p>

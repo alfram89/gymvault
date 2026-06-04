@@ -458,6 +458,59 @@ body {
 .tpl-empty-btn { margin-top: 16px; padding: 10px 24px; border-radius: 12px; border: 1px solid #2563eb; background: transparent; color: #60a5fa; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; transition: background 0.15s; }
 .tpl-empty-btn:hover { background: #1d4ed820; }
 
+/* ── PROGRAM BUILDER (Settings) ────── */
+.program-builder-desc { font-size: 13px; color: var(--sub); line-height: 1.5; margin-bottom: 10px; }
+.program-builder-history { font-size: 12px; color: #a78bfa; margin-bottom: 10px; }
+.program-builder-btn { background: linear-gradient(135deg, #2563eb, #7c3aed) !important; color: #fff !important; font-weight: 600 !important; }
+
+/* ── PROGRAM WIZARD ─────────────────── */
+.wizard-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; display: flex; align-items: flex-end; }
+.wizard-sheet { background: var(--bg2); width: 100%; max-width: 480px; margin: 0 auto; border-radius: 24px 24px 0 0; display: flex; flex-direction: column; max-height: 92dvh; animation: slideUp 0.25s ease; }
+.wizard-header { display: flex; flex-direction: column; align-items: center; padding: 16px 20px 0; gap: 12px; }
+.wizard-close-btn { align-self: flex-end; background: none; border: none; color: var(--muted); font-size: 18px; cursor: pointer; padding: 0; line-height: 1; }
+.wizard-steps { display: flex; gap: 6px; }
+.wizard-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg3); transition: all 0.2s; }
+.wizard-dot.done { background: #3b82f644; }
+.wizard-dot.active { background: #3b82f6; width: 22px; border-radius: 4px; }
+.wizard-body { flex: 1; overflow-y: auto; padding: 20px 20px 8px; }
+.wizard-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.wizard-hint { font-size: 13px; color: var(--sub); margin-bottom: 16px; }
+.wizard-footer { display: flex; gap: 10px; padding: 12px 20px; padding-bottom: calc(12px + env(safe-area-inset-bottom)); border-top: 1px solid var(--border); }
+
+.wizard-days-row { display: flex; gap: 10px; justify-content: space-between; margin-top: 16px; }
+.wizard-day-btn { flex: 1; aspect-ratio: 1; border-radius: 14px; border: 2px solid var(--border); background: var(--bg3); color: var(--text); font-size: 22px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+.wizard-day-btn.active { border-color: #3b82f6; background: #2563eb22; color: #60a5fa; }
+
+.wizard-goal-list { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+.wizard-goal-card { display: flex; align-items: center; gap: 14px; padding: 14px; border-radius: 14px; border: 2px solid var(--border); background: var(--bg3); text-align: left; cursor: pointer; font-family: inherit; color: var(--text); transition: all 0.15s; }
+.wizard-goal-card.active { border-color: #3b82f6; background: #2563eb18; }
+.wizard-goal-emoji { font-size: 28px; flex-shrink: 0; }
+.wizard-goal-name { font-size: 15px; font-weight: 600; }
+.wizard-goal-desc { font-size: 12px; color: var(--sub); margin-top: 2px; }
+
+.wizard-equip-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.wizard-equip-btn { padding: 12px 16px; border-radius: 12px; border: 2px solid var(--border); background: var(--bg3); color: var(--text); text-align: left; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+.wizard-equip-btn.active { border-color: #3b82f6; background: #2563eb18; color: #60a5fa; font-weight: 600; }
+
+.wizard-time-row { display: flex; gap: 10px; margin-top: 16px; }
+.wizard-time-btn { flex: 1; padding: 16px 8px; border-radius: 14px; border: 2px solid var(--border); background: var(--bg3); color: var(--text); cursor: pointer; font-family: inherit; transition: all 0.15s; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.wizard-time-btn.active { border-color: #3b82f6; background: #2563eb22; color: #60a5fa; }
+.wizard-time-num { font-size: 22px; font-weight: 700; }
+.wizard-time-unit { font-size: 11px; color: var(--muted); }
+.wizard-time-btn.active .wizard-time-unit { color: #93c5fd; }
+
+.wizard-focus-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.wizard-focus-btn { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 12px; border: 2px solid var(--border); background: var(--bg3); color: var(--text); font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+.wizard-focus-btn.active { border-color: #3b82f6; background: #2563eb18; color: #60a5fa; }
+.wizard-focus-emoji { font-size: 20px; width: 28px; text-align: center; }
+
+.wizard-personalised-note { font-size: 12px; color: #a78bfa; margin-bottom: 14px; }
+.wizard-preview-days { display: flex; flex-direction: column; gap: 12px; margin-top: 4px; }
+.wizard-preview-day { background: var(--bg3); border-radius: 12px; padding: 12px 14px; }
+.wizard-preview-day-name { font-size: 13px; font-weight: 700; color: var(--sub); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.wizard-preview-exercises { display: flex; flex-direction: column; gap: 4px; }
+.wizard-preview-ex { font-size: 14px; color: var(--text); }
+
 /* ── SCROLLBAR ─────────────────────── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
