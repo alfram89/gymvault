@@ -60,6 +60,8 @@
   "mgDays": "Workout Days",
   "newDayPl": "Day name…",
   "addDay": "+ Add Day",
+  "deleteDayTitle": "Delete this day?",
+  "deleteConfirm": "Delete",
   "thm": "Theme",
   "dk": "Dark",
   "lt": "Light",

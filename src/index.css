@@ -385,6 +385,9 @@ body {
 /* ── SETTINGS ──────────────────────── */
 .settings-section { background: var(--bg2); border-radius: 16px; padding: 16px; margin-bottom: 12px; }
 .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 14px; }
+.section-label-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.section-label-row .section-label { margin-bottom: 0; }
+.section-edit-btn { font-size: 13px; font-weight: 600; color: #3b82f6; background: none; border: none; cursor: pointer; font-family: inherit; padding: 2px 0; }
 .settings-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; font-size: 14px; color: var(--sub); }
 .settings-row:last-child { margin-bottom: 0; }
 
@@ -403,6 +406,8 @@ body {
 .danger-section .section-label { color: #f87171; }
 .danger-btn { display: block; width: 100%; padding: 12px; border-radius: 12px; border: none; background: #450a0a; color: #fca5a5; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; }
 .danger-btn.disabled { background: var(--bg3); color: var(--muted); cursor: default; }
+.modal-danger-btn { flex: 1; display: flex; align-items: center; justify-content: center; width: auto; }
+.modal-warn { font-size: 14px; color: var(--text); line-height: 1.5; margin-bottom: 16px; }
 .reset-prompt { font-size: 13px; color: #f87171; margin-bottom: 8px; }
 
 .install-btn { color: #60a5fa; font-weight: 600; }
