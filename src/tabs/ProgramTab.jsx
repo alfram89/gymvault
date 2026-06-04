@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
-import { mc, uid, fmtTime } from '../helpers'
+import { mc, uid } from '../helpers'
 import { WheelPicker } from '../components/WheelPicker'
 import { CardioExCard } from '../components/CardioExCard'
 
 export function ProgramTab({ t, days, selectedDay, setSelectedDay, program, setProgram,
-  allEx, unit, workoutActive, workoutElapsed, workoutSets, setWorkoutSets,
+  allEx, unit, workoutActive, workoutSets, setWorkoutSets,
   startWorkout, finishWorkout, history, onRestTimer, onOpenTemplatePicker }) {
 
   const exercises = program[selectedDay] || []
@@ -71,7 +71,6 @@ export function ProgramTab({ t, days, selectedDay, setSelectedDay, program, setP
 
       {exercises.length > 0 && !editMode && (
         <div className="workout-action-bar">
-          {workoutActive && <span className="workout-elapsed">⏱ {fmtTime(workoutElapsed)}</span>}
           <button className={`workout-action-btn ${workoutActive ? 'finish' : 'start'}`}
             onClick={workoutActive ? finishWorkout : startWorkout}>
             {workoutActive ? `🏁 ${t.finishW}` : `▶ ${t.startW}`}
