@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { mc, uid } from '../helpers'
+import { mc, uid, fmtTime } from '../helpers'
 import { WheelPicker } from '../components/WheelPicker'
 import { CardioExCard } from '../components/CardioExCard'
 
@@ -22,8 +22,13 @@ export function ProgramTab({ t, days, selectedDay, setSelectedDay, program, setP
   })
   const updSet = (ei, si, f, v) => updEx(ei, ex => ({ ...ex, sets: ex.sets.map((s, i) => i === si ? { ...s, [f]: v } : s) }))
   const addSet = ei => updEx(ei, ex => {
-    const last = ex.sets[ex.sets.length - 1] || { reps: 10, weight: 0 }
-    return { ...ex, sets: [...ex.sets, { ...last, id: uid(), completed: false }] }
+    const exD = allEx.find(e => e.id === ex.exerciseId)
+    const mode = exD?.inputMode ?? 'weight+reps'
+    const last = ex.sets[ex.sets.length - 1]
+    const newSet = mode === 'time'
+      ? { id: uid(), secs: last?.secs ?? 30, completed: false }
+      : { id: uid(), reps: last?.reps ?? 10, weight: last?.weight ?? 0, completed: false }
+    return { ...ex, sets: [...ex.sets, newSet] }
   })
   const remSet = (ei, si) => updEx(ei, ex => ex.sets.length <= 1 ? ex : { ...ex, sets: ex.sets.filter((_, i) => i !== si) })
   const remEx = i => setProgram(prev => { const a = [...(prev[selectedDay] || [])]; a.splice(i, 1); return { ...prev, [selectedDay]: a } })
@@ -101,6 +106,14 @@ export function ProgramTab({ t, days, selectedDay, setSelectedDay, program, setP
 
           const color = mc(exData?.mg)
           const lastEx = lastSession?.exercises?.find(e => e.exerciseId === ex.exerciseId)
+          const mode = exData?.inputMode ?? 'weight+reps'
+          const hasWeight = mode === 'weight+reps' || mode === 'reps+added'
+          const cols = hasWeight ? '20px 1fr 1fr 28px' : '20px 1fr 28px'
+          const wtLabel = exData?.weightLabel === 'kg/hand'
+            ? unit + ' / hand'
+            : exData?.weightLabel === 'added'
+            ? 'Added ' + unit
+            : unit
 
           return (
             <div key={ex.id} className={`ex-card ${ex.isWarmup ? 'warmup-exercise' : ''}`}
@@ -145,33 +158,50 @@ export function ProgramTab({ t, days, selectedDay, setSelectedDay, program, setP
 
               {!editMode && (
                 <>
-                  <div className="sets-header">
-                    <span>#</span><span>{t.reps}</span><span>{t.wt}</span><span></span>
+                  <div className="sets-header" style={{ gridTemplateColumns: cols }}>
+                    <span>#</span>
+                    <span>{mode === 'time' ? t.secs : t.reps}</span>
+                    {hasWeight && <span>{mode === 'reps+added' ? t.addedWt : t.wt}</span>}
+                    <span></span>
                   </div>
 
                   {ex.sets.map((set, si) => {
                     const ws = workoutSets[ex.id]?.[si]
                     const done = workoutActive && ws?.completed
                     const lastSet = lastEx?.sets?.[si]
+                    const secsVal = workoutActive ? (ws?.secs ?? set.secs ?? 30) : (set.secs ?? 30)
+                    const repsVal = workoutActive ? (ws?.reps ?? set.reps) : set.reps
+                    const wtVal   = workoutActive ? (ws?.weight ?? set.weight) : set.weight
                     return (
-                      <div key={set.id || si} className={`set-row ${done ? 'set-done' : ''}`}>
+                      <div key={set.id || si} className={`set-row ${done ? 'set-done' : ''}`} style={{ gridTemplateColumns: cols }}>
                         <span className="set-num">{si + 1}</span>
                         <div>
-                          <button
-                            className="set-input set-input-btn"
-                            onClick={() => { if (!done) setPicker({ label: t.reps, value: workoutActive ? (ws?.reps ?? set.reps) : set.reps, min: 1, max: 50, step: 1, onConfirm: v => workoutActive ? updWS(ex.id, si, 'reps', v) : updSet(ei, si, 'reps', v) }) }}>
-                            {workoutActive ? (ws?.reps ?? set.reps) : set.reps}
-                          </button>
-                          {lastSet && !workoutActive && <div className="set-hint">{lastSet.reps}</div>}
+                          {mode === 'time' ? (
+                            <button className="set-input set-input-btn"
+                              onClick={() => { if (!done) setPicker({ label: t.secs, value: secsVal, min: 5, max: 600, step: 5, onConfirm: v => workoutActive ? updWS(ex.id, si, 'secs', v) : updSet(ei, si, 'secs', v) }) }}>
+                              {fmtTime(secsVal)}
+                            </button>
+                          ) : (
+                            <button className="set-input set-input-btn"
+                              onClick={() => { if (!done) setPicker({ label: t.reps, value: repsVal, min: 1, max: exData?.repsMax ?? 50, step: 1, onConfirm: v => workoutActive ? updWS(ex.id, si, 'reps', v) : updSet(ei, si, 'reps', v) }) }}>
+                              {repsVal}
+                            </button>
+                          )}
+                          {lastSet && !workoutActive && (
+                            <div className="set-hint">
+                              {mode === 'time' ? fmtTime(lastSet.secs ?? 0) : lastSet.reps}
+                            </div>
+                          )}
                         </div>
-                        <div>
-                          <button
-                            className="set-input set-input-btn"
-                            onClick={() => { if (!done) setPicker({ label: t.wt, value: workoutActive ? (ws?.weight ?? set.weight) : set.weight, unit, min: 0, max: 250, step: 0.5, onConfirm: v => workoutActive ? updWS(ex.id, si, 'weight', v) : updSet(ei, si, 'weight', v) }) }}>
-                            {workoutActive ? (ws?.weight ?? set.weight) : set.weight}
-                          </button>
-                          {lastSet && !workoutActive && <div className="set-hint">{lastSet.weight}</div>}
-                        </div>
+                        {hasWeight && (
+                          <div>
+                            <button className="set-input set-input-btn"
+                              onClick={() => { if (!done) setPicker({ label: t.wt, value: wtVal, unit: wtLabel, min: 0, max: exData?.weightMax ?? 250, step: exData?.weightStep ?? 0.5, onConfirm: v => workoutActive ? updWS(ex.id, si, 'weight', v) : updSet(ei, si, 'weight', v) }) }}>
+                              {wtVal}
+                            </button>
+                            {lastSet && !workoutActive && <div className="set-hint">{lastSet.weight}</div>}
+                          </div>
+                        )}
                         <div className="complete-cell">
                           {workoutActive ? (
                             <button className={`complete-btn ${done ? 'done' : ''}`} onClick={() => !done && completeSet(ex.id, si)}>

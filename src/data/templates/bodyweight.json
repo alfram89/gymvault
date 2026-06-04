@@ -10,7 +10,7 @@
         { "exerciseId": "push-up",     "sets": 4, "reps": 12, "restTime": 60 },
         { "exerciseId": "chest-dip",   "sets": 3, "reps": 10, "restTime": 90 },
         { "exerciseId": "tricep-dips", "sets": 3, "reps": 12, "restTime": 60 },
-        { "exerciseId": "plank",       "sets": 3, "reps": 30, "restTime": 60 }
+        { "exerciseId": "plank",       "sets": 3, "secs": 30, "restTime": 60 }
       ]
     },
     {
@@ -28,7 +28,7 @@
         { "exerciseId": "lunges",       "sets": 4, "reps": 12, "restTime": 60 },
         { "exerciseId": "mtn-climber",  "sets": 3, "reps": 20, "restTime": 45 },
         { "exerciseId": "russian-twist","sets": 3, "reps": 20, "restTime": 45 },
-        { "exerciseId": "plank",        "sets": 3, "reps": 45, "restTime": 60 }
+        { "exerciseId": "plank",        "sets": 3, "secs": 45, "restTime": 60 }
       ]
     }
   ]

@@ -3,7 +3,7 @@ import { dbGet, dbSet, loadAllData } from './db'
 import { EXERCISES } from './constants'
 import { getTranslations } from './i18n/index.js'
 import { TemplatePicker } from './TemplatePicker.jsx'
-import { uid, fmtTime, isCardioSet, calcVol } from './helpers'
+import { uid, fmtTime, isCardioSet, isTimeSet, calcVol } from './helpers'
 import { Onboarding } from './components/Onboarding'
 import { WorkoutSummary } from './components/WorkoutSummary'
 import { ProgramTab } from './tabs/ProgramTab'
@@ -114,7 +114,7 @@ export default function App() {
     const prs = []
     sess.exercises.forEach(ex => {
       if (ex.isWarmup) return
-      if (ex.sets.length && isCardioSet(ex.sets[0])) return
+      if (ex.sets.length && (isCardioSet(ex.sets[0]) || isTimeSet(ex.sets[0]))) return
       const mw = Math.max(0, ...ex.sets.filter(s => s.completed && (s.weight || 0) > 0).map(s => s.weight))
       if (mw > 0) {
         const pm = history.flatMap(h => h.exercises.filter(e => e.exerciseId === ex.exerciseId && !e.isWarmup)).flatMap(e => e.sets.filter(s => s.completed)).reduce((m, s) => Math.max(m, s.weight || 0), 0)
@@ -127,13 +127,15 @@ export default function App() {
         const exData = allEx.find(e => e.id === ex.exerciseId)
         if (exData?.type === 'cardio') {
           day[i] = { ...ex, sets: ex.sets.map((s, j) => { const ws = workoutSets[ex.id]?.[j]; return ws && ws.completed ? { ...ws } : s }) }
+        } else if (ex.sets.length && isTimeSet(ex.sets[0])) {
+          day[i] = { ...ex, sets: ex.sets.map((s, j) => { const ws = workoutSets[ex.id]?.[j]; return ws && ws.completed ? { ...s, secs: ws.secs } : s }) }
         } else {
           day[i] = { ...ex, sets: ex.sets.map((s, j) => { const ws = workoutSets[ex.id]?.[j]; return ws && ws.completed ? { ...s, reps: ws.reps, weight: ws.weight } : s }) }
         }
       })
       return { ...prev, [selectedDay]: day }
     })
-    const totalSets = sess.exercises.filter(e => !e.isWarmup && e.sets.length && !isCardioSet(e.sets[0])).flatMap(e => e.sets).filter(s => s.completed).length
+    const totalSets = sess.exercises.filter(e => !e.isWarmup && e.sets.length && !isCardioSet(e.sets[0]) && !isTimeSet(e.sets[0])).flatMap(e => e.sets).filter(s => s.completed).length
     const totalVolume = sess.exercises.reduce((t, ex) => t + calcVol(ex), 0)
     let cardioIntervals = 0, cardioTime = 0
     sess.exercises.forEach(ex => {
@@ -156,13 +158,18 @@ export default function App() {
     template.days.forEach((td, i) => {
       newProgram[newDays[i].id] = td.exercises
         .filter(te => allEx.find(e => e.id === te.exerciseId))
-        .map(te => ({
-          id: uid(), exerciseId: te.exerciseId, isWarmup: false,
-          restTime: te.restTime ?? 90,
-          sets: Array.from({ length: te.sets }, () => ({
-            id: uid(), reps: te.reps, weight: 0, completed: false
-          }))
-        }))
+        .map(te => {
+          const exData = allEx.find(e => e.id === te.exerciseId)
+          const isTime = exData?.inputMode === 'time'
+          return {
+            id: uid(), exerciseId: te.exerciseId, isWarmup: false,
+            restTime: te.restTime ?? 90,
+            sets: Array.from({ length: te.sets }, () => isTime
+              ? { id: uid(), secs: te.secs ?? 30, completed: false }
+              : { id: uid(), reps: te.reps, weight: 0, completed: false }
+            )
+          }
+        })
     })
     if (mode === 'replace') {
       setDays(newDays); setProgram(newProgram); setSelectedDay(newDays[0].id)

@@ -3,7 +3,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, BarChart, Bar
 } from 'recharts'
-import { mc, fmtTime, fmtDate, isCardioSet, calcVol, weekOf, METRIC_UNIT } from '../helpers'
+import { mc, fmtTime, fmtDate, isCardioSet, isTimeSet, calcVol, weekOf, METRIC_UNIT } from '../helpers'
 import { Modal } from '../components/Modal'
 
 export function HistoryTab({ t, history, days, unit, darkMode }) {
@@ -198,7 +198,9 @@ export function HistoryTab({ t, history, days, unit, darkMode }) {
                         ? Object.entries(s).filter(([k]) => !['id','completed'].includes(k) && s[k] > 0).map(([k, v]) => (
                             <span key={k}>{t[k] || k}: {k === 'duration' ? fmtTime(v) : v} {METRIC_UNIT[k] || ''}</span>
                           ))
-                        : <><span>{s.reps} reps</span><span>{s.weight} {unit}</span></>
+                        : isTimeSet(s)
+                        ? <span>{fmtTime(s.secs)}</span>
+                        : <><span>{s.reps} reps</span>{s.weight > 0 && <span>{s.weight} {unit}</span>}</>
                       }
                       {s.completed && <span className="set-check">✓</span>}
                     </div>

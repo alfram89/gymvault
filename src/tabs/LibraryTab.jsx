@@ -30,6 +30,8 @@ export function LibraryTab({ t, days, program, setProgram, customEx, setCustomEx
     setProgram(prev => {
       const initialSet = ex.type === 'cardio'
         ? newCardioInterval(ex.metrics || ['duration'])
+        : ex.inputMode === 'time'
+        ? { id: uid(), secs: 30, completed: false }
         : { id: uid(), reps: 10, weight: 0, completed: false }
       const ne = { id: uid(), exerciseId: ex.id, isWarmup: !!warmup, sets: [initialSet], restTime: ex.type === 'cardio' ? 0 : 90 }
       return { ...prev, [dayId]: [...(prev[dayId] || []), ne] }
