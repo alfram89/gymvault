@@ -89,7 +89,7 @@ export function SettingsTab({ t, lang, setLang, unit, setUnit, darkMode, setDark
     <div className="tab-scroll">
       <div className="settings-section">
         <p className="section-label">{t.thm} & {t.lng}</p>
-        <div className="settings-row"><span>{t.thm}</span><Tgl opts={[[true, '🌙 ' + t.dk], [false, '☀️ ' + t.lt]]} val={darkMode} fn={setDarkMode} /></div>
+        <div className="settings-row"><span>{t.thm}</span><Tgl opts={[['dark', '🌙 ' + t.dk], ['light', '☀️ ' + t.lt], ['auto', '⚙️ ' + t.auto]]} val={darkMode} fn={setDarkMode} /></div>
         <div className="settings-row"><span>{t.unt}</span><Tgl opts={[['kg', 'kg'], ['lbs', 'lbs']]} val={unit} fn={setUnit} /></div>
         {availableLanguages.length > 1 && (
           <div className="settings-row"><span>{t.lng}</span><Tgl opts={availableLanguages.map(l => [l, l.toUpperCase()])} val={lang} fn={setLang} /></div>

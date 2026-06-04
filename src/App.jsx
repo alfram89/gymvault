@@ -15,7 +15,8 @@ import './index.css'
 export default function App() {
   const [loaded, setLoaded] = useState(false)
   const [onboarded, setOnboarded] = useState(false)
-  const [darkMode, setDarkMode] = useState(true)
+  const [darkMode, setDarkMode] = useState('dark')
+  const [systemDark, setSystemDark] = useState(() => window.matchMedia('(prefers-color-scheme: dark)').matches)
   const [unit, setUnit] = useState('kg')
   const [lang, setLang] = useState('en')
   const [days, setDays] = useState([{ id: 'day-a', name: 'Day A' }, { id: 'day-b', name: 'Day B' }])
@@ -43,10 +44,18 @@ export default function App() {
   }, [])
 
   useEffect(() => {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)')
+    const handler = e => setSystemDark(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
+
+  useEffect(() => {
     loadAllData().then(data => {
       if (data.settings) {
         setOnboarded(data.settings.onboarded ?? false)
-        setDarkMode(data.settings.darkMode ?? true)
+        const saved = data.settings.darkMode
+        setDarkMode(saved === true ? 'dark' : saved === false ? 'light' : saved ?? 'dark')
         setUnit(data.settings.unit ?? 'kg')
         setLang(data.settings.lang ?? 'en')
         if (data.settings.selectedDay) setSelectedDay(data.settings.selectedDay)
@@ -74,6 +83,7 @@ export default function App() {
   }, [restActive, restSecs])
 
   const t = getTranslations(lang)
+  const effectiveDark = darkMode === 'auto' ? systemDark : darkMode === 'dark'
   const allEx = [...EXERCISES, ...customEx]
   const curProg = program[selectedDay] || []
 
@@ -186,7 +196,7 @@ export default function App() {
   const tabs = [{ icon: '📋', label: t.prog }, { icon: '📚', label: t.lib }, { icon: '📈', label: t.hist }, { icon: '⚙️', label: t.sets }]
 
   return (
-    <div className={`app ${darkMode ? 'dark' : 'light'}`}>
+    <div className={`app ${effectiveDark ? 'dark' : 'light'}`}>
       <header className="app-header">
         <div className="app-title">💪 GymTrack</div>
         {workoutActive && (
@@ -215,7 +225,7 @@ export default function App() {
       <main className="app-main">
         {activeTab === 0 && <ProgramTab t={t} days={days} selectedDay={selectedDay} setSelectedDay={setSelectedDay} program={program} setProgram={setProgram} allEx={allEx} unit={unit} workoutActive={workoutActive} workoutSets={workoutSets} setWorkoutSets={setWorkoutSets} startWorkout={startWorkout} finishWorkout={finishWorkout} history={history} onRestTimer={s => { setRestSecs(s); setRestMax(s); setRestActive(true) }} onOpenTemplatePicker={() => setShowTemplatePicker(true)} />}
         {activeTab === 1 && <LibraryTab t={t} days={days} program={program} setProgram={setProgram} customEx={customEx} setCustomEx={setCustomEx} />}
-        {activeTab === 2 && <HistoryTab t={t} history={history} days={days} unit={unit} darkMode={darkMode} />}
+        {activeTab === 2 && <HistoryTab t={t} history={history} days={days} unit={unit} darkMode={effectiveDark} />}
         {activeTab === 3 && <SettingsTab t={t} lang={lang} setLang={setLang} unit={unit} setUnit={setUnit} darkMode={darkMode} setDarkMode={setDarkMode} days={days} setDays={setDays} program={program} setProgram={setProgram} history={history} setHistory={setHistory} customEx={customEx} setCustomEx={setCustomEx} userTemplates={userTemplates} setUserTemplates={setUserTemplates} installPrompt={installPrompt} setInstallPrompt={setInstallPrompt} onOpenTemplatePicker={() => setShowTemplatePicker(true)} onSaveTemplate={saveAsTemplate} />}
       </main>
 
