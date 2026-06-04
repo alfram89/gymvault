@@ -3,6 +3,7 @@ import { dbGet, dbSet, loadAllData } from './db'
 import { EXERCISES } from './constants'
 import { getTranslations } from './i18n/index.js'
 import { TemplatePicker } from './TemplatePicker.jsx'
+import { ProgramWizard } from './components/ProgramWizard.jsx'
 import { uid, fmtTime, isCardioSet, isTimeSet, calcVol } from './helpers'
 import { Onboarding } from './components/Onboarding'
 import { WorkoutSummary } from './components/WorkoutSummary'
@@ -37,6 +38,7 @@ export default function App() {
   const [installPrompt, setInstallPrompt] = useState(null)
   const [userTemplates, setUserTemplates] = useState([])
   const [showTemplatePicker, setShowTemplatePicker] = useState(false)
+  const [showProgramWizard, setShowProgramWizard] = useState(false)
 
   useEffect(() => {
     const handler = e => { e.preventDefault(); setInstallPrompt(e) }
@@ -243,7 +245,7 @@ export default function App() {
         {activeTab === 0 && <ProgramTab t={t} days={days} selectedDay={selectedDay} setSelectedDay={setSelectedDay} program={program} setProgram={setProgram} allEx={allEx} unit={unit} workoutActive={workoutActive} workoutSets={workoutSets} setWorkoutSets={setWorkoutSets} startWorkout={startWorkout} finishWorkout={finishWorkout} history={history} onRestTimer={s => { setRestSecs(s); setRestMax(s); setRestActive(true) }} onOpenTemplatePicker={() => setShowTemplatePicker(true)} />}
         {activeTab === 1 && <LibraryTab t={t} days={days} program={program} setProgram={setProgram} customEx={customEx} setCustomEx={setCustomEx} />}
         {activeTab === 2 && <HistoryTab t={t} history={history} days={days} unit={unit} darkMode={effectiveDark} />}
-        {activeTab === 3 && <SettingsTab t={t} lang={lang} setLang={setLang} unit={unit} setUnit={setUnit} darkMode={darkMode} setDarkMode={setDarkMode} days={days} setDays={setDays} program={program} setProgram={setProgram} history={history} setHistory={setHistory} customEx={customEx} setCustomEx={setCustomEx} userTemplates={userTemplates} setUserTemplates={setUserTemplates} installPrompt={installPrompt} setInstallPrompt={setInstallPrompt} onOpenTemplatePicker={() => setShowTemplatePicker(true)} onSaveTemplate={saveAsTemplate} />}
+        {activeTab === 3 && <SettingsTab t={t} lang={lang} setLang={setLang} unit={unit} setUnit={setUnit} darkMode={darkMode} setDarkMode={setDarkMode} days={days} setDays={setDays} program={program} setProgram={setProgram} history={history} setHistory={setHistory} customEx={customEx} setCustomEx={setCustomEx} userTemplates={userTemplates} setUserTemplates={setUserTemplates} installPrompt={installPrompt} setInstallPrompt={setInstallPrompt} onOpenTemplatePicker={() => setShowTemplatePicker(true)} onSaveTemplate={saveAsTemplate} onOpenProgramWizard={() => setShowProgramWizard(true)} />}
       </main>
 
       <nav className="tab-bar">
@@ -261,6 +263,11 @@ export default function App() {
           onApply={applyTemplate}
           onDelete={deleteUserTemplate}
           onClose={() => setShowTemplatePicker(false)} />
+      )}
+      {showProgramWizard && (
+        <ProgramWizard t={t} allEx={allEx} history={history}
+          onApply={tpl => applyTemplate(tpl, 'replace')}
+          onClose={() => setShowProgramWizard(false)} />
       )}
     </div>
   )
