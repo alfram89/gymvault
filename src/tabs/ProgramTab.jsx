@@ -108,7 +108,9 @@ export function ProgramTab({ t, days, selectedDay, setSelectedDay, program, setP
           const lastEx = lastSession?.exercises?.find(e => e.exerciseId === ex.exerciseId)
           const mode = exData?.inputMode ?? 'weight+reps'
           const hasWeight = mode === 'weight+reps' || mode === 'reps+added'
-          const cols = hasWeight ? '20px 1fr 1fr 28px' : '20px 1fr 28px'
+          const cols = workoutActive
+            ? (hasWeight ? '20px 1fr 1fr 28px' : '20px 1fr 28px')
+            : (hasWeight ? '20px 1fr 1fr' : '20px 1fr')
           const wtLabel = exData?.weightLabel === 'kg/hand'
             ? unit + ' / hand'
             : exData?.weightLabel === 'added'
@@ -162,7 +164,7 @@ export function ProgramTab({ t, days, selectedDay, setSelectedDay, program, setP
                     <span>#</span>
                     <span>{mode === 'time' ? t.secs : t.reps}</span>
                     {hasWeight && <span>{mode === 'reps+added' ? t.addedWt : t.wt}</span>}
-                    <span></span>
+                    {workoutActive && <span></span>}
                   </div>
 
                   {ex.sets.map((set, si) => {
@@ -202,23 +204,41 @@ export function ProgramTab({ t, days, selectedDay, setSelectedDay, program, setP
                             {lastSet && !workoutActive && <div className="set-hint">{lastSet.weight}</div>}
                           </div>
                         )}
-                        <div className="complete-cell">
-                          {workoutActive ? (
+                        {workoutActive && (
+                          <div className="complete-cell">
                             <button className={`complete-btn ${done ? 'done' : ''}`} onClick={() => !done && completeSet(ex.id, si)}>
                               {done ? '✓' : '○'}
                             </button>
-                          ) : (
-                            <button className="rem-set-btn" onClick={() => remSet(ei, si)}>✕</button>
-                          )}
-                        </div>
+                          </div>
+                        )}
                       </div>
                     )
                   })}
 
-                  {!workoutActive && (
-                    <button className="add-set-btn" onClick={() => addSet(ei)}>{t.addSet}</button>
-                  )}
+                  <button className="add-set-btn" onClick={() => addSet(ei)}>{t.addSet}</button>
                 </>
+              )}
+
+              {editMode && ex.sets.length > 0 && (
+                <div className="edit-sets-list">
+                  {ex.sets.map((set, si) => {
+                    const setDesc = mode === 'time'
+                      ? fmtTime(set.secs ?? 30)
+                      : hasWeight && set.weight > 0
+                      ? `${set.reps} × ${set.weight} ${unit}`
+                      : `${set.reps} reps`
+                    return (
+                      <div key={set.id || si} className="edit-set-row">
+                        <span className="edit-set-label">
+                          Set {si + 1}<span className="edit-set-desc"> · {setDesc}</span>
+                        </span>
+                        {ex.sets.length > 1 && (
+                          <button className="rem-set-btn" onClick={() => remSet(ei, si)}>✕</button>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
               )}
             </div>
           )
