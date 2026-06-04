@@ -330,10 +330,13 @@ body {
 .heat-cell { aspect-ratio: 1; border-radius: 3px; background: var(--bg3); }
 .heat-cell.on { background: #22c55e; }
 
-.pr-row-hist { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-.pr-row-hist span:first-child { font-size: 14px; color: var(--sub); }
+.pr-scroll-row { display: flex; gap: 10px; overflow-x: auto; margin: 10px -16px 0; padding: 2px 16px 8px; scrollbar-width: none; }
+.pr-scroll-row::-webkit-scrollbar { display: none; }
+.pr-chip { flex-shrink: 0; width: 110px; background: var(--bg3); border-radius: 12px; border-left: 3px solid transparent; padding: 10px 10px 8px; display: flex; flex-direction: column; gap: 3px; }
+.pr-chip-name { font-size: 11px; color: var(--sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pr-chip-weight { font-size: 17px; font-weight: 700; color: #facc15; line-height: 1.1; }
+.pr-chip-date { font-size: 11px; color: var(--muted); }
 .pr-val { font-weight: 700; color: #facc15; margin-right: 8px; }
-.pr-date { font-size: 12px; color: var(--muted); }
 
 .chart-empty { font-size: 13px; color: var(--sub); text-align: center; padding: 12px 0; }
 .select-input { width: 100%; background: var(--bg3); color: var(--text); border: none; border-radius: 10px; padding: 8px 12px; font-size: 13px; margin-bottom: 12px; font-family: inherit; appearance: auto; }

@@ -18,9 +18,10 @@ export function HistoryTab({ t, history, days, unit, darkMode }) {
     if (ex.isWarmup) return
     ex.sets.filter(s => s.completed && (s.weight || 0) > 0).forEach(s => {
       if (!prs[ex.exerciseId] || s.weight > prs[ex.exerciseId].weight)
-        prs[ex.exerciseId] = { weight: s.weight, name: ex.exerciseName, date: sess.date }
+        prs[ex.exerciseId] = { weight: s.weight, name: ex.exerciseName, date: sess.date, mg: ex.mg || ex.muscleGroup || '' }
     })
   }))
+  const prList = Object.values(prs).sort((a, b) => b.date.localeCompare(a.date))
 
   const histEx = []
   const histExSeen = new Map()
@@ -96,18 +97,21 @@ export function HistoryTab({ t, history, days, unit, darkMode }) {
             ))}
           </div>
 
-          {Object.keys(prs).length > 0 && (
+          {prList.length > 0 && (
             <div className="section-card">
               <h3>🏆 {t.prsTitle}</h3>
-              {Object.values(prs).map((pr, i) => (
-                <div key={i} className="pr-row-hist">
-                  <span>{pr.name}</span>
-                  <div>
-                    <span className="pr-val">{pr.weight} {unit}</span>
-                    <span className="pr-date">{fmtDate(pr.date)}</span>
-                  </div>
-                </div>
-              ))}
+              <div className="pr-scroll-row">
+                {prList.map((pr, i) => {
+                  const color = mc(pr.mg)
+                  return (
+                    <div key={i} className="pr-chip" style={{ borderLeftColor: color }}>
+                      <span className="pr-chip-name">{pr.name}</span>
+                      <span className="pr-chip-weight">{pr.weight} {unit}</span>
+                      <span className="pr-chip-date">{fmtDate(pr.date)}</span>
+                    </div>
+                  )
+                })}
+              </div>
             </div>
           )}
 
