@@ -61,6 +61,7 @@
   "thm": "Theme",
   "dk": "Dark",
   "lt": "Light",
+  "auto": "Auto",
   "unt": "Units",
   "lng": "Language",
   "expJ": "Export backup",
