@@ -24,7 +24,15 @@ gh pr create                         # open PR when done
 
 ## Architecture
 
-Everything lives in `src/`. There are no sub-directories for components — all React code is in flat files.
+Everything lives in `src/`, organised into:
+
+| Directory | Contents |
+|---|---|
+| `src/components/` | Shared UI components (Modal, WheelPicker, Onboarding, WorkoutSummary, ProgramWizard, CardioExCard) |
+| `src/tabs/` | One file per tab (ProgramTab, LibraryTab, HistoryTab, SettingsTab) |
+| `src/data/` | `exercises.json`, `exerciseInfo.js` (how-to descriptions), `templates/` |
+| `src/i18n/` | `en.json` and translation loader |
+| `src/utils/` | `programGenerator.js` (AI-style program builder logic) |
 
 ### Data flow
 
@@ -32,12 +40,13 @@ Everything lives in `src/`. There are no sub-directories for components — all 
 
 ```
 App
-├── Onboarding          (first-run only)
+├── Onboarding          (first-run only, src/components/Onboarding.jsx)
 ├── WheelPicker         (fixed-position overlay, opened by any number input)
 ├── TemplatePicker      (src/TemplatePicker.jsx — fixed-position overlay)
 ├── WorkoutSummary      (fixed-position overlay, shown after finishing a workout)
+├── ProgramWizard       (fixed-position overlay, generates a personalised program)
 └── <tab content>
-    ├── ProgramTab      ── CardioExCard (per cardio exercise)
+    ├── ProgramTab      ── CardioExCard (src/components/CardioExCard.jsx, per cardio exercise)
     ├── LibraryTab
     ├── HistoryTab
     └── SettingsTab
@@ -81,7 +90,7 @@ User-saved templates follow the same schema and are stored in IndexedDB under `u
 
 `src/index.css` is a single flat stylesheet using CSS custom properties (`--bg`, `--text`, `--border`, etc.) switched by `.app.dark` / `.app.light` on the root element.
 
-The app is a 480px-max-width column with a sticky header, scrollable `<main>`, and a sticky tab bar. `tab-scroll` is the scrollable content area for each tab.
+The app is a 480px-max-width column with a sticky header, scrollable `<main>`, and a tab bar pinned to the bottom of the fixed container. `tab-scroll` is the scrollable content area for each tab.
 
 ### Workout state machine
 
