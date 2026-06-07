@@ -65,7 +65,18 @@ export function HistoryTab({ t, history, days, unit, darkMode }) {
 
   const gridColor = darkMode ? '#374151' : '#e5e7eb'
   const tickColor = darkMode ? '#9ca3af' : '#6b7280'
-  const ttStyle = { contentStyle: { background: darkMode ? '#1f2937' : '#ffffff', border: 'none', borderRadius: 8, fontSize: 12 } }
+  const ttBg = darkMode ? '#1f2937' : '#ffffff'
+  const ChartTooltip = ({ active, payload, label }) => {
+    if (!active || !payload?.length) return null
+    return (
+      <div style={{ background: ttBg, border: 'none', borderRadius: 8, fontSize: 12, padding: '6px 10px' }}>
+        {label && <p style={{ margin: '0 0 4px', color: tickColor }}>{label}</p>}
+        {payload.map((entry, i) => (
+          <p key={i} style={{ margin: 0, color: entry.color }}>{entry.value} {entry.unit || ''}</p>
+        ))}
+      </div>
+    )
+  }
 
   return (
     <div className="tab-scroll">
@@ -123,7 +134,7 @@ export function HistoryTab({ t, history, days, unit, darkMode }) {
                   <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
                   <XAxis dataKey="w" tick={{ fill: tickColor, fontSize: 10 }} />
                   <YAxis tick={{ fill: tickColor, fontSize: 10 }} />
-                  <Tooltip {...ttStyle} />
+                  <Tooltip content={<ChartTooltip />} />
                   <Bar dataKey="v" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -142,7 +153,7 @@ export function HistoryTab({ t, history, days, unit, darkMode }) {
                   <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
                   <XAxis dataKey="date" tick={{ fill: tickColor, fontSize: 10 }} />
                   <YAxis tick={{ fill: tickColor, fontSize: 10 }} />
-                  <Tooltip {...ttStyle} />
+                  <Tooltip content={<ChartTooltip />} />
                   <Line type="monotone" dataKey="weight" stroke="#22c55e" strokeWidth={2} dot={{ fill: '#22c55e', r: 3 }} />
                 </LineChart>
               </ResponsiveContainer>
