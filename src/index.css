@@ -148,10 +148,8 @@ body {
   background: var(--bg2);
   border-top: 1px solid var(--border);
   display: flex;
-  position: sticky;
-  bottom: 0;
   z-index: 20;
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .tab-btn {
