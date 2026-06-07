@@ -1,78 +1,139 @@
 import { useState, useMemo } from 'react'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer, BarChart, Bar
+  Tooltip, ResponsiveContainer, BarChart, Bar,
+  RadarChart, Radar, PolarGrid, PolarAngleAxis,
 } from 'recharts'
 import { mc, fmtTime, fmtDate, isCardioSet, isTimeSet, calcVol, weekOf, METRIC_UNIT } from '../helpers'
+import { MUSCLE_COLORS } from '../constants'
 import { Modal } from '../components/Modal'
+
+const MG_KEYS = ['chest', 'back', 'legs', 'shoulders', 'arms', 'core']
+const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
 export function HistoryTab({ t, history, days, unit, darkMode }) {
   const [fDay, setFDay] = useState('all')
   const [selEx, setSelEx] = useState('')
   const [viewSess, setViewSess] = useState(null)
+  const [showAllLog, setShowAllLog] = useState(false)
 
   const filtered = fDay === 'all' ? history : history.filter(h => h.dayId === fDay)
 
-  const prs = {}
-  history.forEach(sess => sess.exercises.forEach(ex => {
-    if (ex.isWarmup) return
-    ex.sets.filter(s => s.completed && (s.weight || 0) > 0).forEach(s => {
-      if (!prs[ex.exerciseId] || s.weight > prs[ex.exerciseId].weight)
-        prs[ex.exerciseId] = { weight: s.weight, name: ex.exerciseName, date: sess.date, mg: ex.mg || ex.muscleGroup || '' }
-    })
-  }))
-  const prList = Object.values(prs).sort((a, b) => b.date.localeCompare(a.date))
+  // ── Quick stats ──────────────────────────────────────────────────────────────
+  const thisMonth = history.filter(h => h.date.startsWith(new Date().toISOString().slice(0, 7))).length
+  const dayCounts = Array(7).fill(0)
+  history.forEach(h => { dayCounts[new Date(h.date + 'T12:00:00').getDay()]++ })
+  const favDay = history.length ? DAY_NAMES[dayCounts.indexOf(Math.max(...dayCounts))] : '—'
 
-  const histEx = []
-  const histExSeen = new Map()
-  history.flatMap(h => h.exercises).forEach(e => {
-    if (!histExSeen.has(e.exerciseId)) {
-      histExSeen.set(e.exerciseId, true)
-      histEx.push({ id: e.exerciseId, name: e.exerciseName || e.exerciseId })
-    }
-  })
-
-  const progData = [...history].filter(h => h.exercises.some(e => e.exerciseId === selEx && !e.isWarmup)).reverse().map(h => {
-    const ex = h.exercises.find(e => e.exerciseId === selEx && !e.isWarmup)
-    const mw = Math.max(0, ...ex.sets.filter(s => s.completed && s.weight > 0).map(s => s.weight))
-    return { date: h.date.slice(5), weight: mw }
-  })
-
-  const weekVol = {}
-  history.forEach(h => {
-    const w = weekOf(h.date)
-    const vol = h.exercises.filter(ex => !ex.sets.length || !isCardioSet(ex.sets[0])).reduce((t, ex) => t + calcVol(ex), 0)
-    weekVol[w] = (weekVol[w] || 0) + vol
-  })
-  const volData = Object.entries(weekVol).sort(([a], [b]) => a > b ? 1 : -1).slice(-8).map(([w, v]) => ({ w: w.slice(5), v: Math.round(v) }))
-
+  // ── Heatmap with volume intensity ────────────────────────────────────────────
   const { heatmap, streak } = useMemo(() => {
-    const trained = new Set(history.map(h => h.date))
+    const volByDate = {}
+    history.forEach(h => {
+      volByDate[h.date] = h.exercises.reduce((sum, ex) => sum + calcVol(ex), 0)
+    })
+    const vols = Object.values(volByDate).filter(v => v > 0).sort((a, b) => a - b)
+    const p33 = vols[Math.floor(vols.length * 0.33)] || 0
+    const p66 = vols[Math.floor(vols.length * 0.66)] || 0
+
     const today = new Date()
     const heatmap = Array.from({ length: 84 }, (_, i) => {
-      const d = new Date(today); d.setDate(d.getDate() - (83 - i))
+      const d = new Date(today)
+      d.setDate(d.getDate() - (83 - i))
       const ds = d.toISOString().split('T')[0]
-      return { ds, on: trained.has(ds) }
+      const vol = volByDate[ds] || 0
+      const intensity = vol === 0 ? 0 : vol <= p33 ? 1 : vol <= p66 ? 2 : 3
+      return { ds, intensity }
     })
+
     let streak = 0
+    const trained = new Set(Object.keys(volByDate))
     const srt = [...trained].sort().reverse()
     if (srt.length) {
       let c = new Date(today.toISOString().split('T')[0])
-      for (const ds of srt) { if (ds === c.toISOString().split('T')[0]) { streak++; c.setDate(c.getDate() - 1) } else break }
+      for (const ds of srt) {
+        if (ds === c.toISOString().split('T')[0]) { streak++; c.setDate(c.getDate() - 1) }
+        else break
+      }
     }
     return { heatmap, streak }
   }, [history])
 
+  // ── Muscle group balance (radar) ─────────────────────────────────────────────
+  const radarData = useMemo(() => {
+    const mgCounts = Object.fromEntries(MG_KEYS.map(mg => [mg, 0]))
+    history.forEach(h => {
+      const mgs = new Set(
+        h.exercises.filter(e => !e.isWarmup).map(e => e.mg || e.muscleGroup).filter(Boolean)
+      )
+      mgs.forEach(mg => { if (mg in mgCounts) mgCounts[mg]++ })
+    })
+    return MG_KEYS.map(mg => ({
+      mg: t[mg] || mg,
+      value: history.length ? Math.round((mgCounts[mg] / history.length) * 100) : 0,
+    }))
+  }, [history, t])
+
+  // ── Weekly volume stacked by muscle group ─────────────────────────────────────
+  const volData = useMemo(() => {
+    const weekMap = {}
+    history.forEach(h => {
+      const w = weekOf(h.date)
+      if (!weekMap[w]) weekMap[w] = { w: w.slice(5) }
+      MG_KEYS.forEach(mg => {
+        const vol = h.exercises
+          .filter(ex => !ex.isWarmup && (ex.mg || ex.muscleGroup) === mg && (!ex.sets.length || !isCardioSet(ex.sets[0])))
+          .reduce((sum, ex) => sum + calcVol(ex), 0)
+        weekMap[w][mg] = Math.round((weekMap[w][mg] || 0) + vol)
+      })
+    })
+    return Object.values(weekMap).sort((a, b) => a.w > b.w ? 1 : -1).slice(-8)
+  }, [history])
+
+  // ── Exercise list sorted by most-logged ───────────────────────────────────────
+  const histEx = useMemo(() => {
+    const exCount = {}
+    const seen = new Map()
+    history.flatMap(h => h.exercises).forEach(e => {
+      exCount[e.exerciseId] = (exCount[e.exerciseId] || 0) + 1
+      if (!seen.has(e.exerciseId)) seen.set(e.exerciseId, { id: e.exerciseId, name: e.exerciseName || e.exerciseId })
+    })
+    return [...seen.values()].sort((a, b) => (exCount[b.id] || 0) - (exCount[a.id] || 0))
+  }, [history])
+
+  const activeEx = selEx || histEx[0]?.id || ''
+
+  // ── Progression data with PR markers ─────────────────────────────────────────
+  const { progData, prWeight } = useMemo(() => {
+    if (!activeEx) return { progData: [], prWeight: null }
+    const data = [...history]
+      .filter(h => h.exercises.some(e => e.exerciseId === activeEx && !e.isWarmup))
+      .reverse()
+      .map(h => {
+        const ex = h.exercises.find(e => e.exerciseId === activeEx && !e.isWarmup)
+        const mw = Math.max(0, ...ex.sets.filter(s => s.completed && s.weight > 0).map(s => s.weight))
+        return { date: h.date.slice(5), weight: mw, isPR: false }
+      })
+    let max = 0
+    data.forEach(d => { if (d.weight > max) { max = d.weight; d.isPR = true } })
+    return { progData: data, prWeight: max > 0 ? max : null }
+  }, [history, activeEx])
+
+  const logSessions = showAllLog ? filtered : filtered.slice(0, 5)
+
+  // ── Chart styling ─────────────────────────────────────────────────────────────
   const gridColor = darkMode ? '#374151' : '#e5e7eb'
   const tickColor = darkMode ? '#9ca3af' : '#6b7280'
   const ttBg = darkMode ? '#1f2937' : '#ffffff'
+
   const ChartTooltip = ({ active, payload, label }) => {
     if (!active || !payload?.length) return null
     return (
-      <div style={{ background: ttBg, border: 'none', borderRadius: 8, fontSize: 12, padding: '6px 10px' }}>
+      <div style={{ background: ttBg, borderRadius: 8, fontSize: 12, padding: '6px 10px', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
         {label && <p style={{ margin: '0 0 4px', color: tickColor }}>{label}</p>}
         {payload.map((entry, i) => (
-          <p key={i} style={{ margin: 0, color: entry.color }}>{entry.value} {entry.unit || ''}</p>
+          <p key={i} style={{ margin: '2px 0', color: entry.color }}>
+            {entry.name ? `${entry.name}: ` : ''}{entry.value}
+          </p>
         ))}
       </div>
     )
@@ -87,83 +148,129 @@ export function HistoryTab({ t, history, days, unit, darkMode }) {
         </div>
       ) : (
         <>
-          <div className="section-card">
-            <div className="section-header">
-              <h3>{t.calTitle}</h3>
-              <div className="streak-badge">
-                <div className="streak-num">{streak}</div>
-                <div className="streak-label">{t.streak}</div>
-              </div>
+          {/* Stats overview */}
+          <div className="stats-row">
+            <div className="stat-tile">
+              <div className="stat-tile-val">{history.length}</div>
+              <div className="stat-tile-label">{t.totalSessions}</div>
             </div>
+            <div className="stat-tile">
+              <div className="stat-tile-val" style={{ color: '#fb923c' }}>{streak}</div>
+              <div className="stat-tile-label">{t.streak}</div>
+            </div>
+            <div className="stat-tile">
+              <div className="stat-tile-val">{thisMonth}</div>
+              <div className="stat-tile-label">{t.thisMonth}</div>
+            </div>
+            <div className="stat-tile">
+              <div className="stat-tile-val">{favDay}</div>
+              <div className="stat-tile-label">{t.favDay}</div>
+            </div>
+          </div>
+
+          {/* Training calendar */}
+          <div className="section-card">
+            <h3 className="section-card-title">{t.calTitle}</h3>
             <div className="heatmap">
               {heatmap.map((d, i) => (
-                <div key={i} className={`heat-cell ${d.on ? 'on' : ''}`} title={d.ds} />
+                <div key={i} className={`heat-cell i${d.intensity}`} title={d.ds} />
               ))}
             </div>
-          </div>
-
-          <div className="chip-row">
-            {[['all', t.allDays], ...days.map(d => [d.id, d.name])].map(([id, nm]) => (
-              <button key={id} className={`chip ${fDay === id ? 'active' : ''}`} onClick={() => setFDay(id)}>{nm}</button>
-            ))}
-          </div>
-
-          {prList.length > 0 && (
-            <div className="section-card">
-              <h3>🏆 {t.prsTitle}</h3>
-              <div className="pr-scroll-row">
-                {prList.map((pr, i) => {
-                  const color = mc(pr.mg)
-                  return (
-                    <div key={i} className="pr-chip" style={{ borderLeftColor: color }}>
-                      <span className="pr-chip-name">{pr.name}</span>
-                      <span className="pr-chip-weight">{pr.weight} {unit}</span>
-                      <span className="pr-chip-date">{fmtDate(pr.date)}</span>
-                    </div>
-                  )
-                })}
-              </div>
+            <div className="heatmap-legend">
+              <span>{t.lessActive}</span>
+              <div className="heat-cell i0" />
+              <div className="heat-cell i1" />
+              <div className="heat-cell i2" />
+              <div className="heat-cell i3" />
+              <span>{t.moreActive}</span>
             </div>
-          )}
+          </div>
 
+          {/* Muscle group balance */}
+          <div className="section-card">
+            <h3 className="section-card-title">💪 {t.mgBalance}</h3>
+            <ResponsiveContainer width="100%" height={180}>
+              <RadarChart data={radarData} margin={{ top: 4, right: 20, bottom: 4, left: 20 }}>
+                <PolarGrid stroke={gridColor} />
+                <PolarAngleAxis dataKey="mg" tick={{ fill: tickColor, fontSize: 11 }} />
+                <Radar dataKey="value" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.25} strokeWidth={2} />
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Weekly volume stacked by muscle group */}
           {volData.length > 0 && (
             <div className="section-card">
-              <h3>📊 {t.wkVol}</h3>
+              <h3 className="section-card-title">📊 {t.wkVol}</h3>
               <ResponsiveContainer width="100%" height={130}>
                 <BarChart data={volData} margin={{ left: -20, right: 4 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
                   <XAxis dataKey="w" tick={{ fill: tickColor, fontSize: 10 }} />
                   <YAxis tick={{ fill: tickColor, fontSize: 10 }} />
                   <Tooltip content={<ChartTooltip />} />
-                  <Bar dataKey="v" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                  {MG_KEYS.map(mg => (
+                    <Bar key={mg} dataKey={mg} name={t[mg] || mg} stackId="a" fill={MUSCLE_COLORS[mg]} />
+                  ))}
                 </BarChart>
               </ResponsiveContainer>
             </div>
           )}
 
-          <div className="section-card">
-            <h3>📈 {t.wtProg}</h3>
-            <select value={selEx} onChange={e => setSelEx(e.target.value)} className="select-input">
-              <option value="">{t.pickEx}</option>
-              {histEx.map(e => <option key={e.id} value={e.id}>{e.name}</option>)}
-            </select>
-            {selEx && progData.length > 1 && (
-              <ResponsiveContainer width="100%" height={130}>
-                <LineChart data={progData} margin={{ left: -20, right: 4 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
-                  <XAxis dataKey="date" tick={{ fill: tickColor, fontSize: 10 }} />
-                  <YAxis tick={{ fill: tickColor, fontSize: 10 }} />
-                  <Tooltip content={<ChartTooltip />} />
-                  <Line type="monotone" dataKey="weight" stroke="#22c55e" strokeWidth={2} dot={{ fill: '#22c55e', r: 3 }} />
-                </LineChart>
-              </ResponsiveContainer>
-            )}
-            {selEx && progData.length <= 1 && <p className="chart-empty">Log more sessions to see progression</p>}
-          </div>
+          {/* Exercise progression */}
+          {histEx.length > 0 && (
+            <div className="section-card">
+              <h3 className="section-card-title">📈 {t.wtProg}</h3>
+              <select value={activeEx} onChange={e => setSelEx(e.target.value)} className="select-input">
+                {histEx.map(e => <option key={e.id} value={e.id}>{e.name}</option>)}
+              </select>
+              {progData.length > 1 ? (
+                <>
+                  <ResponsiveContainer width="100%" height={130}>
+                    <LineChart data={progData} margin={{ left: -20, right: 4 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+                      <XAxis dataKey="date" tick={{ fill: tickColor, fontSize: 10 }} />
+                      <YAxis tick={{ fill: tickColor, fontSize: 10 }} />
+                      <Tooltip content={<ChartTooltip />} />
+                      <Line
+                        type="monotone"
+                        dataKey="weight"
+                        stroke="#22c55e"
+                        strokeWidth={2}
+                        dot={(props) => {
+                          const { cx, cy, payload } = props
+                          return payload?.isPR
+                            ? <circle key={`pr-${cx}`} cx={cx} cy={cy} r={5} fill="#facc15" stroke="#22c55e" strokeWidth={1.5} />
+                            : <circle key={`dot-${cx}`} cx={cx} cy={cy} r={3} fill="#22c55e" />
+                        }}
+                        activeDot={{ r: 5, fill: '#22c55e' }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                  {prWeight && (
+                    <p className="chart-pr-note">
+                      <span className="pr-dot-legend" /> {t.prsTitle}: <span style={{ color: '#facc15', fontWeight: 700 }}>{prWeight} {unit}</span>
+                    </p>
+                  )}
+                </>
+              ) : (
+                <p className="chart-empty">Log more sessions to see progression</p>
+              )}
+            </div>
+          )}
 
+          {/* Workout log */}
           <div className="section-card">
-            <h3>🗓 {t.wkLog}</h3>
-            {filtered.map(sess => (
+            <h3 className="section-card-title">🗓 {t.wkLog}</h3>
+            <div className="chip-row" style={{ marginBottom: 10 }}>
+              {[['all', t.allDays], ...days.map(d => [d.id, d.name])].map(([id, nm]) => (
+                <button
+                  key={id}
+                  className={`chip ${fDay === id ? 'active' : ''}`}
+                  onClick={() => { setFDay(id); setShowAllLog(false) }}
+                >{nm}</button>
+              ))}
+            </div>
+            {logSessions.map(sess => (
               <button key={sess.id} className="session-row" onClick={() => setViewSess(sess)}>
                 <div className="session-info">
                   <div className="session-name">{sess.dayName}</div>
@@ -180,6 +287,11 @@ export function HistoryTab({ t, history, days, unit, darkMode }) {
                 </div>
               </button>
             ))}
+            {filtered.length > 5 && (
+              <button className="show-more-btn" onClick={() => setShowAllLog(v => !v)}>
+                {showAllLog ? t.showLess : `${t.showAll} (${filtered.length})`}
+              </button>
+            )}
           </div>
         </>
       )}
@@ -191,7 +303,7 @@ export function HistoryTab({ t, history, days, unit, darkMode }) {
               <h3 className="modal-title">{viewSess.dayName}</h3>
               <p className="modal-sub">{fmtDate(viewSess.date)} · {fmtTime(viewSess.duration)}</p>
             </div>
-            <span className="session-vol">{Math.round(viewSess.exercises.reduce((t, ex) => t + calcVol(ex), 0))} {unit}</span>
+            <span className="session-vol">{Math.round(viewSess.exercises.reduce((s, ex) => s + calcVol(ex), 0))} {unit}</span>
           </div>
           <div className="session-detail">
             {viewSess.exercises.map((ex, i) => {
@@ -199,14 +311,14 @@ export function HistoryTab({ t, history, days, unit, darkMode }) {
               return (
                 <div key={i} className="sess-ex" style={{ borderLeftColor: mc(ex.mg || ex.muscleGroup) }}>
                   <div className="sess-ex-name">
-                  {ex.exerciseName}
-                  {ex.isWarmup && <span className="warmup-badge">🔥 {t.warmupEx}</span>}
-                </div>
+                    {ex.exerciseName}
+                    {ex.isWarmup && <span className="warmup-badge">🔥 {t.warmupEx}</span>}
+                  </div>
                   {ex.sets.map((s, j) => (
                     <div key={j} className={`sess-set ${s.isWarmup ? 'warmup' : ''}`}>
                       <span>{cardio ? t.interval : 'Set'} {j + 1}</span>
                       {cardio
-                        ? Object.entries(s).filter(([k]) => !['id','completed'].includes(k) && s[k] > 0).map(([k, v]) => (
+                        ? Object.entries(s).filter(([k]) => !['id', 'completed'].includes(k) && s[k] > 0).map(([k, v]) => (
                             <span key={k}>{t[k] || k}: {k === 'duration' ? fmtTime(v) : v} {METRIC_UNIT[k] || ''}</span>
                           ))
                         : isTimeSet(s)
