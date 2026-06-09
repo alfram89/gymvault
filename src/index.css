@@ -81,6 +81,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 20;
+  flex-shrink: 0;
 }
 
 .app-title {
@@ -145,7 +146,7 @@ body {
 .rest-fill { height: 100%; background: #60a5fa; border-radius: 2px; transition: width 1s linear; }
 .skip-btn { background: #1d4ed8; border: none; color: #93c5fd; font-size: 12px; padding: 4px 10px; border-radius: 8px; cursor: pointer; font-family: inherit; }
 
-.app-main { flex: 1; overflow: hidden; }
+.app-main { flex: 1; overflow: hidden; min-height: 0; }
 .tab-scroll { height: 100%; overflow-y: auto; padding: 12px 12px 100px; }
 
 /* ── TAB BAR ───────────────────────── */
@@ -154,6 +155,7 @@ body {
   border-top: 1px solid var(--border);
   display: flex;
   z-index: 20;
+  flex-shrink: 0;
 }
 
 .tab-btn {
