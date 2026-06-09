@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import BarbellIcon from './BarbellIcon'
 import { dbGet, dbSet, loadAllData } from './db'
 import { EXERCISES } from './constants'
 import { getTranslations } from './i18n/index.js'
@@ -214,7 +215,7 @@ export default function App() {
   return (
     <div className={`app ${effectiveDark ? 'dark' : 'light'}`}>
       <header className="app-header">
-        <div className="app-title">💪 GymVault</div>
+        <div className="app-title"><BarbellIcon size={26} /> GymVault</div>
         {workoutActive && (
           <div className="workout-badge">
             <div className="workout-badge-row">
