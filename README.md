@@ -1,15 +1,19 @@
-# 💪 GymVault
+<p align="center">
+  <img src="public/pwa-192.png" width="80" alt="GymVault">
+</p>
+
+# GymVault
 
 A private, offline-first workout tracker. No account, no cloud, no ads — your data never leaves your device.
 
-[![Deploy to GitHub Pages](https://github.com/alfram89/GymTrack/actions/workflows/deploy.yml/badge.svg)](https://github.com/alfram89/GymTrack/actions/workflows/deploy.yml)
+[![Deploy to GitHub Pages](https://github.com/alfram89/gymvault/actions/workflows/deploy.yml/badge.svg)](https://github.com/alfram89/gymvault/actions/workflows/deploy.yml)
 [![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
 
 ---
 
 ## Try it
 
-**https://alfram89.github.io/GymTrack/**
+**https://alfram89.github.io/gymvault/**
 
 Works in any browser. To install as an app:
 
@@ -23,8 +27,8 @@ Fully offline after the first load.
 
 ## Features
 
-- **Programs** — Multi-day programs with a library of 57 exercises across 7 muscle groups. Strength and cardio (interval tracking) supported.
-- **Templates** — Built-in programs (StrongLifts 5×5, PPL, Upper/Lower, Full Body) and save your own. The Program Builder auto-generates a personalised plan from your goals and equipment.
+- **Programs** — Multi-day programs with a library of 83 exercises across 7 muscle groups. Strength and cardio (interval tracking) supported.
+- **Templates** — 12 built-in programs (StrongLifts 5×5, PPL, Upper/Lower, Full Body, 5/3/1, Bro Split, Couch to 5K, HIIT Conditioning, Zone 2 Endurance, and more) plus save your own. The Program Builder auto-generates a personalised plan from your goals and equipment.
 - **Workout logging** — Mark sets complete, auto rest timer, live duration in the header.
 - **History** — Stats overview, intensity heatmap, muscle balance radar, weekly volume by muscle group, per-exercise weight progression with PR markers, and a filterable session log.
 - **Portable data** — Export and import everything as JSON from Settings.
