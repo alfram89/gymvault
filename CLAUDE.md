@@ -12,6 +12,10 @@ npm run preview  # serve the dist/ build locally
 
 Deploying is automatic: every push to `main` triggers the GitHub Actions workflow (`.github/workflows/deploy.yml`) which builds and publishes to GitHub Pages at **https://alfram89.github.io/GymTrack/**.
 
+## Language
+
+All pull request titles, descriptions, and commit messages must be written in **English**.
+
 ## Git workflow
 
 **Always create a feature branch before making changes** — never commit directly to `main`. This keeps GitHub Actions deployments intentional and allows proper PRs.
