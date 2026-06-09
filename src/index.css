@@ -13,8 +13,6 @@ html {
 body {
   height: 100%;
   overscroll-behavior: none;
-  display: flex;
-  justify-content: center;
 }
 
 body {
@@ -25,11 +23,7 @@ body {
 }
 
 #root {
-  width: 100%;
-  max-width: 480px;
   height: 100%;
-  display: flex;
-  flex-direction: column;
 }
 
 /* ── THEME ─────────────────────────── */
@@ -65,11 +59,11 @@ body {
 .app {
   background: var(--bg);
   color: var(--text);
-  flex: 1;
+  height: 100%;
+  max-width: 480px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  min-height: 0;
 }
 
 .app-header {
