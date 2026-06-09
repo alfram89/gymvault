@@ -7,11 +7,13 @@
 
 html {
   height: 100%;
+  overflow: hidden;
   background: #111827;
 }
 
 body {
   height: 100%;
+  overflow: hidden;
   overscroll-behavior: none;
 }
 
@@ -61,7 +63,7 @@ body {
   color: var(--text);
   position: fixed;
   top: 0;
-  height: 100dvh;
+  bottom: 0;
   left: max(0px, calc(50% - 240px));
   right: max(0px, calc(50% - 240px));
   display: flex;
