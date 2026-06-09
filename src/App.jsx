@@ -36,6 +36,7 @@ export default function App() {
   const [restActive, setRestActive] = useState(false)
   const [restSecs, setRestSecs] = useState(0)
   const [restMax, setRestMax] = useState(90)
+  const [restStartTime, setRestStartTime] = useState(null)
   const [installPrompt, setInstallPrompt] = useState(null)
   const [userTemplates, setUserTemplates] = useState([])
   const [showTemplatePicker, setShowTemplatePicker] = useState(false)
@@ -82,15 +83,32 @@ export default function App() {
 
   useEffect(() => {
     if (!restActive || restSecs <= 0) { if (restSecs <= 0) setRestActive(false); return }
-    const id = setTimeout(() => setRestSecs(s => s - 1), 1000)
+    const id = setTimeout(() => {
+      const remaining = Math.max(0, restMax - Math.floor((Date.now() - restStartTime) / 1000))
+      setRestSecs(remaining)
+    }, 1000)
     return () => clearTimeout(id)
-  }, [restActive, restSecs])
+  }, [restActive, restSecs, restMax, restStartTime])
 
   useEffect(() => {
     if (!workoutActive) return
-    const id = setTimeout(() => setWorkoutElapsed(s => s + 1), 1000)
+    const id = setTimeout(() => setWorkoutElapsed(Math.floor((Date.now() - workoutStart) / 1000)), 1000)
     return () => clearTimeout(id)
-  }, [workoutActive, workoutElapsed])
+  }, [workoutActive, workoutElapsed, workoutStart])
+
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState !== 'visible') return
+      if (workoutActive && workoutStart) setWorkoutElapsed(Math.floor((Date.now() - workoutStart) / 1000))
+      if (restActive && restStartTime) {
+        const remaining = Math.max(0, restMax - Math.floor((Date.now() - restStartTime) / 1000))
+        setRestSecs(remaining)
+        if (remaining <= 0) setRestActive(false)
+      }
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
+  }, [workoutActive, workoutStart, restActive, restStartTime, restMax])
 
   const t = getTranslations(lang)
   const effectiveDark = darkMode === 'auto' ? systemDark : darkMode === 'dark'
@@ -243,7 +261,7 @@ export default function App() {
       )}
 
       <main className="app-main">
-        {activeTab === 0 && <ProgramTab t={t} days={days} selectedDay={selectedDay} setSelectedDay={setSelectedDay} program={program} setProgram={setProgram} allEx={allEx} unit={unit} workoutActive={workoutActive} workoutSets={workoutSets} setWorkoutSets={setWorkoutSets} startWorkout={startWorkout} finishWorkout={finishWorkout} history={history} onRestTimer={s => { setRestSecs(s); setRestMax(s); setRestActive(true) }} onOpenTemplatePicker={() => setShowTemplatePicker(true)} />}
+        {activeTab === 0 && <ProgramTab t={t} days={days} selectedDay={selectedDay} setSelectedDay={setSelectedDay} program={program} setProgram={setProgram} allEx={allEx} unit={unit} workoutActive={workoutActive} workoutSets={workoutSets} setWorkoutSets={setWorkoutSets} startWorkout={startWorkout} finishWorkout={finishWorkout} history={history} onRestTimer={s => { setRestSecs(s); setRestMax(s); setRestStartTime(Date.now()); setRestActive(true) }} onOpenTemplatePicker={() => setShowTemplatePicker(true)} />}
         {activeTab === 1 && <LibraryTab t={t} days={days} program={program} setProgram={setProgram} customEx={customEx} setCustomEx={setCustomEx} />}
         {activeTab === 2 && <HistoryTab t={t} history={history} days={days} unit={unit} darkMode={effectiveDark} />}
         {activeTab === 3 && <SettingsTab t={t} lang={lang} setLang={setLang} unit={unit} setUnit={setUnit} darkMode={darkMode} setDarkMode={setDarkMode} days={days} setDays={setDays} program={program} setProgram={setProgram} history={history} setHistory={setHistory} customEx={customEx} setCustomEx={setCustomEx} userTemplates={userTemplates} setUserTemplates={setUserTemplates} installPrompt={installPrompt} setInstallPrompt={setInstallPrompt} onOpenTemplatePicker={() => setShowTemplatePicker(true)} onSaveTemplate={saveAsTemplate} onOpenProgramWizard={() => setShowProgramWizard(true)} />}
