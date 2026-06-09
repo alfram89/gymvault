@@ -1,0 +1,63 @@
+{
+  "id": "bro-split",
+  "name": "Bro Split 5×",
+  "description": "Classic 5-day bodybuilding split. One muscle group per session for maximum focus and volume. Great for intermediate lifters who want dedicated isolation work.",
+  "tags": ["intermediate", "hypertrophy", "barbell", "dumbbell"],
+  "days": [
+    {
+      "name": "Chest",
+      "exercises": [
+        { "exerciseId": "bench-press",  "sets": 4, "reps": 8,  "restTime": 120 },
+        { "exerciseId": "incline-bench","sets": 4, "reps": 10, "restTime": 90  },
+        { "exerciseId": "decline-bench","sets": 3, "reps": 10, "restTime": 90  },
+        { "exerciseId": "cable-fly",    "sets": 3, "reps": 12, "restTime": 60  },
+        { "exerciseId": "pec-deck",     "sets": 3, "reps": 15, "restTime": 60  },
+        { "exerciseId": "chest-dip",    "sets": 3, "reps": 10, "restTime": 90  }
+      ]
+    },
+    {
+      "name": "Back",
+      "exercises": [
+        { "exerciseId": "deadlift",     "sets": 4, "reps": 5,  "restTime": 180 },
+        { "exerciseId": "barbell-row",  "sets": 4, "reps": 8,  "restTime": 120 },
+        { "exerciseId": "t-bar-row",    "sets": 3, "reps": 10, "restTime": 90  },
+        { "exerciseId": "lat-pulldown", "sets": 3, "reps": 12, "restTime": 90  },
+        { "exerciseId": "seated-row",   "sets": 3, "reps": 12, "restTime": 60  },
+        { "exerciseId": "back-ext",     "sets": 3, "reps": 15, "restTime": 60  }
+      ]
+    },
+    {
+      "name": "Legs",
+      "exercises": [
+        { "exerciseId": "squat",        "sets": 4, "reps": 8,  "restTime": 180 },
+        { "exerciseId": "leg-press",    "sets": 4, "reps": 12, "restTime": 120 },
+        { "exerciseId": "hip-thrust",   "sets": 4, "reps": 10, "restTime": 120 },
+        { "exerciseId": "rdl",          "sets": 3, "reps": 10, "restTime": 90  },
+        { "exerciseId": "leg-curl",     "sets": 3, "reps": 12, "restTime": 60  },
+        { "exerciseId": "calf-raise",   "sets": 4, "reps": 15, "restTime": 60  }
+      ]
+    },
+    {
+      "name": "Shoulders",
+      "exercises": [
+        { "exerciseId": "ohp",          "sets": 4, "reps": 8,  "restTime": 120 },
+        { "exerciseId": "db-shpress",   "sets": 3, "reps": 10, "restTime": 90  },
+        { "exerciseId": "lat-raise",    "sets": 4, "reps": 15, "restTime": 60  },
+        { "exerciseId": "rear-delt-fly","sets": 3, "reps": 15, "restTime": 60  },
+        { "exerciseId": "face-pull",    "sets": 3, "reps": 15, "restTime": 60  },
+        { "exerciseId": "barbell-shrug","sets": 3, "reps": 12, "restTime": 60  }
+      ]
+    },
+    {
+      "name": "Arms",
+      "exercises": [
+        { "exerciseId": "barbell-curl", "sets": 4, "reps": 10, "restTime": 90  },
+        { "exerciseId": "hammer-curl",  "sets": 3, "reps": 12, "restTime": 60  },
+        { "exerciseId": "preacher-curl","sets": 3, "reps": 12, "restTime": 60  },
+        { "exerciseId": "skull-crusher","sets": 4, "reps": 10, "restTime": 90  },
+        { "exerciseId": "tricep-push",  "sets": 3, "reps": 12, "restTime": 60  },
+        { "exerciseId": "overhead-ext", "sets": 3, "reps": 12, "restTime": 60  }
+      ]
+    }
+  ]
+}

@@ -7,6 +7,8 @@
   { "id": "push-up",       "name": "Push-Up",                  "mg": "chest",     "eq": "bodyweight", "dif": "beginner",     "inputMode": "reps",        "repsMax": 150                                                               },
   { "id": "cable-fly",     "name": "Cable Crossover",          "mg": "chest",     "eq": "cable",      "dif": "intermediate", "inputMode": "weight+reps", "weightMax": 100, "weightStep": 1,   "repsMax": 30,  "weightLabel": "kg"     },
   { "id": "chest-dip",     "name": "Chest Dip",                "mg": "chest",     "eq": "bodyweight", "dif": "intermediate", "inputMode": "reps+added",  "weightMax": 60,  "weightStep": 1,   "repsMax": 50,  "weightLabel": "added"  },
+  { "id": "pec-deck",      "name": "Pec Deck",                 "mg": "chest",     "eq": "machine",    "dif": "beginner",     "inputMode": "weight+reps", "weightMax": 150, "weightStep": 1,   "repsMax": 30,  "weightLabel": "kg"     },
+  { "id": "db-pullover",   "name": "Dumbbell Pullover",        "mg": "chest",     "eq": "dumbbell",   "dif": "intermediate", "inputMode": "weight+reps", "weightMax": 60,  "weightStep": 1,   "repsMax": 20,  "weightLabel": "kg"     },
 
   { "id": "pull-up",       "name": "Pull-Up",                  "mg": "back",      "eq": "bodyweight", "dif": "intermediate", "inputMode": "reps+added",  "weightMax": 60,  "weightStep": 1,   "repsMax": 30,  "weightLabel": "added"  },
   { "id": "barbell-row",   "name": "Barbell Row",              "mg": "back",      "eq": "barbell",    "dif": "intermediate", "inputMode": "weight+reps", "weightMax": 300, "weightStep": 2.5, "repsMax": 20,  "weightLabel": "kg"     },
@@ -16,6 +18,9 @@
   { "id": "deadlift",      "name": "Deadlift",                 "mg": "back",      "eq": "barbell",    "dif": "advanced",     "inputMode": "weight+reps", "weightMax": 500, "weightStep": 2.5, "repsMax": 10,  "weightLabel": "kg"     },
   { "id": "t-bar-row",     "name": "T-Bar Row",                "mg": "back",      "eq": "barbell",    "dif": "intermediate", "inputMode": "weight+reps", "weightMax": 250, "weightStep": 2.5, "repsMax": 20,  "weightLabel": "kg"     },
   { "id": "chin-up",       "name": "Chin-Up",                  "mg": "back",      "eq": "bodyweight", "dif": "intermediate", "inputMode": "reps+added",  "weightMax": 60,  "weightStep": 1,   "repsMax": 30,  "weightLabel": "added"  },
+  { "id": "back-ext",      "name": "Back Extension",           "mg": "back",      "eq": "bodyweight", "dif": "beginner",     "inputMode": "reps+added",  "weightMax": 50,  "weightStep": 1,   "repsMax": 30,  "weightLabel": "added"  },
+  { "id": "good-morning",  "name": "Good Morning",             "mg": "back",      "eq": "barbell",    "dif": "intermediate", "inputMode": "weight+reps", "weightMax": 150, "weightStep": 2.5, "repsMax": 15,  "weightLabel": "kg"     },
+  { "id": "sa-cable-row",  "name": "Single-arm Cable Row",     "mg": "back",      "eq": "cable",      "dif": "beginner",     "inputMode": "weight+reps", "weightMax": 100, "weightStep": 1,   "repsMax": 20,  "weightLabel": "kg/hand"},
 
   { "id": "squat",         "name": "Squat",                    "mg": "legs",      "eq": "barbell",    "dif": "intermediate", "inputMode": "weight+reps", "weightMax": 500, "weightStep": 2.5, "repsMax": 20,  "weightLabel": "kg"     },
   { "id": "leg-press",     "name": "Leg Press",                "mg": "legs",      "eq": "machine",    "dif": "beginner",     "inputMode": "weight+reps", "weightMax": 500, "weightStep": 5,   "repsMax": 30,  "weightLabel": "kg"     },
@@ -26,6 +31,11 @@
   { "id": "calf-raise",    "name": "Calf Raise",               "mg": "legs",      "eq": "machine",    "dif": "beginner",     "inputMode": "weight+reps", "weightMax": 300, "weightStep": 5,   "repsMax": 50,  "weightLabel": "kg"     },
   { "id": "hack-squat",    "name": "Hack Squat",               "mg": "legs",      "eq": "machine",    "dif": "intermediate", "inputMode": "weight+reps", "weightMax": 500, "weightStep": 5,   "repsMax": 20,  "weightLabel": "kg"     },
   { "id": "bulgarian",     "name": "Bulgarian Split Squat",    "mg": "legs",      "eq": "dumbbell",   "dif": "advanced",     "inputMode": "weight+reps", "weightMax": 80,  "weightStep": 2.5, "repsMax": 15,  "weightLabel": "kg/hand" },
+  { "id": "hip-thrust",    "name": "Hip Thrust",               "mg": "legs",      "eq": "barbell",    "dif": "intermediate", "inputMode": "weight+reps", "weightMax": 300, "weightStep": 2.5, "repsMax": 20,  "weightLabel": "kg"     },
+  { "id": "goblet-squat",  "name": "Goblet Squat",             "mg": "legs",      "eq": "dumbbell",   "dif": "beginner",     "inputMode": "weight+reps", "weightMax": 80,  "weightStep": 1,   "repsMax": 20,  "weightLabel": "kg"     },
+  { "id": "sumo-deadlift", "name": "Sumo Deadlift",            "mg": "legs",      "eq": "barbell",    "dif": "intermediate", "inputMode": "weight+reps", "weightMax": 500, "weightStep": 2.5, "repsMax": 10,  "weightLabel": "kg"     },
+  { "id": "seated-calf",   "name": "Seated Calf Raise",        "mg": "legs",      "eq": "machine",    "dif": "beginner",     "inputMode": "weight+reps", "weightMax": 150, "weightStep": 5,   "repsMax": 30,  "weightLabel": "kg"     },
+  { "id": "glute-bridge",  "name": "Glute Bridge",             "mg": "legs",      "eq": "bodyweight", "dif": "beginner",     "inputMode": "reps+added",  "weightMax": 100, "weightStep": 2.5, "repsMax": 30,  "weightLabel": "added"  },
 
   { "id": "ohp",           "name": "Overhead Press",           "mg": "shoulders", "eq": "barbell",    "dif": "intermediate", "inputMode": "weight+reps", "weightMax": 200, "weightStep": 2.5, "repsMax": 15,  "weightLabel": "kg"     },
   { "id": "db-shpress",    "name": "DB Shoulder Press",        "mg": "shoulders", "eq": "dumbbell",   "dif": "beginner",     "inputMode": "weight+reps", "weightMax": 80,  "weightStep": 1,   "repsMax": 20,  "weightLabel": "kg/hand" },
@@ -34,6 +44,8 @@
   { "id": "arnold-press",  "name": "Arnold Press",             "mg": "shoulders", "eq": "dumbbell",   "dif": "intermediate", "inputMode": "weight+reps", "weightMax": 60,  "weightStep": 1,   "repsMax": 20,  "weightLabel": "kg/hand" },
   { "id": "front-raise",   "name": "Front Raise",              "mg": "shoulders", "eq": "dumbbell",   "dif": "beginner",     "inputMode": "weight+reps", "weightMax": 40,  "weightStep": 1,   "repsMax": 30,  "weightLabel": "kg/hand" },
   { "id": "upright-row",   "name": "Upright Row",              "mg": "shoulders", "eq": "barbell",    "dif": "intermediate", "inputMode": "weight+reps", "weightMax": 120, "weightStep": 2.5, "repsMax": 20,  "weightLabel": "kg"     },
+  { "id": "rear-delt-fly", "name": "Rear Delt Fly",            "mg": "shoulders", "eq": "dumbbell",   "dif": "beginner",     "inputMode": "weight+reps", "weightMax": 30,  "weightStep": 1,   "repsMax": 30,  "weightLabel": "kg/hand"},
+  { "id": "barbell-shrug", "name": "Barbell Shrug",            "mg": "shoulders", "eq": "barbell",    "dif": "beginner",     "inputMode": "weight+reps", "weightMax": 300, "weightStep": 2.5, "repsMax": 20,  "weightLabel": "kg"     },
 
   { "id": "barbell-curl",  "name": "Barbell Curl",             "mg": "arms",      "eq": "barbell",    "dif": "beginner",     "inputMode": "weight+reps", "weightMax": 100, "weightStep": 0.5, "repsMax": 20,  "weightLabel": "kg"     },
   { "id": "hammer-curl",   "name": "Hammer Curl",              "mg": "arms",      "eq": "dumbbell",   "dif": "beginner",     "inputMode": "weight+reps", "weightMax": 60,  "weightStep": 1,   "repsMax": 20,  "weightLabel": "kg/hand" },
@@ -43,6 +55,9 @@
   { "id": "preacher-curl", "name": "Preacher Curl",            "mg": "arms",      "eq": "barbell",    "dif": "beginner",     "inputMode": "weight+reps", "weightMax": 80,  "weightStep": 0.5, "repsMax": 15,  "weightLabel": "kg"     },
   { "id": "overhead-ext",  "name": "Overhead Tricep Extension","mg": "arms",      "eq": "dumbbell",   "dif": "beginner",     "inputMode": "weight+reps", "weightMax": 60,  "weightStep": 1,   "repsMax": 20,  "weightLabel": "kg",    "bilateral": false },
   { "id": "conc-curl",     "name": "Concentration Curl",       "mg": "arms",      "eq": "dumbbell",   "dif": "beginner",     "inputMode": "weight+reps", "weightMax": 40,  "weightStep": 1,   "repsMax": 20,  "weightLabel": "kg/hand" },
+  { "id": "cable-curl",    "name": "Cable Curl",               "mg": "arms",      "eq": "cable",      "dif": "beginner",     "inputMode": "weight+reps", "weightMax": 80,  "weightStep": 1,   "repsMax": 20,  "weightLabel": "kg"     },
+  { "id": "incline-db-curl","name": "Incline Dumbbell Curl",   "mg": "arms",      "eq": "dumbbell",   "dif": "beginner",     "inputMode": "weight+reps", "weightMax": 40,  "weightStep": 1,   "repsMax": 20,  "weightLabel": "kg/hand"},
+  { "id": "ez-bar-curl",   "name": "EZ Bar Curl",              "mg": "arms",      "eq": "barbell",    "dif": "beginner",     "inputMode": "weight+reps", "weightMax": 80,  "weightStep": 0.5, "repsMax": 20,  "weightLabel": "kg"     },
 
   { "id": "plank",         "name": "Plank",                    "mg": "core",      "eq": "bodyweight", "dif": "beginner",     "inputMode": "time"                                                                                      },
   { "id": "crunch",        "name": "Crunch",                   "mg": "core",      "eq": "bodyweight", "dif": "beginner",     "inputMode": "reps",        "repsMax": 150                                                               },
@@ -51,6 +66,11 @@
   { "id": "ab-wheel",      "name": "Ab Wheel Rollout",         "mg": "core",      "eq": "bodyweight", "dif": "advanced",     "inputMode": "reps",        "repsMax": 50                                                                },
   { "id": "cable-crunch",  "name": "Cable Crunch",             "mg": "core",      "eq": "cable",      "dif": "beginner",     "inputMode": "weight+reps", "weightMax": 120, "weightStep": 1,   "repsMax": 30,  "weightLabel": "kg"     },
   { "id": "mtn-climber",   "name": "Mountain Climber",         "mg": "core",      "eq": "bodyweight", "dif": "beginner",     "inputMode": "reps",        "repsMax": 200                                                               },
+  { "id": "side-plank",    "name": "Side Plank",               "mg": "core",      "eq": "bodyweight", "dif": "beginner",     "inputMode": "time"                                                                                      },
+  { "id": "bicycle-crunch","name": "Bicycle Crunch",           "mg": "core",      "eq": "bodyweight", "dif": "beginner",     "inputMode": "reps",        "repsMax": 100                                                               },
+  { "id": "leg-raise",     "name": "Leg Raise",                "mg": "core",      "eq": "bodyweight", "dif": "beginner",     "inputMode": "reps",        "repsMax": 50                                                                },
+  { "id": "dead-bug",      "name": "Dead Bug",                 "mg": "core",      "eq": "bodyweight", "dif": "beginner",     "inputMode": "reps",        "repsMax": 30                                                                },
+  { "id": "pallof-press",  "name": "Pallof Press",             "mg": "core",      "eq": "cable",      "dif": "intermediate", "inputMode": "weight+reps", "weightMax": 50,  "weightStep": 1,   "repsMax": 15,  "weightLabel": "kg"     },
 
   { "id": "treadmill",     "name": "Treadmill",                "mg": "cardio",    "eq": "machine",    "dif": "beginner",     "type": "cardio", "metrics": ["duration", "distance", "speed", "incline"] },
   { "id": "outdoor-run",   "name": "Outdoor Run",              "mg": "cardio",    "eq": "bodyweight", "dif": "beginner",     "type": "cardio", "metrics": ["duration", "distance", "heart_rate"] },
