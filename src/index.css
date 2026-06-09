@@ -13,6 +13,8 @@ html {
 body {
   height: 100%;
   overscroll-behavior: none;
+  display: flex;
+  justify-content: center;
 }
 
 body {
@@ -23,7 +25,11 @@ body {
 }
 
 #root {
+  width: 100%;
+  max-width: 480px;
   height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ── THEME ─────────────────────────── */
@@ -59,13 +65,11 @@ body {
 .app {
   background: var(--bg);
   color: var(--text);
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: max(0px, calc(50% - 240px));
-  right: max(0px, calc(50% - 240px));
+  flex: 1;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
 }
 
 .app-header {
@@ -152,12 +156,12 @@ body {
   display: flex;
   z-index: 20;
   flex-shrink: 0;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .tab-btn {
   flex: 1;
-  padding: 8px 0;
-  padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px));
+  padding: 8px 0 6px;
   display: flex;
   flex-direction: column;
   align-items: center;
