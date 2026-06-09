@@ -23,13 +23,22 @@ export function TemplatePicker({ t, allEx, userTemplates, onApply, onDelete, onC
     tp.days.flatMap(d => d.exercises)
       .filter(e => !allEx.find(x => x.id === e.exerciseId)).length
 
-  // ── Confirm screen ───────────────────────────────────────────
+  // ── Confirm / detail screen ──────────────────────────────────
   if (selected) {
     const missing = missingCount(selected)
     return (
       <div className="modal-overlay" onClick={onClose}>
         <div className="modal-box" onClick={e => e.stopPropagation()}>
           <h3 className="modal-title">{selected.name}</h3>
+
+          {selected.tags?.length > 0 && (
+            <div className="tpl-confirm-tags">
+              {selected.tags.map(tag => (
+                <span key={tag} className="chip chip-sm">{tag}</span>
+              ))}
+            </div>
+          )}
+
           <p className="modal-sub">{selected.description}</p>
 
           <div className="tpl-days-preview">
@@ -98,15 +107,15 @@ export function TemplatePicker({ t, allEx, userTemplates, onApply, onDelete, onC
                   <span className="tpl-card-name">{tp.name}</span>
                   {tp.isUser && <span className="custom-badge">✦ {t.mine}</span>}
                 </div>
-                <p className="tpl-card-desc">{tp.description}</p>
                 <div className="tpl-card-meta">
-                  <span>{tp.days.length} {tp.days.length === 1 ? t.day : t.days}</span>
-                  <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                    {tp.tags?.map(tag => (
-                      <span key={tag} className="chip" style={{ padding: '2px 7px', fontSize: 10 }}>
-                        {tag}
-                      </span>
+                  <span className="tpl-card-days">{tp.days.length} {tp.days.length === 1 ? t.day : t.days}</span>
+                  <div className="tpl-card-tagrow">
+                    {tp.tags?.slice(0, 3).map(tag => (
+                      <span key={tag} className="chip chip-sm">{tag}</span>
                     ))}
+                    {tp.tags?.length > 3 && (
+                      <span className="chip chip-sm">+{tp.tags.length - 3}</span>
+                    )}
                   </div>
                 </div>
               </button>
