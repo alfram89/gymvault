@@ -101,26 +101,24 @@ export function TemplatePicker({ t, allEx, userTemplates, onApply, onDelete, onC
           )}
 
           {filtered.map(tp => (
-            <div key={tp.id} className="tpl-card">
-              <button className="tpl-card-body" onClick={() => setSelected(tp)}>
-                <div className="tpl-card-header">
-                  <span className="tpl-card-name">{tp.name}</span>
-                  {tp.isUser && <span className="custom-badge">✦ {t.mine}</span>}
+            <div key={tp.id} className="tpl-card" onClick={() => setSelected(tp)}>
+              <div className="tpl-card-content">
+                <div className="tpl-card-name">
+                  {tp.name}
+                  {tp.isUser && <span className="custom-badge"> ✦ {t.mine}</span>}
                 </div>
-                <div className="tpl-card-meta">
-                  <span className="tpl-card-days">{tp.days.length} {tp.days.length === 1 ? t.day : t.days}</span>
-                  <div className="tpl-card-tagrow">
-                    {tp.tags?.slice(0, 3).map(tag => (
-                      <span key={tag} className="chip chip-sm">{tag}</span>
-                    ))}
-                    {tp.tags?.length > 3 && (
-                      <span className="chip chip-sm">+{tp.tags.length - 3}</span>
-                    )}
-                  </div>
+                <div className="tpl-card-tagrow">
+                  {tp.tags?.slice(0, 3).map(tag => (
+                    <span key={tag} className="chip chip-sm">{tag}</span>
+                  ))}
+                  {tp.tags?.length > 3 && (
+                    <span className="chip chip-sm">+{tp.tags.length - 3}</span>
+                  )}
                 </div>
-              </button>
+              </div>
+              <span className="tpl-card-days">{tp.days.length} {tp.days.length === 1 ? t.day : t.days}</span>
               {tp.isUser && (
-                <button className="tpl-delete-btn" onClick={() => onDelete(tp.id)}>🗑</button>
+                <button className="tpl-delete-btn" onClick={e => { e.stopPropagation(); onDelete(tp.id) }}>🗑</button>
               )}
             </div>
           ))}
