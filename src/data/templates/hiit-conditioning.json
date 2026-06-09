@@ -1,0 +1,28 @@
+{
+  "id": "hiit-conditioning",
+  "name": "HIIT Conditioning",
+  "description": "3-day high-intensity interval program. Each session uses a different format: bike sprints, rowing intervals, and a battle ropes circuit. Rest fully between sets. 2–3 rest days per week recommended.",
+  "tags": ["intermediate", "cardio", "hiit"],
+  "days": [
+    {
+      "name": "Bike Sprints",
+      "exercises": [
+        { "exerciseId": "assault-bike", "sets": 10, "reps": 1, "restTime": 40 }
+      ]
+    },
+    {
+      "name": "Rowing Intervals",
+      "exercises": [
+        { "exerciseId": "rowing-machine", "sets": 8, "reps": 1, "restTime": 60 }
+      ]
+    },
+    {
+      "name": "Circuit",
+      "exercises": [
+        { "exerciseId": "battle-ropes", "sets": 5, "reps": 1, "restTime": 60 },
+        { "exerciseId": "sprints",      "sets": 6, "reps": 1, "restTime": 90 },
+        { "exerciseId": "jump-rope",    "sets": 4, "reps": 1, "restTime": 60 }
+      ]
+    }
+  ]
+}

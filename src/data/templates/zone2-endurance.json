@@ -1,0 +1,32 @@
+{
+  "id": "zone2-endurance",
+  "name": "Zone 2 Endurance",
+  "description": "4-day aerobic base-building program. Train at a low intensity where you can hold a full conversation — roughly 60–70% of max heart rate. Each session is 40–60 minutes. Used by elite endurance athletes who spend ~80% of training time at this intensity.",
+  "tags": ["beginner", "intermediate", "cardio", "endurance"],
+  "days": [
+    {
+      "name": "Easy Run",
+      "exercises": [
+        { "exerciseId": "outdoor-run", "sets": 1, "reps": 1, "restTime": 0 }
+      ]
+    },
+    {
+      "name": "Bike",
+      "exercises": [
+        { "exerciseId": "stat-bike", "sets": 1, "reps": 1, "restTime": 0 }
+      ]
+    },
+    {
+      "name": "Row",
+      "exercises": [
+        { "exerciseId": "rowing-machine", "sets": 1, "reps": 1, "restTime": 0 }
+      ]
+    },
+    {
+      "name": "Long Run",
+      "exercises": [
+        { "exerciseId": "outdoor-run", "sets": 1, "reps": 1, "restTime": 0 }
+      ]
+    }
+  ]
+}
