@@ -1,7 +1,7 @@
 {
   "id": "531",
   "name": "5/3/1 (Wendler)",
-  "description": "Jim Wendler's classic 4-day strength program. Each day is built around one main lift (squat, deadlift, bench, press) followed by assistance work. Progress the main lift each cycle by adding 2.5–5 kg.",
+  "description": "Jim Wendler's classic 4-day barbell strength program. One main lift per day (squat, deadlift, bench, press) with BBB assistance work.",
   "tags": ["intermediate", "strength", "barbell"],
   "days": [
     {

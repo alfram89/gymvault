@@ -1,7 +1,7 @@
 {
   "id": "couch-to-5k",
   "name": "Couch to 5K",
-  "description": "9-week beginner running program. Run 3 days per week with a rest day between each session. Progress weekly: Week 1 alternates 60s run / 90s walk × 8. By Week 9 you run 30 minutes non-stop. Log each run as one set and track your duration.",
+  "description": "9-week beginner program to go from walking to running 5K. Three sessions per week using walk-run intervals that build every week.",
   "tags": ["beginner", "cardio", "running"],
   "days": [
     {

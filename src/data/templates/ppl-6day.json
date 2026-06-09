@@ -1,7 +1,7 @@
 {
   "id": "ppl-6day",
   "name": "PPL 6× (6-day)",
-  "description": "6-day Push/Pull/Legs twice per week. A-days are strength-focused with heavier loads; B-days are volume-focused with more isolation work. For intermediate to advanced lifters.",
+  "description": "6-day Push/Pull/Legs run twice per week. A-days are strength-focused, B-days are volume-focused with more isolation work.",
   "tags": ["advanced", "hypertrophy", "strength", "barbell", "dumbbell"],
   "days": [
     {

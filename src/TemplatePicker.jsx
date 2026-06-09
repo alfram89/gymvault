@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { TEMPLATES } from './data/templates/index.js'
 
-const TAGS = ['all', 'beginner', 'intermediate', 'strength', 'hypertrophy', 'barbell', 'bodyweight']
+const TAGS = ['all', 'beginner', 'intermediate', 'advanced', 'strength', 'hypertrophy', 'cardio', 'endurance', 'hiit', 'barbell', 'dumbbell', 'bodyweight', 'running', '2-day']
 
 export function TemplatePicker({ t, allEx, userTemplates, onApply, onDelete, onClose }) {
   const [filter, setFilter]     = useState('all')
