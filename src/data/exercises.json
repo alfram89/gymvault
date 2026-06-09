@@ -81,5 +81,11 @@
   { "id": "stair-climber", "name": "Stair Climber",            "mg": "cardio",    "eq": "machine",    "dif": "intermediate", "type": "cardio", "metrics": ["duration", "calories", "resistance"] },
   { "id": "swimming",      "name": "Swimming",                 "mg": "cardio",    "eq": "bodyweight", "dif": "intermediate", "type": "cardio", "metrics": ["duration", "distance"] },
   { "id": "jump-rope",     "name": "Jump Rope",                "mg": "cardio",    "eq": "bodyweight", "dif": "beginner",     "type": "cardio", "metrics": ["duration", "calories"] },
-  { "id": "hiit",          "name": "HIIT",                     "mg": "cardio",    "eq": "bodyweight", "dif": "advanced",     "type": "cardio", "metrics": ["duration", "calories", "heart_rate"] }
+  { "id": "hiit",          "name": "HIIT",                     "mg": "cardio",    "eq": "bodyweight", "dif": "advanced",     "type": "cardio", "metrics": ["duration", "calories", "heart_rate"] },
+  { "id": "walking",       "name": "Walking",                  "mg": "cardio",    "eq": "bodyweight", "dif": "beginner",     "type": "cardio", "metrics": ["duration", "distance", "heart_rate"] },
+  { "id": "assault-bike",  "name": "Assault Bike",             "mg": "cardio",    "eq": "machine",    "dif": "intermediate", "type": "cardio", "metrics": ["duration", "calories", "heart_rate"] },
+  { "id": "ski-erg",       "name": "Ski Erg",                  "mg": "cardio",    "eq": "machine",    "dif": "intermediate", "type": "cardio", "metrics": ["duration", "distance", "calories"] },
+  { "id": "battle-ropes",  "name": "Battle Ropes",             "mg": "cardio",    "eq": "bodyweight", "dif": "intermediate", "type": "cardio", "metrics": ["duration", "calories"] },
+  { "id": "sprints",       "name": "Sprints",                  "mg": "cardio",    "eq": "bodyweight", "dif": "intermediate", "type": "cardio", "metrics": ["duration", "distance", "heart_rate"] },
+  { "id": "boxing",        "name": "Boxing",                   "mg": "cardio",    "eq": "bodyweight", "dif": "intermediate", "type": "cardio", "metrics": ["duration", "calories", "heart_rate"] }
 ]
