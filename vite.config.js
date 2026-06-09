@@ -13,8 +13,8 @@ export default defineConfig({
       injectRegister: 'auto',
       includeAssets: ['favicon.svg', 'pwa-192.png', 'pwa-512.png'],
       manifest: {
-        name: 'GymTrack',
-        short_name: 'GymTrack',
+        name: 'GymVault',
+        short_name: 'GymVault',
         description: 'Private offline workout tracker',
         theme_color: '#111827',
         background_color: '#111827',

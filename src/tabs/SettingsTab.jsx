@@ -60,7 +60,7 @@ export function SettingsTab({ t, lang, setLang, unit, setUnit, darkMode, setDark
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
     const a = document.createElement('a')
     a.href = URL.createObjectURL(blob)
-    a.download = `gymtrack-${new Date().toISOString().slice(0, 16).replace(/[T:]/g, '-')}.json`
+    a.download = `gymvault-${new Date().toISOString().slice(0, 16).replace(/[T:]/g, '-')}.json`
     a.click(); URL.revokeObjectURL(a.href)
   }
   const importJSON = e => {

@@ -1,6 +1,6 @@
 import Dexie from 'dexie'
 
-const db = new Dexie('GymTrackDB')
+const db = new Dexie('GymVaultDB')
 
 db.version(1).stores({
   kv: 'key'

@@ -1,4 +1,4 @@
-# 💪 GymTrack
+# 💪 GymVault
 
 A private, offline-first workout tracker. No account, no cloud, no ads — your data never leaves your device.
 

@@ -214,7 +214,7 @@ export default function App() {
   return (
     <div className={`app ${effectiveDark ? 'dark' : 'light'}`}>
       <header className="app-header">
-        <div className="app-title">💪 GymTrack</div>
+        <div className="app-title">💪 GymVault</div>
         {workoutActive && (
           <div className="workout-badge">
             <div className="workout-badge-row">
