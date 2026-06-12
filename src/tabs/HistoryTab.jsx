@@ -9,7 +9,6 @@ import { MUSCLE_COLORS } from '../constants'
 import { Modal } from '../components/Modal'
 
 const MG_KEYS = ['chest', 'back', 'legs', 'shoulders', 'arms', 'core']
-const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
 export function HistoryTab({ t, history, days, unit, darkMode }) {
   const [fDay, setFDay] = useState('all')
@@ -23,7 +22,7 @@ export function HistoryTab({ t, history, days, unit, darkMode }) {
   const thisMonth = history.filter(h => h.date.startsWith(localISODate().slice(0, 7))).length
   const dayCounts = Array(7).fill(0)
   history.forEach(h => { dayCounts[new Date(h.date + 'T12:00:00').getDay()]++ })
-  const favDay = history.length ? DAY_NAMES[dayCounts.indexOf(Math.max(...dayCounts))] : '—'
+  const favDay = history.length ? t.dayShort[dayCounts.indexOf(Math.max(...dayCounts))] : '—'
 
   // ── Heatmap with volume intensity ────────────────────────────────────────────
   const { heatmap, streak } = useMemo(() => {

@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { availableLanguages } from '../i18n/index.js'
-import { uid } from '../helpers'
+import { uid, validateBackup } from '../helpers'
 import { Modal } from '../components/Modal'
 
 function Tgl({ opts, val, fn }) {
@@ -72,19 +72,20 @@ export function SettingsTab({ t, lang, setLang, unit, setUnit, darkMode, setDark
     r.onload = ev => {
       try {
         const d = JSON.parse(ev.target.result)
+        if (!validateBackup(d)) { alert(t.invalidFile); return }
         if (d.days) setDays(d.days); if (d.program) setProgram(d.program)
         if (d.history) setHistory(d.history); if (d.customExercises) setCustomEx(d.customExercises)
         if (d.userTemplates) setUserTemplates(d.userTemplates)
         if (d.settings?.language) setLang(d.settings.language)
         if (d.settings?.unit) setUnit(d.settings.unit)
         if (d.settings?.darkMode !== undefined) setDarkMode(d.settings.darkMode)
-      } catch { alert('Invalid file') }
+      } catch { alert(t.invalidFile) }
     }
     r.readAsText(file); e.target.value = ''
   }
   const doReset = () => {
     if (resetV !== t.resetKw) return
-    setDays([{ id: 'day-a', name: 'Day A' }, { id: 'day-b', name: 'Day B' }])
+    setDays([{ id: 'day-a', name: t.dayA }, { id: 'day-b', name: t.dayB }])
     setProgram({ 'day-a': [], 'day-b': [] }); setHistory([]); setCustomEx([]); setUserTemplates([])
     setResetV(''); setShowReset(false)
   }
@@ -145,11 +146,9 @@ export function SettingsTab({ t, lang, setLang, unit, setUnit, darkMode, setDark
         <Modal onClose={() => setConfirmDeleteDay(null)}>
           <h3 className="modal-title">🗑 {t.deleteDayTitle}</h3>
           <p className="modal-warn">
-            {confirmDeleteDay.exCount > 0 ? (
-              <><strong>"{confirmDeleteDay.name}"</strong> has {confirmDeleteDay.exCount} exercise{confirmDeleteDay.exCount === 1 ? '' : 's'} and will be permanently deleted.</>
-            ) : (
-              <><strong>"{confirmDeleteDay.name}"</strong> will be permanently deleted.</>
-            )}
+            {(confirmDeleteDay.exCount > 0 ? t.deleteDayBodyEx : t.deleteDayBody)
+              .replace('{name}', confirmDeleteDay.name)
+              .replace('{count}', confirmDeleteDay.exCount)}
           </p>
           <div className="modal-row">
             <button className="secondary-btn" onClick={() => setConfirmDeleteDay(null)}>{t.cancel}</button>

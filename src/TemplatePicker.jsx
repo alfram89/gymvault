@@ -45,13 +45,13 @@ export function TemplatePicker({ t, allEx, userTemplates, onApply, onDelete, onC
             {selected.days.map((d, i) => (
               <div key={i} className="tpl-day-row">
                 <span className="tpl-day-name">{d.name}</span>
-                <span className="tpl-day-count">{d.exercises.length} exercises</span>
+                <span className="tpl-day-count">{d.exercises.length} {t.pgExLabel}</span>
               </div>
             ))}
           </div>
 
           {missing > 0 && (
-            <p className="tpl-missing">⚠ {missing} exercise{missing > 1 ? 's' : ''} not in library — will be skipped</p>
+            <p className="tpl-missing">⚠ {t.tplMissing.replace('{count}', missing)}</p>
           )}
 
           <p className="section-label" style={{ marginTop: 16, marginBottom: 8 }}>{t.applyAs}</p>
@@ -61,7 +61,7 @@ export function TemplatePicker({ t, allEx, userTemplates, onApply, onDelete, onC
           </div>
 
           <div className="modal-row" style={{ marginTop: 16 }}>
-            <button className="secondary-btn" onClick={() => setSelected(null)}>← {t.back}</button>
+            <button className="secondary-btn" onClick={() => setSelected(null)}>← {t.goBack}</button>
             <button className="primary-btn" onClick={() => onApply(selected, mode)}>{t.applyTemplate}</button>
           </div>
         </div>
