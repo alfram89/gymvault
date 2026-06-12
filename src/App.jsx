@@ -21,7 +21,10 @@ export default function App() {
   const [systemDark, setSystemDark] = useState(() => window.matchMedia('(prefers-color-scheme: dark)').matches)
   const [unit, setUnit] = useState('kg')
   const [lang, setLang] = useState('en')
-  const [days, setDays] = useState([{ id: 'day-a', name: 'Day A' }, { id: 'day-b', name: 'Day B' }])
+  const [days, setDays] = useState(() => {
+    const en = getTranslations('en')
+    return [{ id: 'day-a', name: en.dayA }, { id: 'day-b', name: en.dayB }]
+  })
   const [selectedDay, setSelectedDay] = useState('day-a')
   const [program, setProgram] = useState({ 'day-a': [], 'day-b': [] })
   const [customEx, setCustomEx] = useState([])
@@ -78,6 +81,9 @@ export default function App() {
         setWorkoutElapsed(Math.floor((Date.now() - aw.workoutStart) / 1000))
         setWorkoutActive(true)
       }
+      setLoaded(true)
+    }).catch(e => {
+      console.error('Failed to load data from IndexedDB, starting with defaults:', e)
       setLoaded(true)
     })
   }, [])

@@ -25,6 +25,17 @@ export const newCardioInterval = metrics => {
   metrics.forEach(m => { interval[m] = 0 })
   return interval
 }
+// Structural check for imported backup files — rejects shapes that would
+// corrupt state (e.g. {"days": 5}) before any setter runs
+export const validateBackup = d => {
+  if (!d || typeof d !== 'object' || Array.isArray(d)) return false
+  for (const k of ['days', 'history', 'customExercises', 'userTemplates'])
+    if (d[k] !== undefined && !Array.isArray(d[k])) return false
+  if (d.program !== undefined && (typeof d.program !== 'object' || Array.isArray(d.program) || d.program === null
+    || !Object.values(d.program).every(Array.isArray))) return false
+  if (d.settings !== undefined && (typeof d.settings !== 'object' || Array.isArray(d.settings) || d.settings === null)) return false
+  return true
+}
 export const weekOf = ds => {
   const d = new Date(ds + 'T12:00:00')
   d.setDate(d.getDate() - (d.getDay() + 6) % 7)

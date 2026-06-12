@@ -81,7 +81,7 @@ export function ProgramWizard({ t, allEx, history, onApply, onClose }) {
             <>
               <h2 className="wizard-title">{t.pgDays}</h2>
               {prefs.daysPerWeek && (
-                <p className="wizard-hint">{getSplitHint(prefs.daysPerWeek)}</p>
+                <p className="wizard-hint">{t['pgHint' + prefs.daysPerWeek] || ''}</p>
               )}
               <div className="wizard-days-row">
                 {[2, 3, 4, 5, 6].map(n => (
@@ -231,15 +231,4 @@ export function ProgramWizard({ t, allEx, history, onApply, onClose }) {
       </div>
     </div>
   )
-}
-
-function getSplitHint(days) {
-  const hints = {
-    2: '2 days → Full Body — maximum recovery between sessions',
-    3: '3 days → Full Body — each muscle trained 3× per week',
-    4: '4 days → Upper / Lower — each muscle 2× per week',
-    5: '5 days → Upper / Lower + Full Body — high frequency',
-    6: '6 days → Push / Pull / Legs — advanced split',
-  }
-  return hints[days] || ''
 }
