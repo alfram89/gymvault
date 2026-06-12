@@ -13,9 +13,6 @@ html {
 body {
   height: 100%;
   overscroll-behavior: none;
-}
-
-body {
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 14px;
   line-height: 1.5;
@@ -396,7 +393,6 @@ body {
 .pr-box { background: var(--bg3); border-radius: 12px; padding: 12px; margin-bottom: 16px; }
 .pr-title { color: #facc15; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
 .pr-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--sub); margin-bottom: 4px; }
-.pr-val { color: #facc15; font-weight: 700; }
 .summary-warmup { font-size: 13px; color: #f59e0b; text-align: center; margin-bottom: 12px; }
 
 /* ── SETTINGS ──────────────────────── */
