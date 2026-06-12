@@ -14,6 +14,7 @@ export function LibraryTab({ t, days, program, setProgram, customEx, setCustomEx
   const [infoModal, setInfoModal] = useState(null)
   const [warmupChoice, setWarmupChoice] = useState(false)
   const [custModal, setCustModal] = useState(false)
+  const [confirmDeleteEx, setConfirmDeleteEx] = useState(null)
   const [form, setForm] = useState({ name: '', mg: 'chest', eq: 'barbell', dif: 'intermediate' })
 
   const allEx = [...EXERCISES, ...customEx]
@@ -45,6 +46,13 @@ export function LibraryTab({ t, days, program, setProgram, customEx, setCustomEx
     setCustomEx(p => [...p, { id: uid(), ...form, custom: true }])
     setForm({ name: '', mg: 'chest', eq: 'barbell', dif: 'intermediate' })
     setCustModal(false)
+  }
+  const deleteCustom = id => {
+    setCustomEx(p => p.filter(e => e.id !== id))
+    // History keeps its own exerciseName snapshots, so only the program needs cleaning
+    setProgram(prev => Object.fromEntries(
+      Object.entries(prev).map(([dayId, list]) => [dayId, list.filter(e => e.exerciseId !== id)])
+    ))
   }
 
   const muscles = [['all', 'All'], ...Object.keys(MUSCLE_COLORS).map(m => [m, t[m]])]
@@ -95,6 +103,7 @@ export function LibraryTab({ t, days, program, setProgram, customEx, setCustomEx
                     </div>
                   </div>
                   <div className="lib-card-actions">
+                    {ex.custom && <button className="info-btn" onClick={() => setConfirmDeleteEx(ex)}>🗑</button>}
                     <button className="info-btn" onClick={() => setInfoModal(ex)}>ⓘ</button>
                     <button className="add-btn" onClick={() => handleAdd(ex)}>{t.addProg}</button>
                   </div>
@@ -123,6 +132,19 @@ export function LibraryTab({ t, days, program, setProgram, customEx, setCustomEx
               onClick={() => addToDay(addModal, d.id, warmupChoice)}>{d.name}</button>
           ))}
           <button className="ghost-btn" onClick={() => { setAddModal(null); setWarmupChoice(false) }}>{t.cancel}</button>
+        </Modal>
+      )}
+
+      {confirmDeleteEx && (
+        <Modal onClose={() => setConfirmDeleteEx(null)}>
+          <h3 className="modal-title">🗑 {t.deleteCustomTitle}</h3>
+          <p className="modal-warn">{t.deleteCustomBody.replace('{name}', confirmDeleteEx.name)}</p>
+          <div className="modal-row">
+            <button className="secondary-btn" onClick={() => setConfirmDeleteEx(null)}>{t.cancel}</button>
+            <button className="danger-btn modal-danger-btn" onClick={() => { deleteCustom(confirmDeleteEx.id); setConfirmDeleteEx(null) }}>
+              {t.deleteConfirm}
+            </button>
+          </div>
         </Modal>
       )}
 

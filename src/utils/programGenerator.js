@@ -149,18 +149,22 @@ function canUse(exercise, equipment) {
   return equipment.includes(exercise.eq) || exercise.eq === 'bodyweight'
 }
 
-function fillSlot(candidates, allEx, equipment, preferred) {
+function fillSlot(candidates, allEx, equipment, preferred, used) {
   // Sort so preferred (from history) exercises bubble up
   const sorted = [...candidates].sort((a, b) => {
     const ap = preferred.has(a) ? -1 : 0
     const bp = preferred.has(b) ? -1 : 0
     return ap - bp
   })
-  for (const id of sorted) {
-    const ex = allEx.find(e => e.id === id)
-    if (ex && canUse(ex, equipment)) return ex
-  }
-  return null
+  const eligible = sorted
+    .map(id => allEx.find(e => e.id === id))
+    .filter(ex => ex && canUse(ex, equipment) && !used.has(ex.id))
+  if (!eligible.length) return null
+  // Random pick among the top two so "Regenerate" actually varies the program
+  // while still favouring the slot's primary (compound) candidates
+  const pick = eligible[Math.floor(Math.random() * Math.min(2, eligible.length))]
+  used.add(pick.id)
+  return pick
 }
 
 function getHistoryPreferences(history) {
@@ -189,23 +193,50 @@ function getNeglectedMuscles(history) {
     .filter(m => !recentMuscles.has(m))
 }
 
+const FOCUS_MGS = {
+  upper: ['chest', 'back', 'shoulders', 'arms'],
+  lower: ['legs'],
+  core:  ['core'],
+}
+
+// Muscle group a slot trains, derived from its first known candidate
+function slotMg(candidates, allEx) {
+  for (const id of candidates) {
+    const ex = allEx.find(e => e.id === id)
+    if (ex) return ex.mg
+  }
+  return null
+}
+
 export function generateProgram(prefs, allEx, history = []) {
-  const { daysPerWeek, goal, equipment, sessionMinutes } = prefs
+  const { daysPerWeek, goal, equipment, sessionMinutes, focus } = prefs
   const params = GOAL_PARAMS[goal] || GOAL_PARAMS.muscle
   const capacity = CAPACITY[sessionMinutes] || 6
   const dayKeys = SPLIT_DAYS[daysPerWeek] || SPLIT_DAYS[3]
 
   const { preferred, sessionCount } = getHistoryPreferences(history)
   const neglected = getNeglectedMuscles(history)
+  const focusMgs = FOCUS_MGS[focus] || []
 
   const days = dayKeys.map(key => {
     const slots = DAY_SLOTS[key] || []
 
-    // If there are neglected muscle groups, try to ensure their slots come first
-    // by giving them priority in sorting (crude but effective for v1)
-    const exercises = slots
+    // Pick which slots survive the capacity cut by priority (focused area
+    // first, then neglected muscle groups), but keep the day's original
+    // exercise ordering (compounds before isolation)
+    const prioritised = slots
+      .map((candidates, i) => {
+        const mg = slotMg(candidates, allEx)
+        const prio = (focusMgs.includes(mg) ? -2 : 0) + (neglected.includes(mg) ? -1 : 0)
+        return { candidates, i, prio }
+      })
+      .sort((a, b) => a.prio - b.prio || a.i - b.i)
       .slice(0, capacity)
-      .map(candidates => fillSlot(candidates, allEx, equipment, preferred))
+      .sort((a, b) => a.i - b.i)
+
+    const used = new Set()
+    const exercises = prioritised
+      .map(({ candidates }) => fillSlot(candidates, allEx, equipment, preferred, used))
       .filter(Boolean)
       .map(ex => {
         const isTime = ex.inputMode === 'time'

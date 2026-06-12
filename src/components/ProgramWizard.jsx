@@ -213,7 +213,7 @@ export function ProgramWizard({ t, allEx, history, onApply, onClose }) {
             <button className="primary-btn" style={{ flex: 2 }}
               disabled={!canAdvance()}
               onClick={advance}>
-              {step === STEPS.indexOf('focus') ? t.pgNext : t.pgNext}
+              {step === STEPS.indexOf('focus') ? t.pgGenerate : t.pgNext}
             </button>
           ) : (
             <div style={{ display: 'flex', gap: 8, flex: 2 }}>
