@@ -126,6 +126,7 @@
   "pgRegenerate": "Regenerate",
   "pgBack": "Back",
   "pgNext": "Next",
+  "pgGenerate": "Generate",
   "pgSkip": "No preference",
   "pgSessions": "sessions",
   "pgHint2": "2 days → Full Body — maximum recovery between sessions",
@@ -177,5 +178,7 @@
   "remove": "Remove",
   "infoMuscles": "Muscles targeted",
   "infoHowTo": "How to do it",
-  "infoCustomNote": "No description available for custom exercises."
+  "infoCustomNote": "No description available for custom exercises.",
+  "deleteCustomTitle": "Delete custom exercise?",
+  "deleteCustomBody": "\"{name}\" will be removed from your library and from all program days. Logged history is kept."
 }
