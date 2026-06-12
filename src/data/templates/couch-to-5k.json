@@ -7,25 +7,25 @@
     {
       "name": "Run 1",
       "exercises": [
-        { "exerciseId": "walking",     "sets": 1, "reps": 5,  "restTime": 0  },
-        { "exerciseId": "outdoor-run", "sets": 8, "reps": 1,  "restTime": 90 },
-        { "exerciseId": "walking",     "sets": 1, "reps": 5,  "restTime": 0  }
+        { "exerciseId": "walking",     "sets": 1, "duration": 5, "restTime": 0  },
+        { "exerciseId": "outdoor-run", "sets": 8, "duration": 1, "restTime": 90 },
+        { "exerciseId": "walking",     "sets": 1, "duration": 5, "restTime": 0  }
       ]
     },
     {
       "name": "Run 2",
       "exercises": [
-        { "exerciseId": "walking",     "sets": 1, "reps": 5,  "restTime": 0  },
-        { "exerciseId": "outdoor-run", "sets": 8, "reps": 1,  "restTime": 90 },
-        { "exerciseId": "walking",     "sets": 1, "reps": 5,  "restTime": 0  }
+        { "exerciseId": "walking",     "sets": 1, "duration": 5, "restTime": 0  },
+        { "exerciseId": "outdoor-run", "sets": 8, "duration": 1, "restTime": 90 },
+        { "exerciseId": "walking",     "sets": 1, "duration": 5, "restTime": 0  }
       ]
     },
     {
       "name": "Run 3",
       "exercises": [
-        { "exerciseId": "walking",     "sets": 1, "reps": 5,  "restTime": 0  },
-        { "exerciseId": "outdoor-run", "sets": 8, "reps": 1,  "restTime": 90 },
-        { "exerciseId": "walking",     "sets": 1, "reps": 5,  "restTime": 0  }
+        { "exerciseId": "walking",     "sets": 1, "duration": 5, "restTime": 0  },
+        { "exerciseId": "outdoor-run", "sets": 8, "duration": 1, "restTime": 90 },
+        { "exerciseId": "walking",     "sets": 1, "duration": 5, "restTime": 0  }
       ]
     }
   ]

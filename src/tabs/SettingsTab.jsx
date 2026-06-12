@@ -12,7 +12,7 @@ function Tgl({ opts, val, fn }) {
 }
 
 export function SettingsTab({ t, lang, setLang, unit, setUnit, darkMode, setDarkMode,
-  days, setDays, program, setProgram, history, setHistory, customEx, setCustomEx,
+  days, setDays, selectedDay, setSelectedDay, program, setProgram, history, setHistory, customEx, setCustomEx,
   userTemplates, setUserTemplates, installPrompt, setInstallPrompt,
   onOpenTemplatePicker, onSaveTemplate, onOpenProgramWizard }) {
 
@@ -51,8 +51,10 @@ export function SettingsTab({ t, lang, setLang, unit, setUnit, darkMode, setDark
   }
   const deleteDay = id => {
     if (days.length <= 1) return
-    setDays(p => p.filter(d => d.id !== id))
+    const remaining = days.filter(d => d.id !== id)
+    setDays(remaining)
     setProgram(p => { const n = { ...p }; delete n[id]; return n })
+    if (selectedDay === id) setSelectedDay(remaining[0].id)
   }
 
   const exportJSON = () => {

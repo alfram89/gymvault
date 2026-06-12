@@ -5,7 +5,7 @@ import { EXERCISES } from './constants'
 import { getTranslations } from './i18n/index.js'
 import { TemplatePicker } from './TemplatePicker.jsx'
 import { ProgramWizard } from './components/ProgramWizard.jsx'
-import { uid, fmtTime, isCardioSet, isTimeSet, calcVol } from './helpers'
+import { uid, fmtTime, isCardioSet, isTimeSet, calcVol, localISODate, newCardioInterval } from './helpers'
 import { Onboarding } from './components/Onboarding'
 import { WorkoutSummary } from './components/WorkoutSummary'
 import { ProgramTab } from './tabs/ProgramTab'
@@ -70,6 +70,14 @@ export default function App() {
       if (data.history) setHistory(data.history)
       if (data.customExercises) setCustomEx(data.customExercises)
       if (data.userTemplates) setUserTemplates(data.userTemplates)
+      if (data.activeWorkout) {
+        const aw = data.activeWorkout
+        setSelectedDay(aw.dayId)
+        setWorkoutSets(aw.workoutSets || {})
+        setWorkoutStart(aw.workoutStart)
+        setWorkoutElapsed(Math.floor((Date.now() - aw.workoutStart) / 1000))
+        setWorkoutActive(true)
+      }
       setLoaded(true)
     })
   }, [])
@@ -80,6 +88,9 @@ export default function App() {
   useEffect(() => { if (loaded) dbSet('history', history) }, [loaded, history])
   useEffect(() => { if (loaded) dbSet('customExercises', customEx) }, [loaded, customEx])
   useEffect(() => { if (loaded) dbSet('userTemplates', userTemplates) }, [loaded, userTemplates])
+  useEffect(() => {
+    if (loaded) dbSet('activeWorkout', workoutActive ? { workoutStart, workoutSets, dayId: selectedDay } : null)
+  }, [loaded, workoutActive, workoutStart, workoutSets, selectedDay])
 
   useEffect(() => {
     if (!restActive || restSecs <= 0) { if (restSecs <= 0) setRestActive(false); return }
@@ -124,7 +135,7 @@ export default function App() {
   const finishWorkout = () => {
     const duration = Math.floor((Date.now() - workoutStart) / 1000)
     const sess = {
-      id: uid(), date: new Date().toISOString().split('T')[0],
+      id: uid(), date: localISODate(),
       dayId: selectedDay, dayName: days.find(d => d.id === selectedDay)?.name || '',
       duration,
       exercises: curProg.map(ex => {
@@ -181,11 +192,14 @@ export default function App() {
         .filter(te => allEx.find(e => e.id === te.exerciseId))
         .map(te => {
           const exData = allEx.find(e => e.id === te.exerciseId)
+          const isCardio = exData?.type === 'cardio'
           const isTime = exData?.inputMode === 'time'
           return {
             id: uid(), exerciseId: te.exerciseId, isWarmup: false,
-            restTime: te.restTime ?? 90,
-            sets: Array.from({ length: te.sets }, () => isTime
+            restTime: te.restTime ?? (isCardio ? 0 : 90),
+            sets: Array.from({ length: te.sets }, () => isCardio
+              ? { ...newCardioInterval(exData.metrics || ['duration']), ...(te.duration ? { duration: te.duration } : {}) }
+              : isTime
               ? { id: uid(), secs: te.secs ?? 30, completed: false }
               : { id: uid(), reps: te.reps, weight: 0, completed: false }
             )
@@ -207,12 +221,13 @@ export default function App() {
       id: uid(), name, description: '', tags: [],
       days: days.map(d => ({
         name: d.name,
-        exercises: (program[d.id] || []).map(ex => ({
-          exerciseId: ex.exerciseId,
-          sets: ex.sets.length,
-          reps: ex.sets[0]?.reps || 10,
-          restTime: ex.restTime ?? 90
-        }))
+        exercises: (program[d.id] || []).map(ex => {
+          const base = { exerciseId: ex.exerciseId, sets: ex.sets.length, restTime: ex.restTime ?? 90 }
+          const first = ex.sets[0]
+          if (first && isCardioSet(first)) return { ...base, duration: first.duration || 0 }
+          if (first && isTimeSet(first)) return { ...base, secs: first.secs ?? 30 }
+          return { ...base, reps: first?.reps || 10 }
+        })
       }))
     }
     setUserTemplates(prev => [...prev, tpl])
@@ -264,7 +279,7 @@ export default function App() {
         {activeTab === 0 && <ProgramTab t={t} days={days} selectedDay={selectedDay} setSelectedDay={setSelectedDay} program={program} setProgram={setProgram} allEx={allEx} unit={unit} workoutActive={workoutActive} workoutSets={workoutSets} setWorkoutSets={setWorkoutSets} startWorkout={startWorkout} finishWorkout={finishWorkout} history={history} onRestTimer={s => { setRestSecs(s); setRestMax(s); setRestStartTime(Date.now()); setRestActive(true) }} onOpenTemplatePicker={() => setShowTemplatePicker(true)} />}
         {activeTab === 1 && <LibraryTab t={t} days={days} program={program} setProgram={setProgram} customEx={customEx} setCustomEx={setCustomEx} />}
         {activeTab === 2 && <HistoryTab t={t} history={history} days={days} unit={unit} darkMode={effectiveDark} />}
-        {activeTab === 3 && <SettingsTab t={t} lang={lang} setLang={setLang} unit={unit} setUnit={setUnit} darkMode={darkMode} setDarkMode={setDarkMode} days={days} setDays={setDays} program={program} setProgram={setProgram} history={history} setHistory={setHistory} customEx={customEx} setCustomEx={setCustomEx} userTemplates={userTemplates} setUserTemplates={setUserTemplates} installPrompt={installPrompt} setInstallPrompt={setInstallPrompt} onOpenTemplatePicker={() => setShowTemplatePicker(true)} onSaveTemplate={saveAsTemplate} onOpenProgramWizard={() => setShowProgramWizard(true)} />}
+        {activeTab === 3 && <SettingsTab t={t} lang={lang} setLang={setLang} unit={unit} setUnit={setUnit} darkMode={darkMode} setDarkMode={setDarkMode} days={days} setDays={setDays} selectedDay={selectedDay} setSelectedDay={setSelectedDay} program={program} setProgram={setProgram} history={history} setHistory={setHistory} customEx={customEx} setCustomEx={setCustomEx} userTemplates={userTemplates} setUserTemplates={setUserTemplates} installPrompt={installPrompt} setInstallPrompt={setInstallPrompt} onOpenTemplatePicker={() => setShowTemplatePicker(true)} onSaveTemplate={saveAsTemplate} onOpenProgramWizard={() => setShowProgramWizard(true)} />}
       </main>
 
       <nav className="tab-bar">

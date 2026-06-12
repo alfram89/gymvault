@@ -4,7 +4,7 @@ import {
   Tooltip, ResponsiveContainer, BarChart, Bar,
   RadarChart, Radar, PolarGrid, PolarAngleAxis,
 } from 'recharts'
-import { mc, fmtTime, fmtDate, isCardioSet, isTimeSet, calcVol, weekOf, METRIC_UNIT } from '../helpers'
+import { mc, fmtTime, fmtDate, isCardioSet, isTimeSet, calcVol, weekOf, localISODate, METRIC_UNIT } from '../helpers'
 import { MUSCLE_COLORS } from '../constants'
 import { Modal } from '../components/Modal'
 
@@ -20,7 +20,7 @@ export function HistoryTab({ t, history, days, unit, darkMode }) {
   const filtered = fDay === 'all' ? history : history.filter(h => h.dayId === fDay)
 
   // ── Quick stats ──────────────────────────────────────────────────────────────
-  const thisMonth = history.filter(h => h.date.startsWith(new Date().toISOString().slice(0, 7))).length
+  const thisMonth = history.filter(h => h.date.startsWith(localISODate().slice(0, 7))).length
   const dayCounts = Array(7).fill(0)
   history.forEach(h => { dayCounts[new Date(h.date + 'T12:00:00').getDay()]++ })
   const favDay = history.length ? DAY_NAMES[dayCounts.indexOf(Math.max(...dayCounts))] : '—'
@@ -39,7 +39,7 @@ export function HistoryTab({ t, history, days, unit, darkMode }) {
     const heatmap = Array.from({ length: 84 }, (_, i) => {
       const d = new Date(today)
       d.setDate(d.getDate() - (83 - i))
-      const ds = d.toISOString().split('T')[0]
+      const ds = localISODate(d)
       const vol = volByDate[ds] || 0
       const intensity = vol === 0 ? 0 : vol <= p33 ? 1 : vol <= p66 ? 2 : 3
       return { ds, intensity }
@@ -49,9 +49,9 @@ export function HistoryTab({ t, history, days, unit, darkMode }) {
     const trained = new Set(Object.keys(volByDate))
     const srt = [...trained].sort().reverse()
     if (srt.length) {
-      let c = new Date(today.toISOString().split('T')[0])
+      const c = new Date(today)
       for (const ds of srt) {
-        if (ds === c.toISOString().split('T')[0]) { streak++; c.setDate(c.getDate() - 1) }
+        if (ds === localISODate(c)) { streak++; c.setDate(c.getDate() - 1) }
         else break
       }
     }

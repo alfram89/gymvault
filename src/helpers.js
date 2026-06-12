@@ -2,6 +2,10 @@ import { MUSCLE_COLORS } from './constants'
 
 export const uid = () => Math.random().toString(36).slice(2, 9)
 export const fmtTime = s => `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`
+// Local-timezone YYYY-MM-DD (toISOString would give the UTC date, which is
+// yesterday for late-night sessions east of Greenwich)
+export const localISODate = (d = new Date()) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 export const fmtDate = d => new Date(d).toLocaleDateString()
 export const mc = mg => MUSCLE_COLORS[mg] || '#6b7280'
 export const isCardioSet = s => s.duration !== undefined
@@ -22,7 +26,7 @@ export const newCardioInterval = metrics => {
   return interval
 }
 export const weekOf = ds => {
-  const d = new Date(ds)
+  const d = new Date(ds + 'T12:00:00')
   d.setDate(d.getDate() - (d.getDay() + 6) % 7)
-  return d.toISOString().split('T')[0]
+  return localISODate(d)
 }
