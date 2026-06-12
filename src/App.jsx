@@ -146,6 +146,7 @@ export default function App() {
       duration,
       exercises: curProg.map(ex => {
         const ed = allEx.find(e => e.id === ex.exerciseId)
+        // muscleGroup duplicates mg for older history entries that predate the mg field
         return { exerciseId: ex.exerciseId, exerciseName: ed?.name || ex.exerciseId, mg: ed?.mg || '', muscleGroup: ed?.mg || '', isWarmup: ex.isWarmup || false, sets: (workoutSets[ex.id] || ex.sets).map(s => ({ ...s })) }
       })
     }
@@ -164,7 +165,7 @@ export default function App() {
       day.forEach((ex, i) => {
         const exData = allEx.find(e => e.id === ex.exerciseId)
         if (exData?.type === 'cardio') {
-          day[i] = { ...ex, sets: ex.sets.map((s, j) => { const ws = workoutSets[ex.id]?.[j]; return ws && ws.completed ? { ...ws } : s }) }
+          day[i] = { ...ex, sets: ex.sets.map((s, j) => { const ws = workoutSets[ex.id]?.[j]; return ws && ws.completed ? { ...s, ...ws } : s }) }
         } else if (ex.sets.length && isTimeSet(ex.sets[0])) {
           day[i] = { ...ex, sets: ex.sets.map((s, j) => { const ws = workoutSets[ex.id]?.[j]; return ws && ws.completed ? { ...s, secs: ws.secs } : s }) }
         } else {

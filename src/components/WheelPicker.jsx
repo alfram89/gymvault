@@ -1,4 +1,4 @@
-import { useRef, useLayoutEffect } from 'react'
+import { useRef, useEffect, useLayoutEffect } from 'react'
 
 export function WheelPicker({ label, value, min, max, step, unit, t, onClose, onConfirm }) {
   const ITEM_H = 44
@@ -14,6 +14,8 @@ export function WheelPicker({ label, value, min, max, step, unit, t, onClose, on
   useLayoutEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = valueToIdx(value) * ITEM_H
   }, [])
+
+  useEffect(() => () => clearTimeout(timerRef.current), [])
 
   const handleScroll = () => {
     if (!scrollRef.current) return
