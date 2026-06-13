@@ -26,6 +26,7 @@ export function LibraryTab({ t, days, program, setProgram, customEx, setCustomEx
     return true
   })
   const grouped = Object.entries(filtered.reduce((a, e) => { (a[e.mg] ||= []).push(e); return a }, {}))
+  grouped.forEach(([, exs]) => exs.sort((a, b) => a.name.localeCompare(b.name)))
 
   const addToDay = (ex, dayId, warmup) => {
     setProgram(prev => {
