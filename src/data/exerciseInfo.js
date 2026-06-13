@@ -33,6 +33,15 @@ export const EXERCISE_INFO = {
     description: "Grip parallel bars and support your weight on straight arms. Lean forward slightly to target the chest. Lower yourself until your elbows reach about 90°, then press back up. Staying more upright shifts effort to the triceps."
   },
 
+  "pec-deck": {
+    muscles: "Pectoralis major (inner chest), anterior deltoid",
+    description: "Sit on the machine with your back flat against the pad and forearms on the wings. Squeeze your arms together in front of you, leading with the elbows, then return under control. The fixed path makes it easy to isolate the chest with constant tension."
+  },
+  "db-pullover": {
+    muscles: "Pectoralis major, latissimus dorsi, serratus anterior",
+    description: "Lie across or along a bench holding one dumbbell over your chest with both hands. Lower it in an arc behind your head until you feel a stretch, then pull it back over your chest. Keep a slight, fixed elbow bend throughout. Works the chest and lats through a large stretch."
+  },
+
   // ── BACK ───────────────────────────────────────────────────────
   "pull-up": {
     muscles: "Latissimus dorsi, biceps, rear deltoid, rhomboids",
@@ -65,6 +74,19 @@ export const EXERCISE_INFO = {
   "chin-up": {
     muscles: "Latissimus dorsi, biceps, rear deltoid",
     description: "Hang from a bar with a supinated (underhand) shoulder-width grip. Pull yourself up until your chin clears the bar. The underhand grip recruits the biceps more heavily than a pull-up and many people find it easier to initiate the movement."
+  },
+
+  "back-ext": {
+    muscles: "Erector spinae (lower back), glutes, hamstrings",
+    description: "Position your hips on the pad of a hyperextension bench with ankles secured. Bend forward at the hips, then raise your torso until it forms a straight line with your legs — avoid hyperextending past neutral. Strengthens the lower back, glutes and hamstrings."
+  },
+  "good-morning": {
+    muscles: "Hamstrings, glutes, erector spinae",
+    description: "Rest a barbell across your upper back as in a squat. With a soft knee bend and flat back, hinge forward at the hips until your torso is near parallel to the floor, then drive your hips forward to stand. Use light weight and prioritise the hip hinge."
+  },
+  "sa-cable-row": {
+    muscles: "Latissimus dorsi, rhomboids, rear deltoid, biceps",
+    description: "Set a cable to a low or mid position and grip a single handle. Pull it toward your waist, driving the elbow back and squeezing the shoulder blade, then return for a full stretch. Working one arm at a time corrects side-to-side imbalances."
   },
 
   // ── LEGS ───────────────────────────────────────────────────────
@@ -105,6 +127,27 @@ export const EXERCISE_INFO = {
     description: "Place your rear foot on a bench behind you and hold dumbbells at your sides. Lower your body straight down until your front thigh is parallel to the floor. Drive up through the heel of your front foot. Challenges balance and hits each leg independently."
   },
 
+  "hip-thrust": {
+    muscles: "Gluteus maximus, hamstrings, quadriceps",
+    description: "Sit on the floor with your upper back against a bench and a padded barbell over your hips. Drive through your heels to lift your hips until your torso is parallel to the floor, squeezing the glutes hard at the top, then lower under control. One of the best glute-building movements."
+  },
+  "goblet-squat": {
+    muscles: "Quadriceps, glutes, core",
+    description: "Hold a single dumbbell or kettlebell vertically against your chest. Squat down between your knees keeping your chest tall and elbows inside your knees, then stand back up. The front-loaded weight teaches an upright torso and is ideal for beginners."
+  },
+  "sumo-deadlift": {
+    muscles: "Glutes, adductors, quadriceps, erector spinae, hamstrings",
+    description: "Take a wide stance with toes pointed out and grip the bar with hands inside your knees. Keep your chest up and back flat, then drive through the floor to stand tall. The wide stance shortens the range of motion and emphasises the glutes and inner thighs."
+  },
+  "seated-calf": {
+    muscles: "Soleus (lower calf), gastrocnemius",
+    description: "Sit at the machine with the pad over your knees and the balls of your feet on the platform. Raise your heels as high as possible, pause, then lower for a full stretch. The bent-knee position targets the soleus, the deeper calf muscle."
+  },
+  "glute-bridge": {
+    muscles: "Gluteus maximus, hamstrings, core",
+    description: "Lie on your back with knees bent and feet flat. Drive through your heels to raise your hips until your body forms a straight line from knees to shoulders, squeezing the glutes at the top, then lower. A joint-friendly bodyweight glute exercise; add a weight on the hips to progress."
+  },
+
   // ── SHOULDERS ──────────────────────────────────────────────────
   "ohp": {
     muscles: "Anterior deltoid, medial deltoid, triceps, upper trapezius",
@@ -133,6 +176,15 @@ export const EXERCISE_INFO = {
   "upright-row": {
     muscles: "Medial deltoid, anterior deltoid, trapezius, biceps",
     description: "Hold the barbell with a narrow overhand grip. Pull it straight up toward your chin, leading with your elbows above your hands. Avoid excessive elbow elevation to reduce shoulder impingement risk. A shoulder-width or wider grip is safer than narrow."
+  },
+
+  "rear-delt-fly": {
+    muscles: "Posterior deltoid, rhomboids, trapezius",
+    description: "Hinge forward at the hips holding light dumbbells with a slight elbow bend. Raise your arms out to the sides in a wide arc, leading with the elbows and squeezing the shoulder blades, then lower under control. Targets the often-neglected rear delts for balanced shoulders."
+  },
+  "barbell-shrug": {
+    muscles: "Upper trapezius, levator scapulae",
+    description: "Hold a barbell at arm's length in front of your thighs. Keeping your arms straight, lift your shoulders straight up toward your ears as high as possible, pause, then lower. Avoid rolling the shoulders — move them vertically. Builds the upper traps."
   },
 
   // ── ARMS ───────────────────────────────────────────────────────
@@ -169,6 +221,19 @@ export const EXERCISE_INFO = {
     description: "Sit on a bench, rest the back of one upper arm on the inside of the same-side thigh. Curl a dumbbell up slowly, squeeze hard at the top, then lower fully. The braced position removes momentum and creates an intense peak contraction."
   },
 
+  "cable-curl": {
+    muscles: "Biceps brachii, brachialis, forearms",
+    description: "Stand facing a low cable with a bar or handle attached. Curl the handle toward your shoulders keeping your elbows pinned at your sides, then lower under control. The cable keeps constant tension on the biceps through the whole range, unlike free weights."
+  },
+  "incline-db-curl": {
+    muscles: "Biceps brachii (long head), brachialis",
+    description: "Sit back on an incline bench with a dumbbell in each hand, arms hanging straight down. Curl the weights up without letting your elbows drift forward. The stretched starting position emphasises the long head of the biceps for a fuller peak."
+  },
+  "ez-bar-curl": {
+    muscles: "Biceps brachii, brachialis, forearms",
+    description: "Grip an EZ bar on its angled sections with palms up. Curl the bar toward your shoulders keeping your elbows still, then lower. The angled grip is easier on the wrists than a straight bar while still loading the biceps heavily."
+  },
+
   // ── CORE ───────────────────────────────────────────────────────
   "plank": {
     muscles: "Rectus abdominis, transverse abdominis, obliques, glutes, erector spinae",
@@ -199,7 +264,52 @@ export const EXERCISE_INFO = {
     description: "Start in a push-up position. Drive alternating knees toward your chest in a running motion, keeping your hips level and core tight. Faster tempo becomes a cardiovascular challenge; slower tempo maximises core engagement."
   },
 
+  "side-plank": {
+    muscles: "Obliques, transverse abdominis, quadratus lumborum",
+    description: "Lie on your side and prop yourself up on one forearm, stacking your feet. Lift your hips so your body forms a straight line from head to feet, and hold. Targets the obliques and lateral core stabilisers. Keep your hips high and don't let them sag."
+  },
+  "bicycle-crunch": {
+    muscles: "Rectus abdominis, obliques",
+    description: "Lie on your back, hands behind your head, legs raised. Bring one knee toward your chest while rotating the opposite elbow to meet it, then switch sides in a pedalling motion. Move with control rather than speed to keep tension on the abs and obliques."
+  },
+  "leg-raise": {
+    muscles: "Lower rectus abdominis, hip flexors",
+    description: "Lie flat or hang from a bar. Keeping your legs relatively straight, raise them until your hips begin to curl up, then lower under control without letting them swing. Emphasises the lower portion of the abs. Avoid arching the lower back."
+  },
+  "dead-bug": {
+    muscles: "Transverse abdominis, rectus abdominis, deep core stabilisers",
+    description: "Lie on your back with arms reaching to the ceiling and knees bent at 90°. Slowly lower one arm overhead and the opposite leg toward the floor while keeping your lower back pressed flat, then return and switch sides. A safe anti-extension core exercise."
+  },
+  "pallof-press": {
+    muscles: "Obliques, transverse abdominis, deep core stabilisers",
+    description: "Stand side-on to a cable set at chest height and hold the handle at your sternum. Press it straight out in front of you, resisting the cable's pull to rotate you, then return. An anti-rotation exercise that builds core stability without spinal movement."
+  },
+
   // ── CARDIO ─────────────────────────────────────────────────────
+  "walking": {
+    muscles: "Quadriceps, hamstrings, calves, glutes, cardiovascular system",
+    description: "Steady walking at a brisk pace. The most accessible form of low-impact cardio — ideal for warm-ups, active recovery, and building an aerobic base. Adding incline or carrying load increases the demand significantly."
+  },
+  "assault-bike": {
+    muscles: "Full body (legs and arms), cardiovascular system",
+    description: "An air bike with moving handles, so you push and pull with your arms while pedalling. Resistance scales with effort — the harder you go, the harder it pushes back. Brutally effective for high-intensity intervals and full-body conditioning."
+  },
+  "ski-erg": {
+    muscles: "Lats, triceps, core, legs, cardiovascular system",
+    description: "Stand at the machine and pull the handles down and back in a double-pole skiing motion, hinging at the hips. Drives the lats, triceps and core while raising the heart rate. Power comes from the hip hinge, not just the arms."
+  },
+  "battle-ropes": {
+    muscles: "Shoulders, arms, core, cardiovascular system",
+    description: "Anchor a heavy rope and grip one end in each hand. Create continuous waves with alternating or simultaneous slams while keeping a stable athletic stance. A high-intensity conditioning tool that taxes the upper body and core. Keep the waves consistent for the whole interval."
+  },
+  "sprints": {
+    muscles: "Quadriceps, hamstrings, glutes, calves, cardiovascular system",
+    description: "Short maximum-effort runs followed by recovery. Develops explosive power and anaerobic capacity. Warm up thoroughly first, as sprinting places high demand on the hamstrings. Vary distance and rest to target speed or conditioning."
+  },
+  "boxing": {
+    muscles: "Shoulders, arms, core, legs, cardiovascular system",
+    description: "Throw combinations on a bag, pads, or shadow boxing while staying light on your feet. Builds cardiovascular endurance, coordination and rotational core power. Rotate through the hips and core to generate punches rather than relying on the arms alone."
+  },
   "treadmill": {
     muscles: "Quadriceps, hamstrings, calves, glutes, cardiovascular system",
     description: "Walk or run on a motorised belt. Adjust speed and incline to control intensity. Incline running increases glute and calf demand. Great for low-impact steady-state cardio or interval training."
