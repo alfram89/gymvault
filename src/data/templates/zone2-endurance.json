@@ -7,25 +7,25 @@
     {
       "name": "Easy Run",
       "exercises": [
-        { "exerciseId": "outdoor-run", "sets": 1, "reps": 1, "restTime": 0 }
+        { "exerciseId": "outdoor-run", "sets": 1, "duration": 30, "restTime": 0 }
       ]
     },
     {
       "name": "Bike",
       "exercises": [
-        { "exerciseId": "stat-bike", "sets": 1, "reps": 1, "restTime": 0 }
+        { "exerciseId": "stat-bike", "sets": 1, "duration": 45, "restTime": 0 }
       ]
     },
     {
       "name": "Row",
       "exercises": [
-        { "exerciseId": "rowing-machine", "sets": 1, "reps": 1, "restTime": 0 }
+        { "exerciseId": "rowing-machine", "sets": 1, "duration": 30, "restTime": 0 }
       ]
     },
     {
       "name": "Long Run",
       "exercises": [
-        { "exerciseId": "outdoor-run", "sets": 1, "reps": 1, "restTime": 0 }
+        { "exerciseId": "outdoor-run", "sets": 1, "duration": 60, "restTime": 0 }
       ]
     }
   ]

@@ -7,21 +7,21 @@
     {
       "name": "Bike Sprints",
       "exercises": [
-        { "exerciseId": "assault-bike", "sets": 10, "reps": 1, "restTime": 40 }
+        { "exerciseId": "assault-bike", "sets": 10, "duration": 1, "restTime": 40 }
       ]
     },
     {
       "name": "Rowing Intervals",
       "exercises": [
-        { "exerciseId": "rowing-machine", "sets": 8, "reps": 1, "restTime": 60 }
+        { "exerciseId": "rowing-machine", "sets": 8, "duration": 2, "restTime": 60 }
       ]
     },
     {
       "name": "Circuit",
       "exercises": [
-        { "exerciseId": "battle-ropes", "sets": 5, "reps": 1, "restTime": 60 },
-        { "exerciseId": "sprints",      "sets": 6, "reps": 1, "restTime": 90 },
-        { "exerciseId": "jump-rope",    "sets": 4, "reps": 1, "restTime": 60 }
+        { "exerciseId": "battle-ropes", "sets": 5, "duration": 1, "restTime": 60 },
+        { "exerciseId": "sprints",      "sets": 6, "duration": 1, "restTime": 90 },
+        { "exerciseId": "jump-rope",    "sets": 4, "duration": 2, "restTime": 60 }
       ]
     }
   ]

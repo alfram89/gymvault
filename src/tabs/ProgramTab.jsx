@@ -64,7 +64,9 @@ export function ProgramTab({ t, days, selectedDay, setSelectedDay, program, setP
       <div className="day-selector-row">
         <div className="day-selector">
           {days.map(d => (
-            <button key={d.id} className={`day-chip ${selectedDay === d.id ? 'active' : ''}`} onClick={() => setSelectedDay(d.id)}>{d.name}</button>
+            <button key={d.id} className={`day-chip ${selectedDay === d.id ? 'active' : ''}`}
+              disabled={workoutActive && selectedDay !== d.id}
+              onClick={() => setSelectedDay(d.id)}>{d.name}</button>
           ))}
         </div>
         {!workoutActive && exercises.length > 0 && (
