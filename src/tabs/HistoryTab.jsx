@@ -25,36 +25,31 @@ export function HistoryTab({ t, history, days, unit, darkMode }) {
   const favDay = history.length ? t.dayShort[dayCounts.indexOf(Math.max(...dayCounts))] : '—'
 
   // ── Heatmap with volume intensity ────────────────────────────────────────────
-  const { heatmap, streak } = useMemo(() => {
-    const volByDate = {}
-    history.forEach(h => {
-      volByDate[h.date] = h.exercises.reduce((sum, ex) => sum + calcVol(ex), 0)
-    })
-    const vols = Object.values(volByDate).filter(v => v > 0).sort((a, b) => a - b)
-    const p33 = vols[Math.floor(vols.length * 0.33)] || 0
-    const p66 = vols[Math.floor(vols.length * 0.66)] || 0
-
-    const today = new Date()
-    const heatmap = Array.from({ length: 84 }, (_, i) => {
-      const d = new Date(today)
-      d.setDate(d.getDate() - (83 - i))
-      const ds = localISODate(d)
-      const vol = volByDate[ds] || 0
-      const intensity = vol === 0 ? 0 : vol <= p33 ? 1 : vol <= p66 ? 2 : 3
-      return { ds, intensity }
-    })
-
-    let streak = 0
-    const trained = new Set(Object.keys(volByDate))
+  const streak = useMemo(() => {
+    let s = 0
+    const trained = new Set(history.map(h => h.date))
     const srt = [...trained].sort().reverse()
     if (srt.length) {
-      const c = new Date(today)
+      const c = new Date()
       for (const ds of srt) {
-        if (ds === localISODate(c)) { streak++; c.setDate(c.getDate() - 1) }
+        if (ds === localISODate(c)) { s++; c.setDate(c.getDate() - 1) }
         else break
       }
     }
-    return { heatmap, streak }
+    return s
+  }, [history])
+
+  // ── Sessions per week (last 12 weeks) ─────────────────────────────────────────
+  const freqData = useMemo(() => {
+    const counts = {}
+    history.forEach(h => { const w = weekOf(h.date); counts[w] = (counts[w] || 0) + 1 })
+    const today = new Date()
+    return Array.from({ length: 12 }, (_, i) => {
+      const d = new Date(today)
+      d.setDate(d.getDate() - (11 - i) * 7)
+      const w = weekOf(localISODate(d))
+      return { w: w.slice(5), sessions: counts[w] || 0 }
+    })
   }, [history])
 
   // ── Muscle group balance (radar) ─────────────────────────────────────────────
@@ -167,22 +162,18 @@ export function HistoryTab({ t, history, days, unit, darkMode }) {
             </div>
           </div>
 
-          {/* Training calendar */}
+          {/* Training frequency */}
           <div className="section-card">
-            <h3 className="section-card-title">{t.calTitle}</h3>
-            <div className="heatmap">
-              {heatmap.map((d, i) => (
-                <div key={i} className={`heat-cell i${d.intensity}`} title={d.ds} />
-              ))}
-            </div>
-            <div className="heatmap-legend">
-              <span>{t.lessActive}</span>
-              <div className="heat-cell i0" />
-              <div className="heat-cell i1" />
-              <div className="heat-cell i2" />
-              <div className="heat-cell i3" />
-              <span>{t.moreActive}</span>
-            </div>
+            <h3 className="section-card-title">📅 {t.freqTitle}</h3>
+            <ResponsiveContainer width="100%" height={130}>
+              <BarChart data={freqData} margin={{ left: -20, right: 4 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+                <XAxis dataKey="w" tick={{ fill: tickColor, fontSize: 10 }} />
+                <YAxis allowDecimals={false} tick={{ fill: tickColor, fontSize: 10 }} />
+                <Tooltip content={<ChartTooltip />} />
+                <Bar dataKey="sessions" name={t.freqLabel} fill="#3b82f6" radius={[3, 3, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
 
           {/* Muscle group balance */}
