@@ -24,8 +24,9 @@ export const dbSet = async (key, value) => {
 }
 
 export const loadAllData = async () => {
-  const [settings, days, program, history, customExercises, userTemplates, activeWorkout] = await Promise.all([
+  const [settings, programs, days, program, history, customExercises, userTemplates, activeWorkout] = await Promise.all([
     dbGet('settings'),
+    dbGet('programs'),
     dbGet('days'),
     dbGet('program'),
     dbGet('history'),
@@ -33,7 +34,7 @@ export const loadAllData = async () => {
     dbGet('userTemplates'),
     dbGet('activeWorkout'),
   ])
-  return { settings, days, program, history, customExercises, userTemplates, activeWorkout }
+  return { settings, programs, days, program, history, customExercises, userTemplates, activeWorkout }
 }
 
 export default db

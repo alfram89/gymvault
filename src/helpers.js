@@ -25,12 +25,42 @@ export const newCardioInterval = metrics => {
   metrics.forEach(m => { interval[m] = 0 })
   return interval
 }
+// Expand a template's day list into live { days, program } maps with fresh ids.
+// Shared by the Programs tab (apply template), the wizard, and legacy migration.
+export const buildProgramDays = (template, allEx) => {
+  const days = template.days.map(d => ({ id: uid(), name: d.name }))
+  const program = {}
+  template.days.forEach((td, i) => {
+    program[days[i].id] = td.exercises
+      .filter(te => allEx.find(e => e.id === te.exerciseId))
+      .map(te => {
+        const exData = allEx.find(e => e.id === te.exerciseId)
+        const isCardio = exData?.type === 'cardio'
+        const isTime = exData?.inputMode === 'time'
+        return {
+          id: uid(), exerciseId: te.exerciseId, isWarmup: false,
+          restTime: te.restTime ?? (isCardio ? 0 : 90),
+          sets: Array.from({ length: te.sets }, () => isCardio
+            ? { ...newCardioInterval(exData.metrics || ['duration']), ...(te.duration ? { duration: te.duration } : {}) }
+            : isTime
+            ? { id: uid(), secs: te.secs ?? 30, completed: false }
+            : { id: uid(), reps: te.reps, weight: 0, completed: false }
+          )
+        }
+      })
+  })
+  return { days, program }
+}
 // Structural check for imported backup files — rejects shapes that would
-// corrupt state (e.g. {"days": 5}) before any setter runs
+// corrupt state (e.g. {"days": 5}) before any setter runs. Accepts both the
+// v2 (programs) and legacy (days/program) shapes.
 export const validateBackup = d => {
   if (!d || typeof d !== 'object' || Array.isArray(d)) return false
-  for (const k of ['days', 'history', 'customExercises', 'userTemplates'])
+  for (const k of ['history', 'customExercises', 'userTemplates', 'days', 'programs'])
     if (d[k] !== undefined && !Array.isArray(d[k])) return false
+  if (d.programs !== undefined && !d.programs.every(p =>
+    p && typeof p === 'object' && Array.isArray(p.days)
+    && p.program && typeof p.program === 'object' && !Array.isArray(p.program))) return false
   if (d.program !== undefined && (typeof d.program !== 'object' || Array.isArray(d.program) || d.program === null
     || !Object.values(d.program).every(Array.isArray))) return false
   if (d.settings !== undefined && (typeof d.settings !== 'object' || Array.isArray(d.settings) || d.settings === null)) return false

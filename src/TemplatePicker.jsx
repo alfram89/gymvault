@@ -3,17 +3,13 @@ import { TEMPLATES } from './data/templates/index.js'
 
 const TAGS = ['all', 'beginner', 'intermediate', 'advanced', 'strength', 'hypertrophy', 'cardio', 'endurance', 'hiit', 'barbell', 'dumbbell', 'bodyweight', 'running', '2-day']
 
-export function TemplatePicker({ t, allEx, userTemplates, onApply, onDelete, onClose }) {
+export function TemplatePicker({ t, allEx, onApply, onClose }) {
   const [filter, setFilter]     = useState('all')
   const [search, setSearch]     = useState('')
   const [selected, setSelected] = useState(null)
-  const [mode, setMode]         = useState('replace')
+  const [mode, setMode]         = useState('new')
 
-  const all = [
-    ...TEMPLATES,
-    ...userTemplates.map(ut => ({ ...ut, isUser: true })),
-  ]
-  const filtered = all.filter(tp => {
+  const filtered = TEMPLATES.filter(tp => {
     if (filter !== 'all' && !tp.tags?.includes(filter)) return false
     if (search && !tp.name.toLowerCase().includes(search.toLowerCase())) return false
     return true
@@ -56,8 +52,8 @@ export function TemplatePicker({ t, allEx, userTemplates, onApply, onDelete, onC
 
           <p className="section-label" style={{ marginTop: 16, marginBottom: 8 }}>{t.applyAs}</p>
           <div className="toggle-row">
-            <button className={`toggle-btn ${mode === 'replace' ? 'active' : ''}`} onClick={() => setMode('replace')}>{t.replaceProgram}</button>
-            <button className={`toggle-btn ${mode === 'add'     ? 'active' : ''}`} onClick={() => setMode('add')}>{t.addDays}</button>
+            <button className={`toggle-btn ${mode === 'new' ? 'active' : ''}`} onClick={() => setMode('new')}>{t.newProgramMode}</button>
+            <button className={`toggle-btn ${mode === 'add' ? 'active' : ''}`} onClick={() => setMode('add')}>{t.addToCurrent}</button>
           </div>
 
           <div className="modal-row" style={{ marginTop: 16 }}>
@@ -103,10 +99,7 @@ export function TemplatePicker({ t, allEx, userTemplates, onApply, onDelete, onC
           {filtered.map(tp => (
             <div key={tp.id} className="tpl-card" onClick={() => setSelected(tp)}>
               <div className="tpl-card-content">
-                <div className="tpl-card-name">
-                  {tp.name}
-                  {tp.isUser && <span className="custom-badge"> ✦ {t.mine}</span>}
-                </div>
+                <div className="tpl-card-name">{tp.name}</div>
                 <div className="tpl-card-tagrow">
                   {tp.tags?.slice(0, 3).map(tag => (
                     <span key={tag} className="chip chip-sm">{tag}</span>
@@ -117,9 +110,6 @@ export function TemplatePicker({ t, allEx, userTemplates, onApply, onDelete, onC
                 </div>
               </div>
               <span className="tpl-card-days">{tp.days.length} {tp.days.length === 1 ? t.day : t.days}</span>
-              {tp.isUser && (
-                <button className="tpl-delete-btn" onClick={e => { e.stopPropagation(); onDelete(tp.id) }}>🗑</button>
-              )}
             </div>
           ))}
         </div>

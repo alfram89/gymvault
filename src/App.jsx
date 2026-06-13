@@ -5,14 +5,38 @@ import { EXERCISES } from './constants'
 import { getTranslations } from './i18n/index.js'
 import { TemplatePicker } from './TemplatePicker.jsx'
 import { ProgramWizard } from './components/ProgramWizard.jsx'
-import { uid, fmtTime, isCardioSet, isTimeSet, calcVol, localISODate, newCardioInterval } from './helpers'
+import { uid, fmtTime, isCardioSet, isTimeSet, calcVol, localISODate, buildProgramDays } from './helpers'
 import { Onboarding } from './components/Onboarding'
 import { WorkoutSummary } from './components/WorkoutSummary'
 import { ProgramTab } from './tabs/ProgramTab'
+import { ProgramsTab } from './tabs/ProgramsTab'
 import { LibraryTab } from './tabs/LibraryTab'
 import { HistoryTab } from './tabs/HistoryTab'
 import { SettingsTab } from './tabs/SettingsTab'
 import './index.css'
+
+// A brand-new empty program (used on first run, reset, and when the last
+// program is deleted)
+const freshProgram = () => {
+  const en = getTranslations('en')
+  const d1 = uid(), d2 = uid()
+  return { id: uid(), name: en.myProgram, days: [{ id: d1, name: en.dayA }, { id: d2, name: en.dayB }], program: { [d1]: [], [d2]: [] } }
+}
+
+// Build the programs list from a legacy (pre-multi-program) data shape:
+// the single days/program pair plus every saved user template.
+const migrateLegacy = (data, allEx) => {
+  const en = getTranslations('en')
+  const progs = []
+  if (data.days || data.program) {
+    progs.push({ id: uid(), name: en.myProgram, days: data.days ?? [], program: data.program ?? {} })
+  }
+  ;(data.userTemplates || []).forEach(tpl => {
+    const { days, program } = buildProgramDays(tpl, allEx)
+    progs.push({ id: uid(), name: tpl.name, days, program })
+  })
+  return progs.length ? progs : [freshProgram()]
+}
 
 export default function App() {
   const [loaded, setLoaded] = useState(false)
@@ -21,12 +45,9 @@ export default function App() {
   const [systemDark, setSystemDark] = useState(() => window.matchMedia('(prefers-color-scheme: dark)').matches)
   const [unit, setUnit] = useState('kg')
   const [lang, setLang] = useState('en')
-  const [days, setDays] = useState(() => {
-    const en = getTranslations('en')
-    return [{ id: 'day-a', name: en.dayA }, { id: 'day-b', name: en.dayB }]
-  })
-  const [selectedDay, setSelectedDay] = useState('day-a')
-  const [program, setProgram] = useState({ 'day-a': [], 'day-b': [] })
+  const [programs, setPrograms] = useState(() => [freshProgram()])
+  const [activeProgramId, setActiveProgramId] = useState(() => programs[0].id)
+  const [selectedDay, setSelectedDay] = useState('')
   const [customEx, setCustomEx] = useState([])
   const [history, setHistory] = useState([])
   const [activeTab, setActiveTab] = useState(0)
@@ -41,7 +62,6 @@ export default function App() {
   const [restMax, setRestMax] = useState(90)
   const [restStartTime, setRestStartTime] = useState(null)
   const [installPrompt, setInstallPrompt] = useState(null)
-  const [userTemplates, setUserTemplates] = useState([])
   const [showTemplatePicker, setShowTemplatePicker] = useState(false)
   const [showProgramWizard, setShowProgramWizard] = useState(false)
 
@@ -66,21 +86,32 @@ export default function App() {
         setDarkMode(saved === true ? 'dark' : saved === false ? 'light' : saved ?? 'dark')
         setUnit(data.settings.unit ?? 'kg')
         setLang(data.settings.lang ?? 'en')
-        if (data.settings.selectedDay) setSelectedDay(data.settings.selectedDay)
       }
-      if (data.days) setDays(data.days)
-      if (data.program) setProgram(data.program)
       if (data.history) setHistory(data.history)
       if (data.customExercises) setCustomEx(data.customExercises)
-      if (data.userTemplates) setUserTemplates(data.userTemplates)
+
+      // Programs: use the v2 list if present, else migrate the legacy shape
+      const allExLocal = [...EXERCISES, ...(data.customExercises || [])]
+      const progs = data.programs?.length ? data.programs : migrateLegacy(data, allExLocal)
+      const wanted = data.settings?.activeProgramId
+      const activeId = wanted && progs.find(p => p.id === wanted) ? wanted : progs[0].id
+      setPrograms(progs)
+      setActiveProgramId(activeId)
+
+      const active = progs.find(p => p.id === activeId)
+      let sel = data.settings?.selectedDay
+      if (!active?.days.some(d => d.id === sel)) sel = active?.days[0]?.id ?? ''
+
       if (data.activeWorkout) {
         const aw = data.activeWorkout
-        setSelectedDay(aw.dayId)
+        if (aw.programId && progs.find(p => p.id === aw.programId)) setActiveProgramId(aw.programId)
+        sel = aw.dayId
         setWorkoutSets(aw.workoutSets || {})
         setWorkoutStart(aw.workoutStart)
         setWorkoutElapsed(Math.floor((Date.now() - aw.workoutStart) / 1000))
         setWorkoutActive(true)
       }
+      setSelectedDay(sel)
       setLoaded(true)
     }).catch(e => {
       console.error('Failed to load data from IndexedDB, starting with defaults:', e)
@@ -88,15 +119,13 @@ export default function App() {
     })
   }, [])
 
-  useEffect(() => { if (loaded) dbSet('settings', { onboarded, darkMode, unit, lang, selectedDay }) }, [loaded, onboarded, darkMode, unit, lang, selectedDay])
-  useEffect(() => { if (loaded) dbSet('days', days) }, [loaded, days])
-  useEffect(() => { if (loaded) dbSet('program', program) }, [loaded, program])
+  useEffect(() => { if (loaded) dbSet('settings', { onboarded, darkMode, unit, lang, selectedDay, activeProgramId }) }, [loaded, onboarded, darkMode, unit, lang, selectedDay, activeProgramId])
+  useEffect(() => { if (loaded) dbSet('programs', programs) }, [loaded, programs])
   useEffect(() => { if (loaded) dbSet('history', history) }, [loaded, history])
   useEffect(() => { if (loaded) dbSet('customExercises', customEx) }, [loaded, customEx])
-  useEffect(() => { if (loaded) dbSet('userTemplates', userTemplates) }, [loaded, userTemplates])
   useEffect(() => {
-    if (loaded) dbSet('activeWorkout', workoutActive ? { workoutStart, workoutSets, dayId: selectedDay } : null)
-  }, [loaded, workoutActive, workoutStart, workoutSets, selectedDay])
+    if (loaded) dbSet('activeWorkout', workoutActive ? { workoutStart, workoutSets, dayId: selectedDay, programId: activeProgramId } : null)
+  }, [loaded, workoutActive, workoutStart, workoutSets, selectedDay, activeProgramId])
 
   useEffect(() => {
     if (!restActive || restSecs <= 0) { if (restSecs <= 0) setRestActive(false); return }
@@ -130,6 +159,18 @@ export default function App() {
   const t = getTranslations(lang)
   const effectiveDark = darkMode === 'auto' ? systemDark : darkMode === 'dark'
   const allEx = [...EXERCISES, ...customEx]
+
+  // The active program is the single source of truth for days/program; the
+  // wrapper setters write changes back into its slot in the programs list, so
+  // child tabs keep their existing days/setDays/program/setProgram interface.
+  const activeProgram = programs.find(p => p.id === activeProgramId) || programs[0]
+  const activeId = activeProgram?.id
+  const days = activeProgram?.days ?? []
+  const program = activeProgram?.program ?? {}
+  const setDays = upd => setPrograms(prev => prev.map(p => p.id !== activeId ? p
+    : { ...p, days: typeof upd === 'function' ? upd(p.days) : upd }))
+  const setProgram = upd => setPrograms(prev => prev.map(p => p.id !== activeId ? p
+    : { ...p, program: typeof upd === 'function' ? upd(p.program) : upd }))
   const curProg = program[selectedDay] || []
 
   const startWorkout = () => {
@@ -191,56 +232,82 @@ export default function App() {
     setWorkoutActive(false); setRestActive(false); setRestSecs(0); setShowSummary(true)
   }
 
+  // Apply a template: 'add' appends its days to the active program; otherwise
+  // it becomes a brand-new program (the new active one).
   const applyTemplate = (template, mode) => {
-    const newDays = template.days.map(d => ({ id: uid(), name: d.name }))
-    const newProgram = {}
-    template.days.forEach((td, i) => {
-      newProgram[newDays[i].id] = td.exercises
-        .filter(te => allEx.find(e => e.id === te.exerciseId))
-        .map(te => {
-          const exData = allEx.find(e => e.id === te.exerciseId)
-          const isCardio = exData?.type === 'cardio'
-          const isTime = exData?.inputMode === 'time'
-          return {
-            id: uid(), exerciseId: te.exerciseId, isWarmup: false,
-            restTime: te.restTime ?? (isCardio ? 0 : 90),
-            sets: Array.from({ length: te.sets }, () => isCardio
-              ? { ...newCardioInterval(exData.metrics || ['duration']), ...(te.duration ? { duration: te.duration } : {}) }
-              : isTime
-              ? { id: uid(), secs: te.secs ?? 30, completed: false }
-              : { id: uid(), reps: te.reps, weight: 0, completed: false }
-            )
-          }
-        })
-    })
-    if (mode === 'replace') {
-      setDays(newDays); setProgram(newProgram); setSelectedDay(newDays[0].id)
+    const { days: newDays, program: newProgram } = buildProgramDays(template, allEx)
+    if (mode === 'add') {
+      setPrograms(prev => prev.map(p => p.id !== activeId ? p
+        : { ...p, days: [...p.days, ...newDays], program: { ...p.program, ...newProgram } }))
     } else {
-      setDays(prev => [...prev, ...newDays])
-      setProgram(prev => ({ ...prev, ...newProgram }))
+      const np = { id: uid(), name: template.name || getTranslations('en').myProgram, days: newDays, program: newProgram }
+      setPrograms(prev => [...prev, np])
+      setActiveProgramId(np.id)
+      setSelectedDay(newDays[0]?.id ?? '')
     }
     setShowTemplatePicker(false)
     setActiveTab(0)
   }
 
-  const saveAsTemplate = name => {
-    const tpl = {
-      id: uid(), name, description: '', tags: [],
-      days: days.map(d => ({
-        name: d.name,
-        exercises: (program[d.id] || []).map(ex => {
-          const base = { exerciseId: ex.exerciseId, sets: ex.sets.length, restTime: ex.restTime ?? 90 }
-          const first = ex.sets[0]
-          if (first && isCardioSet(first)) return { ...base, duration: first.duration || 0 }
-          if (first && isTimeSet(first)) return { ...base, secs: first.secs ?? 30 }
-          return { ...base, reps: first?.reps || 10 }
-        })
-      }))
-    }
-    setUserTemplates(prev => [...prev, tpl])
+  const switchProgram = id => {
+    if (workoutActive) return
+    const p = programs.find(x => x.id === id)
+    if (!p) return
+    setActiveProgramId(id)
+    setSelectedDay(p.days[0]?.id ?? '')
   }
 
-  const deleteUserTemplate = id => setUserTemplates(prev => prev.filter(t => t.id !== id))
+  const renameProgram = (id, name) => setPrograms(prev => prev.map(p => p.id === id ? { ...p, name } : p))
+
+  const duplicateProgram = id => {
+    const src = programs.find(p => p.id === id)
+    if (!src) return
+    const idMap = {}
+    const newDays = src.days.map(d => { const nid = uid(); idMap[d.id] = nid; return { id: nid, name: d.name } })
+    const newProgram = {}
+    src.days.forEach(d => {
+      newProgram[idMap[d.id]] = (src.program[d.id] || []).map(ex => ({
+        ...ex, id: uid(), sets: ex.sets.map(s => ({ ...s, id: uid() }))
+      }))
+    })
+    setPrograms(prev => [...prev, { id: uid(), name: `${src.name} ${t.copySuffix}`, days: newDays, program: newProgram }])
+  }
+
+  const deleteProgram = id => {
+    const remaining = programs.filter(p => p.id !== id)
+    if (!remaining.length) {
+      const f = freshProgram()
+      setPrograms([f]); setActiveProgramId(f.id); setSelectedDay(f.days[0].id)
+      return
+    }
+    setPrograms(remaining)
+    if (activeProgramId === id) {
+      setActiveProgramId(remaining[0].id)
+      setSelectedDay(remaining[0].days[0]?.id ?? '')
+    }
+  }
+
+  const importData = parsed => {
+    const allExLocal = [...EXERCISES, ...(parsed.customExercises || [])]
+    const progs = parsed.programs?.length ? parsed.programs : migrateLegacy(parsed, allExLocal)
+    const activeId2 = parsed.activeProgramId && progs.find(p => p.id === parsed.activeProgramId) ? parsed.activeProgramId : progs[0].id
+    setPrograms(progs); setActiveProgramId(activeId2)
+    setSelectedDay(progs.find(p => p.id === activeId2)?.days[0]?.id ?? '')
+    if (parsed.history) setHistory(parsed.history)
+    if (parsed.customExercises) setCustomEx(parsed.customExercises)
+    if (parsed.settings?.language) setLang(parsed.settings.language)
+    if (parsed.settings?.unit) setUnit(parsed.settings.unit)
+    if (parsed.settings?.darkMode !== undefined) {
+      const dm = parsed.settings.darkMode
+      setDarkMode(dm === true ? 'dark' : dm === false ? 'light' : dm)
+    }
+  }
+
+  const resetData = () => {
+    const f = freshProgram()
+    setPrograms([f]); setActiveProgramId(f.id); setSelectedDay(f.days[0].id)
+    setHistory([]); setCustomEx([])
+  }
 
   const handleOnboard = ({ unit: u }) => {
     setUnit(u); setOnboarded(true)
@@ -250,7 +317,7 @@ export default function App() {
 
   if (!onboarded) return <Onboarding onComplete={handleOnboard} />
 
-  const tabs = [{ icon: '📋', label: t.prog }, { icon: '📚', label: t.lib }, { icon: '📈', label: t.hist }, { icon: '⚙️', label: t.sets }]
+  const tabs = [{ icon: '🏋️', label: t.prog }, { icon: '📋', label: t.programs }, { icon: '📚', label: t.lib }, { icon: '📈', label: t.hist }, { icon: '⚙️', label: t.sets }]
 
   return (
     <div className={`app ${effectiveDark ? 'dark' : 'light'}`}>
@@ -283,10 +350,11 @@ export default function App() {
       )}
 
       <main className="app-main">
-        {activeTab === 0 && <ProgramTab t={t} days={days} selectedDay={selectedDay} setSelectedDay={setSelectedDay} program={program} setProgram={setProgram} allEx={allEx} unit={unit} workoutActive={workoutActive} workoutSets={workoutSets} setWorkoutSets={setWorkoutSets} startWorkout={startWorkout} finishWorkout={finishWorkout} history={history} onRestTimer={s => { setRestSecs(s); setRestMax(s); setRestStartTime(Date.now()); setRestActive(true) }} onOpenTemplatePicker={() => setShowTemplatePicker(true)} />}
-        {activeTab === 1 && <LibraryTab t={t} days={days} program={program} setProgram={setProgram} customEx={customEx} setCustomEx={setCustomEx} />}
-        {activeTab === 2 && <HistoryTab t={t} history={history} days={days} unit={unit} darkMode={effectiveDark} />}
-        {activeTab === 3 && <SettingsTab t={t} lang={lang} setLang={setLang} unit={unit} setUnit={setUnit} darkMode={darkMode} setDarkMode={setDarkMode} days={days} setDays={setDays} selectedDay={selectedDay} setSelectedDay={setSelectedDay} program={program} setProgram={setProgram} history={history} setHistory={setHistory} customEx={customEx} setCustomEx={setCustomEx} userTemplates={userTemplates} setUserTemplates={setUserTemplates} installPrompt={installPrompt} setInstallPrompt={setInstallPrompt} onOpenTemplatePicker={() => setShowTemplatePicker(true)} onSaveTemplate={saveAsTemplate} onOpenProgramWizard={() => setShowProgramWizard(true)} />}
+        {activeTab === 0 && <ProgramTab t={t} days={days} selectedDay={selectedDay} setSelectedDay={setSelectedDay} program={program} setProgram={setProgram} allEx={allEx} unit={unit} workoutActive={workoutActive} workoutSets={workoutSets} setWorkoutSets={setWorkoutSets} startWorkout={startWorkout} finishWorkout={finishWorkout} history={history} onRestTimer={s => { setRestSecs(s); setRestMax(s); setRestStartTime(Date.now()); setRestActive(true) }} onOpenTemplatePicker={() => setActiveTab(1)} />}
+        {activeTab === 1 && <ProgramsTab t={t} programs={programs} activeProgramId={activeId} workoutActive={workoutActive} onSwitch={switchProgram} onRename={renameProgram} onDuplicate={duplicateProgram} onDelete={deleteProgram} onBrowseTemplates={() => setShowTemplatePicker(true)} onOpenWizard={() => setShowProgramWizard(true)} />}
+        {activeTab === 2 && <LibraryTab t={t} days={days} program={program} setProgram={setProgram} customEx={customEx} setCustomEx={setCustomEx} />}
+        {activeTab === 3 && <HistoryTab t={t} history={history} days={days} unit={unit} darkMode={effectiveDark} />}
+        {activeTab === 4 && <SettingsTab t={t} lang={lang} setLang={setLang} unit={unit} setUnit={setUnit} darkMode={darkMode} setDarkMode={setDarkMode} days={days} setDays={setDays} selectedDay={selectedDay} setSelectedDay={setSelectedDay} program={program} setProgram={setProgram} programs={programs} activeProgramId={activeId} history={history} customEx={customEx} installPrompt={installPrompt} setInstallPrompt={setInstallPrompt} onImportData={importData} onResetData={resetData} />}
       </main>
 
       <nav className="tab-bar">
@@ -300,14 +368,13 @@ export default function App() {
 
       {showSummary && lastSummary && <WorkoutSummary t={t} summary={lastSummary} unit={unit} onClose={() => setShowSummary(false)} />}
       {showTemplatePicker && (
-        <TemplatePicker t={t} allEx={allEx} userTemplates={userTemplates}
+        <TemplatePicker t={t} allEx={allEx}
           onApply={applyTemplate}
-          onDelete={deleteUserTemplate}
           onClose={() => setShowTemplatePicker(false)} />
       )}
       {showProgramWizard && (
         <ProgramWizard t={t} allEx={allEx} history={history}
-          onApply={tpl => applyTemplate(tpl, 'replace')}
+          onApply={tpl => applyTemplate(tpl, 'new')}
           onClose={() => setShowProgramWizard(false)} />
       )}
     </div>

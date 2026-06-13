@@ -402,6 +402,17 @@ body {
 .day-add-row { display: flex; gap: 8px; margin-top: 4px; }
 .add-day-btn { padding: 8px 14px; border-radius: 10px; border: none; background: #2563eb; color: #fff; font-weight: 600; font-size: 13px; cursor: pointer; white-space: nowrap; font-family: inherit; }
 
+/* ── PROGRAMS TAB ──────────────────── */
+.program-row { display: flex; align-items: center; gap: 8px; background: var(--bg3); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; border-left: 3px solid transparent; }
+.program-row.active { border-left-color: #3b82f6; }
+.program-info { flex: 1; min-width: 0; }
+.program-name { font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
+.program-meta { font-size: 12px; color: var(--sub); margin-top: 2px; }
+.active-badge { font-size: 10px; font-weight: 700; letter-spacing: 0.04em; color: #3b82f6; background: #3b82f622; border-radius: 6px; padding: 2px 6px; flex-shrink: 0; }
+.program-actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+.prog-activate-btn { padding: 6px 10px; border-radius: 8px; border: none; background: #2563eb; color: #fff; font-weight: 600; font-size: 12px; cursor: pointer; font-family: inherit; }
+.prog-activate-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
 .data-btn { display: block; width: 100%; padding: 12px; border-radius: 12px; border: none; background: var(--bg3); color: var(--sub); font-size: 14px; font-weight: 500; cursor: pointer; margin-bottom: 8px; text-align: center; font-family: inherit; }
 .data-btn:hover { opacity: 0.8; }
 
